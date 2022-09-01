@@ -5,3 +5,4 @@ version = "0.1.0"
 
 [deps]
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

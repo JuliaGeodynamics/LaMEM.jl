@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<VTKFile type="PRectilinearGrid" version="0.1" byte_order="LittleEndian">
+	<PRectilinearGrid GhostLevel="0" WholeExtent="1 33 1 33 1 33">
+		<PCellData>
+		</PCellData>
+		<PCoordinates>
+			<PDataArray type="Float32" Name="Coordinates_X" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="Coordinates_Y" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="Coordinates_Z" NumberOfComponents="1" format="appended"/>
+		</PCoordinates>
+		<PPointData>
+			<PDataArray type="Float32" Name="phase [ ]" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="visc_total [ ]" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="visc_creep [ ]" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="velocity [ ]" NumberOfComponents="3" format="appended"/>
+			<PDataArray type="Float32" Name="pressure [ ]" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="strain_rate [ ]" NumberOfComponents="9" format="appended"/>
+			<PDataArray type="Float32" Name="j2_dev_stress [ ]" NumberOfComponents="1" format="appended"/>
+			<PDataArray type="Float32" Name="j2_strain_rate [ ]" NumberOfComponents="1" format="appended"/>
+		</PPointData>
+		<Piece Extent="1 33 1 17 1 17" Source="FB_multigrid_p00000000.vtr"/>
+		<Piece Extent="1 33 17 33 1 17" Source="FB_multigrid_p00000001.vtr"/>
+		<Piece Extent="1 33 1 17 17 33" Source="FB_multigrid_p00000002.vtr"/>
+		<Piece Extent="1 33 17 33 17 33" Source="FB_multigrid_p00000003.vtr"/>
+	</PRectilinearGrid>
+</VTKFile>

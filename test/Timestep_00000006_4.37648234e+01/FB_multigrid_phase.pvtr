@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<VTKFile type="PRectilinearGrid" version="0.1" byte_order="LittleEndian">
+  <PRectilinearGrid WholeExtent="0 96 0 96 0 96" GhostLevel="0" >
+    <PCoordinates>
+      <PDataArray type="Float32" NumberOfComponents="1" format="appended" />
+      <PDataArray type="Float32" NumberOfComponents="1" format="appended" />
+      <PDataArray type="Float32" NumberOfComponents="1" format="appended" />
+    </PCoordinates>
+    <PCellData>
+      <PDataArray type="UInt8" Name="phase" NumberOfComponents="1" format="appended" />
+    </PCellData>
+    <PPointData>
+    </PPointData>
+    <Piece Extent="0 96 0 48 0 48" Source="FB_multigrid_phase_p000000.vtr" />
+    <Piece Extent="0 96 48 96 0 48" Source="FB_multigrid_phase_p000001.vtr" />
+    <Piece Extent="0 96 0 48 48 96" Source="FB_multigrid_phase_p000002.vtr" />
+    <Piece Extent="0 96 48 96 48 96" Source="FB_multigrid_phase_p000003.vtr" />
+  </PRectilinearGrid>
+</VTKFile>

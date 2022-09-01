@@ -14,6 +14,7 @@ end
 
 include("run_lamem.jl")
 
+export run_lamem
 
 
 end # module

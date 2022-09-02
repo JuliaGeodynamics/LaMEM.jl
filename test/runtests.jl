@@ -15,7 +15,7 @@ data    = Read_VTR_File(DirName, FileName)
 @test  sum(data.fields.strain_rate[1]) ≈ -0.019376338f0
 
 fields = field_names(DirName, FileName)
-@show names
+@show fields
 
 # clean up
 clean_directory("./")

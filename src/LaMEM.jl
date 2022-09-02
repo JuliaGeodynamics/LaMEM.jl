@@ -3,6 +3,9 @@ module LaMEM
 using LaMEM_jll
 using PythonCall        # in order to be able to use the python VTKtoolbox
 
+
+ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
+
 # load the correct MPI
 const mpiexec = if isdefined(LaMEM_jll,:MPICH_jll)
     LaMEM_jll.MPICH_jll.mpiexec()

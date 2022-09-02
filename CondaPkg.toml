@@ -2,6 +2,5 @@
 vtk = ""
 
 [deps.python]
-channel = "conda-forge"
-build = "*cpython*"
+build = "micromamba"
 version = ">=3.7,<4"

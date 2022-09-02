@@ -18,6 +18,7 @@ julia> run_lamem(ParamFile, 4,"-time_end 1")
 ```
 The last parameter are optional PETSc command-line options. By default it runs on one processor
 ### 3. Reading output files back into julia
+*[NOTE: this does currently not work natively under windows. It will work on the WSL.]*
 There is an easy way to read the output of a LaMEM timestep back into julia:
 ```julia
 julia> FileName="FB_multigrid.pvtr"

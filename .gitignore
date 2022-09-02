@@ -1,2 +1,3 @@
 test/*.pvd
 test/Timestep_*
+.CondaPkg

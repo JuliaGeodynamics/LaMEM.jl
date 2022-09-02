@@ -1,2 +1,7 @@
 [deps]
 vtk = ""
+
+[deps.python]
+channel = "conda-forge"
+build = "*cpython*"
+version = ">=3.7,<4"

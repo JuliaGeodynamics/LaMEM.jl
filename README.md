@@ -18,20 +18,45 @@ As usual, you need a LaMEM (`*.dat`) input file, which you can run in parallel (
 ```julia
 julia> ParamFile="input_files/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 4,"-time_end 1")
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Sep 10 2022 - Time: 06:21:30           
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : input_files/FallingBlock_Multigrid.dat 
+   Adding PETSc option: -snes_type ksponly
+   Adding PETSc option: -js_ksp_monitor
+   Adding PETSc option: -crs_pc_type bjacobi
+Finished parsing input file : input_files/FallingBlock_Multigrid.dat 
+--------------------------------------------------------------------------
+Time stepping parameters:
+   Simulation end time          : 1. [ ] 
+   Maximum number of steps      : 10 
+   Time step                    : 10. [ ] 
+   Minimum time step            : 1e-05 [ ] 
+   Maximum time step            : 100. [ ] 
+   Time step increase factor    : 0.1 
+   CFL criterion                : 0.5 
+   CFLMAX (fixed time steps)    : 0.5 
+   Output time step             : 0.2 [ ] 
+   Output every [n] steps       : 1 
+   Output [n] initial steps     : 1 
+--------------------------------------------------------------------------
 ```
 The last parameter are optional PETSc command-line options. By default it runs on one processor.
 
-Please note that you will have to be in the correct directory (the same one as where the LaMEM parameter file is located). If you are in a different directory, the easiest way to change to the correct one is by using the build-in terminal/shell in julia.
-You access this with:
+Please note that you will have to be in the correct directory (the same one as where the LaMEM parameter file is located). If you are in a different directory, the easiest way to change to the correct one is by using the build-in terminal/shell in julia, which you can access with:
 ```julia
 julia>;
 shell>cd ~/LaMEM/input_models/BuildInSetups/
 ```
 use the Backspace key to return to the julia REPL.
 
+Once you have performed a simulation, you can look at the results by opening the `*.pvd` files with Paraview. In this example, that would be `FB_multigrid.pvd` and `FB_multigrid_phase.pvd`.
 
-### 3. Reading output files back into julia
-There is an easy way to read the output of a LaMEM timestep back into julia. Make sure you are in the directory where the simulation was run and read a timestep back with:
+### 3. Reading LaMEM output back into julia
+If you want to quantitatively do something with the results, there is an easy way to read the output of a LaMEM timestep back into julia. Make sure you are in the directory where the simulation was run and read a timestep with:
 ```julia
 julia> FileName="FB_multigrid.pvtr"
 julia> DirName = "Timestep_00000001_6.72970343e+00"

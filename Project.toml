@@ -1,7 +1,7 @@
 name = "LaMEM"
 uuid = "2e889f3d-35ce-4a77-8ea2-858aecb630f7"
 authors = ["Boris Kaus <kaus@uni-mainz.de>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
@@ -12,7 +12,7 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-LaMEM_jll = "1.1"
+LaMEM_jll = "1.2"
 CondaPkg = "0.2"
 GeophysicalModelGenerator = "0.4"
 PythonCall = "0.9"

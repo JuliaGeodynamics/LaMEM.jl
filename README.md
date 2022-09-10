@@ -1,9 +1,7 @@
 # LaMEM.jl
 [![Build Status](https://github.com/JuliaGeodynamics/LaMEM.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeodynamics/LaMEM.jl/actions)
 
-This is the Julia interface to [LaMEM](https://bitbucket.org/bkaus/lamem) (Lithosphere and Mantle Evolution Model), which allows you to start a (parallel) LaMEM simulation from julia, and read back the output files to julia for further processing.
-
-See [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) for tools to create input models for LaMEM, from data.
+This is the Julia interface to [LaMEM](https://bitbucket.org/bkaus/lamem) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system, allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing.
 
 ### 1. Installation
 Go to the package manager & install it with:
@@ -73,5 +71,5 @@ The output is in a `CartData` structure (as defined in GeophysicalModelGenerator
 
 ### 4. Dependencies
 We rely on the following packages:
-- PythonCall - installs a local python version and the VTK toolbox, used to read the outout files
-- GeophysicalModelGenerator - Data structure in which we store the info of a LaMEM timestep 
+- PythonCall - installs a local python version and the VTK toolbox, used to read the output files
+- [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.

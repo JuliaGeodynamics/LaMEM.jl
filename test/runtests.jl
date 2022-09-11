@@ -20,10 +20,14 @@ using LaMEM
     out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
     @test isnothing(out)
 
-    out = run_lamem(ParamFile, 2, "-nstep_max 2")    # 2 cores (mumps)
+    if !Sys.iswindows()
+        out = run_lamem(ParamFile, 2, "-nstep_max 2")    # 2 cores (mumps)
+        @test isnothing(out)
+    end
+ 
+    out = run_lamem(ParamFile, 2, "-nstep_max 2 -jp_pc_factor_mat_solver_type superlu_dist")    # 2 cores (mumps)
     @test isnothing(out)
     
- 
 
 
 

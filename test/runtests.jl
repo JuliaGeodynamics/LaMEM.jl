@@ -24,10 +24,11 @@ using LaMEM
         out = run_lamem(ParamFile, 2, "-nstep_max 2")    # 2 cores (mumps)
         @test isnothing(out)
     end
- 
-    out = run_lamem(ParamFile, 2, "-nstep_max 2 -jp_pc_factor_mat_solver_type superlu_dist")    # 2 cores (mumps)
-    @test isnothing(out)
     
+    if !Sys.isapple()
+        out = run_lamem(ParamFile, 2, "-nstep_max 2 -jp_pc_factor_mat_solver_type superlu_dist")    # 2 cores (superlu_dist)
+        @test isnothing(out)
+    end
 
 
 

@@ -21,14 +21,14 @@ end
 """ 
     Extracts a 3D data field from a pVTR data structure
 Usage:
-    output = ReadField_3D_pVTR(data, FieldName::String)
+    output, isCell = ReadField_3D_pVTR(data, FieldName::String)
 
 Input:
 -   `data`:       Data structure obtained with Read_VTR_File
 -   `FieldName`:  Exact name of the field as specified in the *.vtr file
     
 Output:
-- `data_field`, `x`,`y`,`z`:   3D field with data, as well as 1D vectors with x,y,z coordinates
+- `data_field`, `isCell`:   3D field with data, and a flag that indicates whether it is Cell data (PointData otherwise)
                                `data_field` is a tuple of size 1, or 3 depending on whether it is a scalar or vector field
     
 """
@@ -37,14 +37,32 @@ function ReadField_3D_pVTR(data, FieldName)
     x               =   data.GetXCoordinates();
     y               =   data.GetYCoordinates();
     z               =   data.GetZCoordinates();
-   
+    
     nx              =   pyconvert(Int, x.GetSize());
     ny              =   pyconvert(Int, y.GetSize());
     nz              =   pyconvert(Int, z.GetSize());
+    isCell          =   false;
     
-    data_Field      =   pyconvert(Array, data.GetPointData().GetArray(FieldName));
+    # First assume they are point data
+    data_f          =   data.GetPointData().GetArray(FieldName)
+    if PythonCall.pyisnone(data_f)
+        data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
+    end
+    numData = pyconvert(Int,data_f.GetDataSize())
+    data_Field      =   pyconvert(Array, data_f);
+    if  size(data_Field,1) != nx*ny*nz
+        isCell = true;
+        nx = nx-1;
+        ny = ny-1;
+        nz = nz-1;
+    end
+
     if size(data_Field,2) == 1
         data_Field  =   reshape(data_Field     ,(nx,ny,nz));
+        if typeof(data_Field[1])==UInt8
+            data_Field = Int64.(data_Field)
+        end
+
         data_Tuple  =   (data_Field, )
     elseif size(data_Field,2) == 3
         Vx          =   reshape(data_Field[:,1],(nx,ny,nz));
@@ -67,14 +85,14 @@ function ReadField_3D_pVTR(data, FieldName)
         error("Not yet implemented for this size $(size(data_Field,2))")
     end
     name = filter(x -> !isspace(x), FieldName)  # remove white spaces
-
+    
     id   = findfirst("[", name)
-    if !isempty(id)
+    if !isnothing(id)
         name = name[1:id[1]-1]      # strip out "[" signs
     end
     data_out = NamedTuple{(Symbol(name),)}(data_Tuple,);
 
-    return data_out
+    return data_out, isCell
 end
 
 """
@@ -82,12 +100,20 @@ end
 """
 function field_names(data)
     names = [];
+    
+    # Get Names of PointData arrays
     pdata = data.GetPointData()
-
     num = pyconvert(Int,pdata.GetNumberOfArrays())
     for i=1:num
         names = [names; pyconvert(String,pdata.GetArrayName(i-1))]
     end
+
+     # Get Names of CellData arrays
+     cdata = data.GetCellData()
+     num = pyconvert(Int,cdata.GetNumberOfArrays())
+     for i=1:num
+         names = [names; pyconvert(String,cdata.GetArrayName(i-1))]
+     end
 
     return names;
 end
@@ -140,12 +166,13 @@ function Read_VTR_File(DirName, FileName; field=nothing)
 
     # Fields stored in this data file:     
     names = field_names(data);
-
+    isCell  = true
     if isnothing(field)
         # read all data in the file
         data_fields = NamedTuple();
         for FieldName in names
-            data_fields = merge(data_fields,ReadField_3D_pVTR(data, FieldName))
+            dat, isCell = ReadField_3D_pVTR(data, FieldName);
+            data_fields = merge(data_fields,dat)
         end
 
     else
@@ -155,7 +182,7 @@ function Read_VTR_File(DirName, FileName; field=nothing)
         if isempty(ind)
             error("the field $field does not exist in the data file")
         else
-            data_fields = ReadField_3D_pVTR(data, field)
+            data_fields, isCell = ReadField_3D_pVTR(data, field)
         end
     end
 
@@ -163,6 +190,12 @@ function Read_VTR_File(DirName, FileName; field=nothing)
     x               =   pyconvert(Array,data.GetXCoordinates());
     y               =   pyconvert(Array,data.GetYCoordinates());
     z               =   pyconvert(Array,data.GetZCoordinates());
+    if isCell 
+        # In case we have cell data , coordinates are center of cell
+        x = (x[1:end-1] + x[2:end])/2
+        y = (y[1:end-1] + y[2:end])/2
+        z = (z[1:end-1] + z[2:end])/2
+    end
 
     X,Y,Z = XYZGrid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)

@@ -31,8 +31,10 @@ end
 
 include("run_lamem.jl")
 include("read_timestep.jl")
+include("utils.jl")
 
 export run_lamem
 export pyvtk
+
 
 end # module

@@ -5,8 +5,27 @@ using LaMEM
     
     # first test - run a simulation
     ParamFile="input_files/FallingBlock_Multigrid.dat";
-    run_lamem(ParamFile, 1,"-time_end 1")       # 1 core
-    run_lamem(ParamFile, 4,"-time_end 1")       # 4 cores
+    out = run_lamem(ParamFile, 1,"-nstep_max 1")       # 1 core
+    @test isnothing(out)
+    out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
+    @test isnothing(out)
+    
+    # Create a setup using GMG
+    include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")
+    out = run_lamem(ParamFile_2, 1, "-nstep_max 2")    # 1 core
+    @test isnothing(out)
+
+    # Try direct solvers 
+    ParamFile="input_files/FallingBlock_DirectSolver.dat";
+    out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
+    @test isnothing(out)
+
+    out = run_lamem(ParamFile, 2, "-nstep_max 2")    # 2 cores (mumps)
+    @test isnothing(out)
+    
+ 
+
+
 
 end
 
@@ -28,6 +47,9 @@ end
     data    = Read_VTR_File(DirName, FileName)
     @test sum(data.fields.phase) == 19822
 
+    # read subduction setup
+
+    
 
 end
 

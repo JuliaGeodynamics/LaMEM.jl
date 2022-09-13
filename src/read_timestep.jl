@@ -7,7 +7,7 @@ using GeophysicalModelGenerator: CartData, XYZGrid
 using PythonCall
 using Glob
 
-export Read_VTR_File, field_names, readPVD
+export Read_VTR_File, field_names, readPVD, Read_VTU_File
 
 
 function vtkXMLPRectilinearGridReader(FileName)
@@ -17,6 +17,14 @@ function vtkXMLPRectilinearGridReader(FileName)
   data    = reader1.GetOutput()
   return data
 end
+
+function vtkXMLPUnstructuredGridReader(FileName)
+    reader1  = pyvtk.vtkXMLPUnstructuredGridReader()
+    reader1.SetFileName(FileName)
+    reader1.Update()
+    data    = reader1.GetOutput()
+    return data
+  end
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -94,6 +102,72 @@ function ReadField_3D_pVTR(data, FieldName)
 
     return data_out, isCell
 end
+
+""" 
+    output, isCell = ReadField_3D_pVTU(data, FieldName::String)
+
+Extracts a 3D data field from a pVTU data structure `data`
+
+Input:
+- `data`:       Data structure obtained with Read_VTR_File
+- `FieldName`:  Exact name of the field as specified in the *.vtr file
+    
+Output:
+- `data_field`: Array with data, `data_field` is a tuple of size 1, 3 or 9 depending on whether it is a scalar, vector or tensor field
+    
+"""
+function ReadField_3D_pVTU(data, FieldName)
+    
+    n               =   pyconvert(Int, data.GetNumberOfPoints());
+    coords          =   pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
+ 
+    # First assume they are point data
+    data_f          =   data.GetPointData().GetArray(FieldName)
+    if PythonCall.pyisnone(data_f)
+        data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
+    end
+    numData = pyconvert(Int,data_f.GetDataSize())
+    data_Field      =   pyconvert(Array, data_f);
+   
+    if size(data_Field,2) == 1
+        data_Field  =   data_Field;
+        if typeof(data_Field[1])==UInt8
+            data_Field = Int64.(data_Field)
+        end
+
+        data_Tuple  =   (data_Field, )
+    elseif size(data_Field,2) == 3
+        Vx          =   data_Field[:,1]
+        Vy          =   data_Field[:,2]
+        Vz          =   data_Field[:,3]
+        data_Tuple  =   ((Vx,Vy,Vz),)
+    elseif size(data_Field,2) == 9
+        xx          =   data_Field[:,1]
+        xy          =   data_Field[:,2]
+        xz          =   data_Field[:,3]
+        yx          =   data_Field[:,4]
+        yy          =   data_Field[:,5]
+        yz          =   data_Field[:,6]
+        zx          =   data_Field[:,7]
+        zy          =   data_Field[:,8]
+        zz          =   data_Field[:,9]
+        
+        data_Tuple  =   ((xx,xy,xz,yx,yy,yz,zx,zy,zz),)
+    else
+        error("Not yet implemented for this size $(size(data_Field,2))")
+    end
+    name = filter(x -> !isspace(x), FieldName)  # remove white spaces
+    
+    id   = findfirst("[", name)
+    if !isnothing(id)
+        name = name[1:id[1]-1]      # strip out "[" signs
+    end
+    data_out = NamedTuple{(Symbol(name),)}(data_Tuple,);
+
+    return data_out
+end
+
+
 
 """
     names = field_names(data)
@@ -223,4 +297,56 @@ function readPVD(FileName::String)
     end
 
     return FileNames, Time
+end
+
+
+"""
+    data_output = Read_VTU_File(DirName, FileName; field=nothing)
+
+Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
+
+It will return `data_output` which is a `CartData` output structure.
+
+"""
+function Read_VTU_File(DirName, FileName; field=nothing)
+    CurDir = pwd();
+
+    # change to directory
+    cd(DirName)
+
+    # read data from parallel rectilinear grid
+    data = vtkXMLPUnstructuredGridReader(FileName);      # this is how it should be done within modules
+    cd(CurDir)
+
+    # Fields stored in this data file:     
+    names = field_names(data);
+    isCell  = true
+    if isnothing(field)
+        # read all data in the file
+        data_fields = NamedTuple();
+        for FieldName in names
+            dat         = ReadField_3D_pVTU(data, FieldName);
+            data_fields = merge(data_fields,dat)
+        end
+
+    else
+        # read just a single data set
+        ind = findall(contains.(field, names))
+        # check that it exists
+        if isempty(ind)
+            error("the field $field does not exist in the data file")
+        else
+            data_fields = ReadField_3D_pVTU(data, field)
+        end
+    end
+
+    # Read coordinates
+    coords          =   pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
+    x               =   coords[:,1];
+    y               =   coords[:,2];
+    z               =   coords[:,3];
+   
+    data_output     =   CartData(x,y,z, data_fields)
+    return data_output   
 end

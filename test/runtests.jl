@@ -30,7 +30,9 @@ using LaMEM
         @test isnothing(out)
     end
 
-
+    # run test with passive tracers
+    out = run_lamem("input_files/Passive_tracer_ex2D.dat", 1, "-nstep_max 10")    # 1 core
+    @test isnothing(out)
 
 end
 
@@ -60,12 +62,11 @@ end
     FileNames, Time = readPVD("Subduction2D_FreeSlip_direct.pvd")
     @test Time[2] ≈ 0.055
     
-
-   
-
-        
+    # Read passive tracers 
+    data    = Read_VTU_File("Timestep_00000010_1.09635548e+00", "PlumeLithosphereInteraction_passive_tracers.pvtu")
+    @test data.z[100] ≈ -298.5178f0
+    @test data.fields.Temperature[100] ≈ 1350.0f0
     
-
 end
 
 

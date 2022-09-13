@@ -1,7 +1,7 @@
 name = "LaMEM"
 uuid = "2e889f3d-35ce-4a77-8ea2-858aecb630f7"
 authors = ["Boris Kaus <kaus@uni-mainz.de>"]
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"

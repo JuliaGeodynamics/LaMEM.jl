@@ -217,6 +217,11 @@ function clean_directory(DirName="./")
          rm(f)
     end
 
+    # vts files
+    for f in glob("*.vts")
+        rm(f)
+    end
+
     #timestep directories
     for f in glob("Timestep*")
         rm(f, recursive=true, force=true)

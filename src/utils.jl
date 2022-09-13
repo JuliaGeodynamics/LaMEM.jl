@@ -2,7 +2,7 @@
 
 using LaMEM_jll
 
-export remove_popup_messages_mac, show_paths_LaMEM
+export remove_popup_messages_mac, show_paths_LaMEM, clean_directory
 
 
 """
@@ -75,4 +75,37 @@ function show_paths_LaMEM()
     end
 
     return nothing
+end
+
+""" 
+    clean_directory(DirName)
+
+Removes all LaMEM timesteps & `*.pvd` files from the directory `DirName`
+
+"""
+function clean_directory(DirName="./")
+    
+    CurDir = pwd();
+
+    # change to directory
+    cd(DirName)
+
+    # pvd files
+    for f in glob("*.pvd")
+         rm(f)
+    end
+
+    # vts files
+    for f in glob("*.vts")
+        rm(f)
+    end
+
+    #timestep directories
+    for f in glob("Timestep*")
+        rm(f, recursive=true, force=true)
+    end
+
+
+    cd(CurDir)
+
 end

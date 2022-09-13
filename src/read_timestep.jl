@@ -7,7 +7,7 @@ using GeophysicalModelGenerator: CartData, XYZGrid
 using PythonCall
 using Glob
 
-export Read_VTR_File, clean_directory, field_names, readPVD
+export Read_VTR_File, field_names, readPVD
 
 
 function vtkXMLPRectilinearGridReader(FileName)
@@ -197,39 +197,6 @@ function Read_VTR_File(DirName, FileName; field=nothing)
     X,Y,Z = XYZGrid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)
     return data_output   
-end
-
-""" 
-    clean_directory(DirName)
-
-Removes all LaMEM timesteps & `*.pvd` files from the directory `DirName`
-
-"""
-function clean_directory(DirName="./")
-    
-    CurDir = pwd();
-
-    # change to directory
-    cd(DirName)
-
-    # pvd files
-    for f in glob("*.pvd")
-         rm(f)
-    end
-
-    # vts files
-    for f in glob("*.vts")
-        rm(f)
-    end
-
-    #timestep directories
-    for f in glob("Timestep*")
-        rm(f, recursive=true, force=true)
-    end
-
-
-    cd(CurDir)
-
 end
 
 """

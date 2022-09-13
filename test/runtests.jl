@@ -69,6 +69,7 @@ end
 end
 
 
-
-# clean up
-clean_directory("./")
+if !Sys.iswindows()
+    # clean up
+    clean_directory("./")
+end

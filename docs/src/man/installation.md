@@ -21,4 +21,8 @@ LaMEM.run_lamem
 
 
 ### Running LaMEM from outside julia
-If you, for some reason, do not want to run LaMEM directly 
+If you, for some reason, do not want to run LaMEM through julia but instead directly from the terminal or powershell, you will have to add the required dynamic libraries and executables.
+Do this with:
+```@docs
+LaMEM.show_paths_LaMEM
+```

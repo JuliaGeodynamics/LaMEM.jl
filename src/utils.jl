@@ -52,30 +52,21 @@ This function shows this for your system.
 function show_paths_LaMEM()
 
 
-    path_lamem = LaMEM_jll.LaMEM_path
-
-    path_mpi = nothing
-    if LaMEM_jll.MPICH_jll.is_available()
-        path_mpi = LaMEM_jll.MPICH_jll.mpiexec_path
-    elseif LaMEM_jll.MicrosoftMPI_jll.is_available()
-        path_mpi = LaMEM_jll.MicrosoftMPI_jll.mpiexec_path
-    end
-    
+    path_lamem = LaMEM_jll.PATH[]
 
     # Print 
-    println("LaMEM executables path : $path_lamem")
-    println("mpiexec path           : $path_mpi")
+    println("LaMEM & mpiexec executables path : $path_lamem")
 
     path_lib = LaMEM_jll.__init__();     
-    println("Dynamic libraries      : $path_lib")
+    println("Dynamic libraries                : $path_lib")
 
     println(" ")
     println("Add the following lines to your environment:")
     if Sys.isunix()
-        println("export PATH=$(LaMEM_jll.PATH[]):\$PATH")
+        println("export PATH=$path_lamem:\$PATH")
         println("export DYLD_LIBRARY_PATH=$path_lib")
     elseif Sys.iswindows()
-        println("set PATH=$(LaMEM_jll.PATH[]);$(path_lib);%PATH%")
+        println("set PATH=$(path_lamem);$(path_lib);%PATH%")
     end
 
     return nothing

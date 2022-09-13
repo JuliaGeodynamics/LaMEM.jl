@@ -1,5 +1,6 @@
 # LaMEM.jl
 [![Build Status](https://github.com/JuliaGeodynamics/LaMEM.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeodynamics/LaMEM.jl/actions)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliageodynamics.github.io/LaMEM.jl/dev/)
 
 This is the Julia interface to [LaMEM](https://bitbucket.org/bkaus/lamem) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system, allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing.
 

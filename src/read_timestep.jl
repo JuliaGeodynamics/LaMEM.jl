@@ -19,13 +19,13 @@ function vtkXMLPRectilinearGridReader(FileName)
 end
 
 """ 
-    Extracts a 3D data field from a pVTR data structure
-Usage:
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
 
+Extracts a 3D data field from a pVTR data structure `data`
+
 Input:
--   `data`:       Data structure obtained with Read_VTR_File
--   `FieldName`:  Exact name of the field as specified in the *.vtr file
+- `data`:       Data structure obtained with Read_VTR_File
+- `FieldName`:  Exact name of the field as specified in the *.vtr file
     
 Output:
 - `data_field`, `isCell`:   3D field with data, and a flag that indicates whether it is Cell data (PointData otherwise)
@@ -96,7 +96,9 @@ function ReadField_3D_pVTR(data, FieldName)
 end
 
 """
-    returns the names of all fields stored in the vtr file
+    names = field_names(data)
+
+Returns the names of all fields stored in the vtr data structure `data`.
 """
 function field_names(data)
     names = [];
@@ -141,18 +143,13 @@ end
 
 
 """
-    data = Read_VTR_File(DirName, FileName; field=nothing)
-Reads a 3D LaMEM timestep (from pVTR file)
+    data_output = Read_VTR_File(DirName, FileName; field=nothing)
 
-Usage:
-        
-Input:
-    - `DirName` :   Name of timestep directory (e.g., `Timestep_00000001_1.10000000e-01`)
-    - `FileName`:   Filename (e.g., `Subduction2D_direct.pvtr`)    
-    - `field`:      Name of the field ypu want to extract. If not specified, all will be read
+Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
 
-Output:
-    - `data`    :   data structure containing the full content of the VTR file
+It will return `data_output` which is a `CartData` output structure.
+
 """
 function Read_VTR_File(DirName, FileName; field=nothing)
     CurDir = pwd();

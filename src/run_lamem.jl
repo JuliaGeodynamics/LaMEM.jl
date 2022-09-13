@@ -25,13 +25,11 @@ julia> run_lamem(ParamFile)
 Do the same on 2 cores with
 ```julia
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
-julia> run_lamem(ParamFile, 2)
+julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
 
 """
 function run_lamem(ParamFile::String, cores::Int64=1, args::String="")
-
-    @show args
         
     if cores==1
         # Run LaMEM on a single core, which does not require a working MPI

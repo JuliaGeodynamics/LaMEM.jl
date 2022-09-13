@@ -51,7 +51,6 @@ This function shows this for your system.
 """
 function show_paths_LaMEM()
 
-
     path_lamem = LaMEM_jll.PATH[]
 
     # Print 
@@ -66,7 +65,11 @@ function show_paths_LaMEM()
         println("export PATH=$path_lamem:\$PATH")
         println("export DYLD_LIBRARY_PATH=$path_lib")
     elseif Sys.iswindows()
+        println("For the normal windows shell, use this:")
         println("set PATH=$(path_lamem);$(path_lib);%PATH%")
+
+        println("In case you are using the windows PowerShell, use this:")
+        println("\$env:Path += \";$(path_lamem);$(path_lib);\"")
     end
 
     return nothing

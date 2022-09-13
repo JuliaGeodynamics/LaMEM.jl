@@ -9,7 +9,7 @@ using LaMEM
     @test isnothing(out)
     out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
     @test isnothing(out)
-    
+
     # Create a setup using GMG
     include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")
     out = run_lamem(ParamFile_2, 1, "-nstep_max 2")    # 1 core
@@ -53,7 +53,17 @@ end
     @test sum(data.fields.phase) == 19822
 
     # read subduction setup
+    data    = Read_VTR_File("Timestep_00000001_5.50000000e-02", "Subduction2D_FreeSlip_direct.pvtr")
+    @test sum(data.fields.density) ≈ 1.60555f8
 
+    # Read PVD file 
+    FileNames, Time = readPVD("Subduction2D_FreeSlip_direct.pvd")
+    @test Time[2] ≈ 0.055
+    
+
+   
+
+        
     
 
 end

@@ -24,8 +24,8 @@ function __init__()
   pyimport("sys").path.append(pth)  # append path
 
   # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
-  PythonCall.pycopy!(pyvtk, pyimport("vtk")) 
-
+  PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files
+  
 end
 
 

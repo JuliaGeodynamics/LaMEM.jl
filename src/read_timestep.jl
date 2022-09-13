@@ -7,7 +7,7 @@ using GeophysicalModelGenerator: CartData, XYZGrid
 using PythonCall
 using Glob
 
-export Read_VTR_File, clean_directory, field_names
+export Read_VTR_File, clean_directory, field_names, readPVD
 
 
 function vtkXMLPRectilinearGridReader(FileName)
@@ -58,7 +58,7 @@ function ReadField_3D_pVTR(data, FieldName)
     end
 
     if size(data_Field,2) == 1
-        data_Field  =   reshape(data_Field     ,(nx,ny,nz));
+        data_Field  =   reshape(data_Field     ,(nx,ny,nz))
         if typeof(data_Field[1])==UInt8
             data_Field = Int64.(data_Field)
         end
@@ -228,4 +228,30 @@ function clean_directory(DirName="./")
 
     cd(CurDir)
 
+end
+
+"""
+
+    FileNames, Time = readPVD(FileName::String)
+
+This reads a PVD file & returns the timesteps and corresponding filenames
+"""
+function readPVD(FileName::String)
+
+    lines = readlines(FileName)
+    start_line = findall(lines .== "<Collection>")[1] + 1
+    end_line   = findall(lines .== "</Collection>")[1] - 1
+    
+    FileNames = [];
+    Time      = [];
+    for i=start_line:end_line
+        line = lines[i]
+        time = split(line)[2]; time = parse(Float64,time[11:end-1])
+        file = split(line)[3]; file = String.(file[7:end-3]);
+
+        FileNames = [FileNames; file]
+        Time      = [Time;      time]
+    end
+
+    return FileNames, Time
 end

@@ -26,8 +26,15 @@ using LaMEM
     end
     
     if !Sys.isapple()
-        out = run_lamem(ParamFile, 2, "-nstep_max 2 -jp_pc_factor_mat_solver_type superlu_dist")    # 2 cores (superlu_dist)
-        @test isnothing(out)
+        # Note: superlu_dist uses a combination of openMP parallelization on a node and MPI between nodes.
+        # If you have a server with a lot of cores AND run this with >1 core, this may clash
+        # In that case it is better to run it with 1 MPI task but set the environmental variables below accordingly
+        # You'll need to do some benchmarking to find the sweet spot
+        ENV["OMP_NUM_THREADS"] = "1"
+        ENV["GOTO_NUM_THREADS"] = "1"
+        ENV["OPENBLAS_NUM_THREADS"] = "1"
+        out = run_lamem(ParamFile, 1, "-nstep_max 1 -jp_pc_factor_mat_solver_type superlu_dist")    
+        @test isnothing(out)        
     end
 
     # run test with passive tracers

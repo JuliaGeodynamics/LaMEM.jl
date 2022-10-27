@@ -23,7 +23,7 @@ function __init__()
         ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
 
         pth = (@__DIR__)*"/python"        # Path where the python routines are
-        pyimport("sys").path.append(pth)  # append path
+        PythonCall.pyimport("sys").path.append(pth)  # append path
 
         # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
         PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files

@@ -13,8 +13,8 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 LaMEM_jll = "1.2"
-CondaPkg = "0.2"
+CondaPkg = "0.2.13"
 GeophysicalModelGenerator = "0.4"
-PythonCall = "0.9.8"
+PythonCall = "0.9.6"
 Glob = "1"
 julia = "1.6"

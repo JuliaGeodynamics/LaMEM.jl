@@ -15,6 +15,7 @@ end
 function __init__()
 
   @require PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d" begin  
+        println("Adding PythonCall dependencies to read LaMEM timesteps")
         const pyvtk = PythonCall.pynew()
 
         #using PythonCall        # in order to be able to use the python VTKtoolbox

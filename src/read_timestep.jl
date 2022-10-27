@@ -4,7 +4,6 @@
                   
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, XYZGrid
-using PythonCall
 using Glob
 
 export Read_VTR_File, field_names, readPVD, Read_VTU_File

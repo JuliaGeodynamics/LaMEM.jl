@@ -1,8 +1,6 @@
 using Test
 using LaMEM
 
-include("runLaMEM.jl")
-
 @testset "read LaMEM output" begin
 
     # Read a timestep
@@ -34,10 +32,4 @@ include("runLaMEM.jl")
     @test data.z[100] ≈ -298.5178f0
     @test data.fields.Temperature[100] ≈ 1350.0f0
     
-end
-
-
-if !Sys.iswindows()
-    # clean up
-    clean_directory("./")
 end

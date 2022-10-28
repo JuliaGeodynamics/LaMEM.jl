@@ -1,8 +1,9 @@
 module LaMEM
 using LaMEM_jll
-using Requires
+using PythonCall
 using Glob
 
+ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
 
 # load the correct MPI
 const mpiexec = if isdefined(LaMEM_jll,:MPICH_jll)
@@ -13,32 +14,25 @@ else
     nothing
 end
 
+# Reading files back into julia
+const pyvtk = PythonCall.pynew()
+
 function __init__()
 
-  @require PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d" begin  
-        println("Adding PythonCall dependencies to read LaMEM timesteps")
-        const pyvtk = PythonCall.pynew()
-
-        #using PythonCall        # in order to be able to use the python VTKtoolbox
-        ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
-
-        pth = (@__DIR__)*"/python"        # Path where the python routines are
-        PythonCall.pyimport("sys").path.append(pth)  # append path
-
-        # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
-        PythonCall.pycopy!(pyvtk, PythonCall.pyimport("vtk"))            # used to read VTK files
-
-        include("read_timestep.jl")
-        export pyvtk
-  end
+    println("Adding PythonCall dependencies to read LaMEM timesteps")
+    pth = (@__DIR__)*"/python"        # Path where the python routines are
+    pyimport("sys").path.append(pth)  # append path
+  
+    # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
+    PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files
 end
 
 
 include("run_lamem.jl")
-
+include("read_timestep.jl")
 include("utils.jl")
 
 export run_lamem
-
+export pyvtk
 
 end # module

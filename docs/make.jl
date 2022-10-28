@@ -1,4 +1,4 @@
-using Documenter, LaMEM, PythonCall
+using Documenter, LaMEM
 push!(LOAD_PATH, "../src/")
 
 @info "Making documentation..."

@@ -1,8 +1,5 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-MicroMamba = "0b3b1443-0f03-428d-bdfb-f27f9c1191ea"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [compat]
 Documenter = "0.27"
-MicroMamba = "0.1.9 - 0.1.9"

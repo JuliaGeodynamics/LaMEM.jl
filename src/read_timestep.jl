@@ -4,7 +4,6 @@
                   
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, XYZGrid
-using PythonCall
 using Glob
 
 export Read_VTR_File, field_names, readPVD, Read_VTU_File
@@ -46,9 +45,9 @@ function ReadField_3D_pVTR(data, FieldName)
     y               =   data.GetYCoordinates();
     z               =   data.GetZCoordinates();
     
-    nx              =   pyconvert(Int, x.GetSize());
-    ny              =   pyconvert(Int, y.GetSize());
-    nz              =   pyconvert(Int, z.GetSize());
+    nx              =   PythonCall.pyconvert(Int, x.GetSize());
+    ny              =   PythonCall.pyconvert(Int, y.GetSize());
+    nz              =   PythonCall.pyconvert(Int, z.GetSize());
     isCell          =   false;
     
     # First assume they are point data
@@ -56,8 +55,8 @@ function ReadField_3D_pVTR(data, FieldName)
     if PythonCall.pyisnone(data_f)
         data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
     end
-    numData = pyconvert(Int,data_f.GetDataSize())
-    data_Field      =   pyconvert(Array, data_f);
+    numData = PythonCall.pyconvert(Int,data_f.GetDataSize())
+    data_Field      =   PythonCall.pyconvert(Array, data_f);
     if  size(data_Field,1) != nx*ny*nz
         isCell = true;
         nx = nx-1;
@@ -118,16 +117,16 @@ Output:
 """
 function ReadField_3D_pVTU(data, FieldName)
     
-    n               =   pyconvert(Int, data.GetNumberOfPoints());
-    coords          =   pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
+    n               =   PythonCall.pyconvert(Int, data.GetNumberOfPoints());
+    coords          =   PythonCall.pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
  
     # First assume they are point data
     data_f          =   data.GetPointData().GetArray(FieldName)
     if PythonCall.pyisnone(data_f)
         data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
     end
-    numData = pyconvert(Int,data_f.GetDataSize())
-    data_Field      =   pyconvert(Array, data_f);
+    numData = PythonCall.pyconvert(Int,data_f.GetDataSize())
+    data_Field      =   PythonCall.pyconvert(Array, data_f);
    
     if size(data_Field,2) == 1
         data_Field  =   data_Field;
@@ -179,16 +178,16 @@ function field_names(data)
     
     # Get Names of PointData arrays
     pdata = data.GetPointData()
-    num = pyconvert(Int,pdata.GetNumberOfArrays())
+    num = PythonCall.pyconvert(Int,pdata.GetNumberOfArrays())
     for i=1:num
-        names = [names; pyconvert(String,pdata.GetArrayName(i-1))]
+        names = [names; PythonCall.pyconvert(String,pdata.GetArrayName(i-1))]
     end
 
      # Get Names of CellData arrays
      cdata = data.GetCellData()
-     num = pyconvert(Int,cdata.GetNumberOfArrays())
+     num = PythonCall.pyconvert(Int,cdata.GetNumberOfArrays())
      for i=1:num
-         names = [names; pyconvert(String,cdata.GetArrayName(i-1))]
+         names = [names; PythonCall.pyconvert(String,cdata.GetArrayName(i-1))]
      end
 
     return names;
@@ -258,9 +257,9 @@ function Read_VTR_File(DirName, FileName; field=nothing)
     end
 
     # Read coordinates
-    x               =   pyconvert(Array,data.GetXCoordinates());
-    y               =   pyconvert(Array,data.GetYCoordinates());
-    z               =   pyconvert(Array,data.GetZCoordinates());
+    x               =   PythonCall.pyconvert(Array,data.GetXCoordinates());
+    y               =   PythonCall.pyconvert(Array,data.GetYCoordinates());
+    z               =   PythonCall.pyconvert(Array,data.GetZCoordinates());
     if isCell 
         # In case we have cell data , coordinates are center of cell
         x = (x[1:end-1] + x[2:end])/2
@@ -342,7 +341,7 @@ function Read_VTU_File(DirName, FileName; field=nothing)
     end
 
     # Read coordinates
-    coords          =   pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
+    coords          =   PythonCall.pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
     x               =   coords[:,1];
     y               =   coords[:,2];
     z               =   coords[:,3];

@@ -1,8 +1,7 @@
 module LaMEM
-
 using LaMEM_jll
-using PythonCall        # in order to be able to use the python VTKtoolbox
-
+using PythonCall
+using Glob
 
 ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
 
@@ -15,17 +14,17 @@ else
     nothing
 end
 
-
+# Reading files back into julia
 const pyvtk = PythonCall.pynew()
 
 function __init__()
 
-  pth = (@__DIR__)*"/python"        # Path where the python routines are
-  pyimport("sys").path.append(pth)  # append path
-
-  # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
-  PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files
+    println("Adding PythonCall dependencies to read LaMEM timesteps")
+    pth = (@__DIR__)*"/python"        # Path where the python routines are
+    pyimport("sys").path.append(pth)  # append path
   
+    # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
+    PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files
 end
 
 
@@ -35,6 +34,5 @@ include("utils.jl")
 
 export run_lamem
 export pyvtk
-
 
 end # module

@@ -45,12 +45,18 @@ Time stepping parameters:
 ```
 The last parameter are optional PETSc command-line options. By default it runs on one processor.
 
-Please note that you will have to be in the correct directory (the same one as where the LaMEM parameter file is located). If you are in a different directory, the easiest way to change to the correct one is by using the build-in terminal/shell in julia, which you can access with:
+Please note that you will have to be in the correct directory (the same one as where the LaMEM parameter file is located). If you are in a different directory, the easiest way to change to the correct one is by using the `changefolder` function (on Windows and Mac):
+```julia
+julia> changefolder()
+```
+
+Alternatively, you can use the build-in terminal/shell in julia, which you can access with:
 ```julia
 julia>;
 shell>cd ~/LaMEM/input_models/BuildInSetups/
 ```
 use the Backspace key to return to the julia REPL.
+
 
 Once you have performed a simulation, you can look at the results by opening the `*.pvd` files with Paraview. In this example, that would be `FB_multigrid.pvd` and `FB_multigrid_phase.pvd`.
 
@@ -76,33 +82,11 @@ CartData
 ```
 The output is in a `CartData` structure (as defined in GeophysicalModelGenerator).
 
-Please note that you will have to be in the correct directory (the same one as where the LaMEM parameter file is located). If you are in a different directory, the easiest way to change to the correct one is by using the `changefolder` function (on Windows and Mac):
-```julia
-julia> changefolder()
-```
-
-Alternatively, you can use the build-in terminal/shell in julia, which you can access with:
-```julia
-julia>;
-shell>cd ~/LaMEM/input_models/BuildInSetups/
-```
-use the Backspace key to return to the julia REPL.
-
+Please note that you will have to be in the correct directory (see above).
 Once you have performed a simulation, you can look at the results by opening the `*.pvd` files with Paraview. In this example, that would be `FB_multigrid.pvd` and `FB_multigrid_phase.pvd`.
 
 ### 3. Reading LaMEM output back into julia
-If you want to quantitatively do something with the results, there is an easy way to read the output of a LaMEM timestep back into julia. Make sure you are in the directory where the simulation was run and read a timestep with:
-```julia
-julia>]
-pkg> add PythonCall
-```
-After this you need to load *both* LaMEM and PythonCall, which will make the reading functions available:
-```julia
-julia> using LaMEM, PythonCall
-Adding PythonCall dependencies to read LaMEM timesteps
-```
-
-Make sure you are in the directory where the simulation was run and read a timestep with:
+If you want to quantitatively do something with the results, there is an easy way to read the output of a LaMEM timestep back into julia.  Make sure you are in the directory where the simulation was run and read a timestep with:
 ```julia
 julia> FileName="FB_multigrid.pvtr"
 julia> DirName = "Timestep_00000001_6.72970343e+00"
@@ -118,8 +102,9 @@ CartData
 The output is in a `CartData` structure (as defined in GeophysicalModelGenerator).
 
 ### 4. Dependencies
-We rely on the following package:
+We rely on the following packages:
 - [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.
+- [LaMEM_jll](https://github.com/JuliaRegistries/General/tree/master/L/LaMEM_jll) - this contains the LaMEM binaries, precompiled for most systems. Note that on windows, the MUMPS parallel direct solver is not available.
 
 And for reading files, we rely on the optional package
 - [PythonCall](https://github.com/cjdoris/PythonCall.jl) - installs a local python version and the VTK toolbox, used to read the output files. We make this an optional dependency as this involves installing quite a few additional packages, which have been broken at some times in the past. If you experience problems, you can try installing an earlier version of [MicroMamba](https://github.com/cjdoris/MicroMamba.jl) first (e.g. `pkg> add MicroMambe@0.1.9`), before installing `PythonCall` .  

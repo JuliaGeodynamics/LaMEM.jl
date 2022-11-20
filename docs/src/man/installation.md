@@ -12,12 +12,20 @@ You can test if it works on your machine with
 pkg> test LaMEM
 ```
 
+If you also want to read LaMEM output files back to julia, you need to install the `PythonCall` package:
+```julia
+julia> ]
+pkg> add PythonCall
+```
+
 ### Running LaMEM from julia
 Running LaMEM from within julia can be done with the `run_lamem` function:
 
 ```@docs
 LaMEM.run_lamem
 ```
+
+
 
 
 ### Running LaMEM from outside julia

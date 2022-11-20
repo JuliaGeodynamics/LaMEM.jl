@@ -1,6 +1,5 @@
-
-
 using LaMEM_jll
+using Glob
 
 export remove_popup_messages_mac, show_paths_LaMEM, clean_directory, changefolder
 

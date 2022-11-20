@@ -2,7 +2,7 @@
 
 using LaMEM_jll
 
-export remove_popup_messages_mac, show_paths_LaMEM, clean_directory
+export remove_popup_messages_mac, show_paths_LaMEM, clean_directory, changefolder
 
 
 """
@@ -108,4 +108,49 @@ function clean_directory(DirName="./")
 
     cd(CurDir)
 
+end
+
+
+"""
+    changefolder()
+
+Starts a GUI on Windowss or Mac machines, which allows you to change our working directory
+"""
+function changefolder()
+    if Sys.iswindows() 
+        command = """
+        Function Get-Folder(\$initialDirectory) {
+            [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms")|Out-Null
+
+            \$foldername = New-Object System.Windows.Forms.FolderBrowserDialog
+            \$foldername.Description = "Select a folder"
+            \$foldername.rootfolder = "MyComputer"
+
+            if(\$foldername.ShowDialog() -eq "OK")
+            {
+                \$folder += \$foldername.SelectedPath
+            }
+            return \$folder
+        }
+
+        Get-Folder
+        """
+        cd(chomp(read(`powershell -Command $command`, String)))
+        println(pwd())
+    elseif Sys.isapple() 
+        command = """
+        try
+            set af to (choose folder with prompt "Folder?")
+            set result to POSIX path of af
+        on error
+            beep
+            set result to "$(pwd())"
+        end
+        result
+        """
+        cd(chomp(read(`osascript -e $command`, String)))
+        println(pwd())
+    else
+        exit()
+    end
 end

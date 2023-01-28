@@ -17,7 +17,7 @@ julia> Pkg.add("LaMEM_jll")
 Next you can call LaMEM with:
 ```julia
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
-julia> run_lamem(ParamFile, 2)
+julia> run_lamem_save_grid(ParamFile, 2)
 ```
 """
 

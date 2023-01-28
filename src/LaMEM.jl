@@ -29,10 +29,12 @@ end
 
 
 include("run_lamem.jl")
+include("run_lamem_save_grid.jl")
 include("read_timestep.jl")
 include("utils.jl")
 
 export run_lamem
+export run_lamem_save_grid
 export pyvtk
 
 end # module

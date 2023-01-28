@@ -24,7 +24,9 @@ julia> run_lamem_save_grid(ParamFile, 2)
 
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="")
         
-
+	currdir = pwd()
+	cd(dirname(abspath(ParamFile)))
+	ParamFile = splitdir(ParamFile)[2]
 	# set correct environment
 	mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
 	# Call LaMEM to generate Processor Partitioning file and output
@@ -35,6 +37,8 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="")
 	(
 	stdout = String(read(out))
 	 )
+	 cd(currdir)
+	 return stdout
 end
 
 function JuliaStringToArray(input)
@@ -56,10 +60,8 @@ function get_line_contatinig(stringarray::Vector{SubString{String}}, lookfor::St
 end
 
 function run_lamem_save_grid(ParamFile::String, cores::Int64=1)
-
-
-    if cores==1	return print("No partitioning file required for 1 core model setup \n")	end
-	
+	if cores==1	return print("No partitioning file required for 1 core model setup \n")	end
+	ParamFile    = abspath(ParamFile)
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	arr          = JuliaStringToArray(logoutput)
 	foundline    = get_line_contatinig(arr,"Processor grid  [nx, ny, nz]         : ")

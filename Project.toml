@@ -13,7 +13,6 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 GeophysicalModelGenerator = "0.4"
 Glob = "1"
 LaMEM_jll = "1.2"
-MicroMamba = "0.1.12"        # MicroMamba 0.1.10 appears to be broken
 PythonCall = "0.9"
 julia = "1.6"
 

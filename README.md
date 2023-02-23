@@ -10,7 +10,7 @@ Go to the package manager & install it with:
 julia>]
 pkg>add LaMEM
 ```
-It will automatically download a binary version of LaMEM which runs in parallel (along with the correct PETSc version). This will work on linux, mac and windows.
+It will automatically download a binary version of LaMEM which runs in parallel (along with the correct PETSc version). This will work on linux, Mac and windows. Note that it does require julia version 1.8 or higher.
 
 ### 2. Starting a simulation
 As usual, you need a LaMEM (`*.dat`) input file, which you can run in parallel (here on 4 cores) with:

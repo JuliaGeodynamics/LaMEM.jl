@@ -1,9 +1,9 @@
 module LaMEM
 using LaMEM_jll
-using PythonCall
+#using PythonCall
 using Glob
 
-ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
+#ENV["JULIA_CONDAPKG_BACKEND"] = "MicroMamba"
 
 # load the correct MPI
 const mpiexec = if isdefined(LaMEM_jll,:MPICH_jll)
@@ -14,6 +14,7 @@ else
     nothing
 end
 
+#=
 # Reading files back into julia
 const pyvtk = PythonCall.pynew()
 
@@ -26,7 +27,7 @@ function __init__()
     # link vtk. Note that all python dependencies are listed in PythonCallDeps.toml
     PythonCall.pycopy!(pyvtk, pyimport("vtk"))            # used to read VTK files
 end
-
+=#
 
 include("run_lamem.jl")
 include("run_lamem_save_grid.jl")
@@ -35,6 +36,6 @@ include("utils.jl")
 
 export run_lamem
 export run_lamem_save_grid
-export pyvtk
+#export pyvtk
 
 end # module

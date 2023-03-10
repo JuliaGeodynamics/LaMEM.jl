@@ -8,7 +8,6 @@ using Glob, ReadVTK
 
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, field_names, readPVD, Read_LaMEM_PVTU_File
 
-  
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
 
@@ -281,9 +280,9 @@ end
 
 
 """
-    data_output = Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
+    data_output = Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
 
-Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
+Reads a 3D LaMEM timestep from VTS file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
 
 It will return `data_output` which is a `CartData` output structure.
@@ -306,13 +305,23 @@ function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
         name = keys(get_cell_data(pvts))
     end
 
+    coords_read = get_coordinates(pvts)
+
+    # Read coordinates
+    X = coords_read[1]
+    Y = coords_read[2]
+    Z = coords_read[3]
+
     isCell  = true
     if isnothing(field)
         # read all data in the file
         data_fields = NamedTuple();
         for FieldName in name
-            dat, isCell = ReadField_3D_pVTS(pvts, FieldName);
-            data_fields = merge(data_fields,dat)
+            dat, isCell = LaMEM.ReadField_3D_pVTS(pvts, FieldName);
+            if length(dat[1])>length(X)
+                dat = NamedTuple{keys(dat)}((ntuple(i->dat[1][i,:,:,:], size(dat[1],1)),)) 
+            end
+            data_fields = merge(data_fields,dat)               
         end
 
     else
@@ -326,12 +335,7 @@ function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
         end
     end
 
-    coords_read = get_coordinates(pvts)
-
-    # Read coordinates
-    x = coords_read[1][:,1]
-    y = coords_read[2][:,1]
-    z = coords_read[3][:,1]
+   
 
     if isCell 
         # In case we have cell data , coordinates are center of cell
@@ -340,7 +344,6 @@ function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
         z = (z[1:end-1] + z[2:end])/2
     end
 
-    X,Y,Z = XYZGrid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)
     return data_output      
 end

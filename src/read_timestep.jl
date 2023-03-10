@@ -291,57 +291,33 @@ It will return `data_output` which is a `CartData` output structure.
 function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
     CurDir = pwd();
 
-    # change to directory
-    cd(DirName)
-
     # read data from parallel rectilinear grid
+    cd(DirName)
     pvts        = PVTKFile(FileName)
-
     cd(CurDir)
 
     # Fields stored in this data file:    
     name = keys(get_point_data(pvts))
-    if isempty(name)
-        name = keys(get_cell_data(pvts))
+    if !isnothing(field)
+        if any(occursin.(name,field))
+            name = tuple(field);
+        else
+            error("the field $field does not exist in the data file which has fields: $(name)")
+        end
     end
-
-    coords_read = get_coordinates(pvts)
 
     # Read coordinates
-    X = coords_read[1]
-    Y = coords_read[2]
-    Z = coords_read[3]
-
-    isCell  = true
-    if isnothing(field)
-        # read all data in the file
-        data_fields = NamedTuple();
-        for FieldName in name
-            dat, isCell = LaMEM.ReadField_3D_pVTS(pvts, FieldName);
-            if length(dat[1])>length(X)
-                dat = NamedTuple{keys(dat)}((ntuple(i->dat[1][i,:,:,:], size(dat[1],1)),)) 
-            end
-            data_fields = merge(data_fields,dat)               
+    X,Y,Z = get_coordinates(pvts)
+    
+    # read all data in the file
+    data_fields = NamedTuple();
+    for FieldName in name
+        dat, _ = LaMEM.ReadField_3D_pVTS(pvts, FieldName);
+        if length(dat[1])>length(X)
+            dat_tup = ntuple(i->dat[1][i,:,:,:], size(dat[1],1))
+            dat = NamedTuple{keys(dat)}(tuple(dat_tup)) 
         end
-
-    else
-        # read just a single data set
-        ind = findall(contains.(field, name))
-        # check that it exists
-        if isempty(ind)
-            error("the field $field does not exist in the data file")
-        else
-            data_fields, isCell = ReadField_3D_pVTS(data, field)
-        end
-    end
-
-   
-
-    if isCell 
-        # In case we have cell data , coordinates are center of cell
-        x = (x[1:end-1] + x[2:end])/2
-        y = (y[1:end-1] + y[2:end])/2
-        z = (z[1:end-1] + z[2:end])/2
+        data_fields = merge(data_fields,dat)               
     end
 
     data_output     =   CartData(X,Y,Z, data_fields)

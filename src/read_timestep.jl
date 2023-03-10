@@ -6,7 +6,7 @@
 using GeophysicalModelGenerator: CartData, XYZGrid
 using Glob, ReadVTK
 
-export Read_LaMEM_PVTR_File, field_names, readPVD, Read_VTU_File
+export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, field_names, readPVD, Read_LaMEM_PVTU_File
 
   
 """ 
@@ -52,6 +52,80 @@ function ReadField_3D_pVTR(pvtk, FieldName)
 
     return data_out, isCell
 end
+
+
+
+function ReadField_3D_pVTS(pvts, FieldName)
+    isCell          =   false;
+    
+    # first try to get point data 
+    data_f = get_point_data(pvts)
+    # if empty then load cell data
+    if isempty(keys(data_f)) 
+        data_f      = get_cell_data(pvts)
+        data_Field  = get_data_reshaped(data_f[FieldName], cell_data=true)[:,:,:,1]
+
+        if typeof(data_Field[1])==UInt8
+            data_Field = Int64.(data_Field)
+        end
+        data_Tuple  = (data_Field,)
+        isCell      =   true;
+    else
+        data_Tuple  = (get_data_reshaped(data_f[FieldName])[:,:,:,1],)
+    end
+
+    name = filter(x -> !isspace(x), FieldName)  # remove white spaces
+    
+    id   = findfirst("[", name)
+    if !isnothing(id)
+        name = name[1:id[1]-1]      # strip out "[" signs
+    end
+    data_out = NamedTuple{(Symbol(name),)}(data_Tuple,);
+
+    return data_out, isCell
+end
+
+
+""" 
+    output, isCell = ReadField_3D_pVTU(data, FieldName::String)
+Extracts a 3D data field from a pVTU data structure `data`
+Input:
+- `data`:       Data structure obtained with Read_VTR_File
+- `FieldName`:  Exact name of the field as specified in the *.vtr file
+    
+Output:
+- `data_field`: Array with data, `data_field` is a tuple of size 1, 3 or 9 depending on whether it is a scalar, vector or tensor field
+    
+"""
+function ReadField_3D_pVTU(pvtu, FieldName)
+
+    # first try to get point data 
+    data_f = get_point_data(pvtu)
+    # if empty then load cell data
+    if isempty(keys(data_f)) 
+        data_f      = get_cell_data(pvtk)
+        data_Field  = get_data(data_f[FieldName], cell_data=true)[1]
+
+        if typeof(data_Field[1])==UInt8
+            data_Field = Int64.(data_Field)
+        end
+        data_Tuple  = (data_Field,)
+
+    else
+        data_Tuple  = (get_data(data_f[FieldName])[1],)
+    end
+
+    name = filter(x -> !isspace(x), FieldName)  # remove white spaces
+    
+    id   = findfirst("[", name)
+    if !isnothing(id)
+        name = name[1:id[1]-1]      # strip out "[" signs
+    end
+    data_out = NamedTuple{(Symbol(name),)}(data_Tuple,);
+
+    return data_out
+end
+
 
 
 """
@@ -149,7 +223,7 @@ end
 
 
 """
-    data_output = Read_VTU_File(DirName, FileName; field=nothing)
+    data_output = Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
 
 Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -157,7 +231,7 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_VTU_File(DirName, FileName; field=nothing)
+function Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
     CurDir = pwd();
 
     # change to directory
@@ -194,12 +268,70 @@ function Read_VTU_File(DirName, FileName; field=nothing)
         end
     end
 
-    coords_read = get_coordinates(pvtu)
+    points  = get_points(pvtu)
 
     # Read coordinates
-    x = coords_read[1]
-    y = coords_read[2]
-    z = coords_read[3]
+    x = points[1][1,:]
+    y = points[1][2,:]
+    z = points[1][3,:]
+
+    data_output     =   CartData(x,y,z, data_fields)
+    return data_output     
+end
+
+
+"""
+    data_output = Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
+
+Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
+
+It will return `data_output` which is a `CartData` output structure.
+
+"""
+function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
+    CurDir = pwd();
+
+    # change to directory
+    cd(DirName)
+
+    # read data from parallel rectilinear grid
+    pvts        = PVTKFile(FileName)
+
+    cd(CurDir)
+
+    # Fields stored in this data file:    
+    name = keys(get_point_data(pvts))
+    if isempty(name)
+        name = keys(get_cell_data(pvts))
+    end
+
+    isCell  = true
+    if isnothing(field)
+        # read all data in the file
+        data_fields = NamedTuple();
+        for FieldName in name
+            dat, isCell = ReadField_3D_pVTS(pvts, FieldName);
+            data_fields = merge(data_fields,dat)
+        end
+
+    else
+        # read just a single data set
+        ind = findall(contains.(field, name))
+        # check that it exists
+        if isempty(ind)
+            error("the field $field does not exist in the data file")
+        else
+            data_fields, isCell = ReadField_3D_pVTS(data, field)
+        end
+    end
+
+    coords_read = get_coordinates(pvts)
+
+    # Read coordinates
+    x = coords_read[1][:,1]
+    y = coords_read[2][:,1]
+    z = coords_read[3][:,1]
 
     if isCell 
         # In case we have cell data , coordinates are center of cell
@@ -210,5 +342,5 @@ function Read_VTU_File(DirName, FileName; field=nothing)
 
     X,Y,Z = XYZGrid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)
-    return data_output     
+    return data_output      
 end

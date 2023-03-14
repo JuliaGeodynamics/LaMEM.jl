@@ -34,10 +34,7 @@ using LaMEM
     
     # Read surface data
     data    = Read_LaMEM_PVTS_File("Timestep_00000005_7.59607376e-02", "Subduction2D_FreeSurface_direct_surf.pvts")
-    # @test data.z[100] ≈ -298.4531f0
-    # @test data.fields.Temperature[100] ≈ 1350.0f0
-    
-    
-
+    @test data.z[100] ≈ 0.6830405f0
+    @test  sum(data.fields.topography[:,1,1]) ≈ 1.2634416f0
 end
 

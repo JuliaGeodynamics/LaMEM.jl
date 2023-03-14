@@ -46,7 +46,6 @@ The downloaded `LaMEM` binaries can also be called from outside julia (directly 
 In that case, you will need to set load correct dynamic libraries (such as PETSc) and call the correct binaries.
 
 This function shows this for your system. 
-
 """
 function show_paths_LaMEM()
 

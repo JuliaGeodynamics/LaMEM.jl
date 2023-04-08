@@ -6,7 +6,8 @@
 using GeophysicalModelGenerator: CartData, XYZGrid
 using Glob, ReadVTK
 
-export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, field_names, readPVD, Read_LaMEM_PVTU_File
+export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, field_names, Read_LaMEM_PVTU_File
+export Read_LaMEM_simulation, Read_LaMEM_timestep
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -51,7 +52,6 @@ function ReadField_3D_pVTR(pvtk, FieldName)
 
     return data_out, isCell
 end
-
 
 
 function ReadField_3D_pVTS(pvts, FieldName)
@@ -136,7 +136,7 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_LaMEM_PVTR_File(DirName, FileName; field=nothing)
+function Read_LaMEM_PVTR_File(DirName::String, FileName::String; field=nothing)
     CurDir = pwd();
 
     # change to directory
@@ -196,9 +196,9 @@ end
 
 """
 
-    FileNames, Time = readPVD(FileName::String)
+    FileNames, Time, Timestep = readPVD(FileName::String)
 
-This reads a PVD file & returns the timesteps and corresponding filenames
+This reads a PVD file & returns the `FileNames`, `Time` and `Timesteps`
 """
 function readPVD(FileName::String)
 
@@ -206,18 +206,25 @@ function readPVD(FileName::String)
     start_line = findall(lines .== "<Collection>")[1] + 1
     end_line   = findall(lines .== "</Collection>")[1] - 1
     
-    FileNames = [];
-    Time      = [];
+    FileNames = Vector{String}()
+    Time      = Vector{Float64}()
+    Timestep  = Vector{Int64}()
     for i=start_line:end_line
         line = lines[i]
         time = split(line)[2]; time = parse(Float64,time[11:end-1])
         file = split(line)[3]; file = String.(file[7:end-3]);
 
-        FileNames = [FileNames; file]
-        Time      = [Time;      time]
+        FileNames = push!(FileNames, file)
+        Time = push!(Time, time)
+
+        # retrieve the timestep 
+        file_name = split(file,Base.Filesystem.path_separator)[1];
+        timestep = parse(Int64,split(file_name,"_")[2]);
+        Timestep = push!(Timestep, timestep)
+        
     end
 
-    return FileNames, Time
+    return FileNames, Time, Timestep
 end
 
 
@@ -322,4 +329,49 @@ function Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
 
     data_output     =   CartData(X,Y,Z, data_fields)
     return data_output      
+end
+
+
+"""
+
+This reads a LaMEM timestep.
+
+Input Arguments:
+- `FileName`: name of the simulation, w/out extension
+- `DirName`: name of the main directory (i.e. where the `*.pvd` files are located)
+
+"""
+function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=""; field=nothing, phase=false, surf=false)
+
+    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf);
+    @show Timestep
+    ind = findall(Timestep.==TimeStep)
+
+    if isempty(ind)
+        error("this timestep does not exist")
+    end
+    
+
+
+end
+
+
+""" 
+    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false)
+
+Reads a LaMEM simulation `FileName` in directory `DirName` and returns the timesteps, times and filenames of that simulation.
+"""
+function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false)
+
+    if phase==true
+        pvd_file=FileName*"_phase.pvd"
+    elseif surf==true
+        pvd_file=FileName*"_surf.pvd"
+    else
+        pvd_file=FileName*".pvd"
+    end
+
+    FileNames, Time, Timestep = readPVD(joinpath(DirName,pvd_file))
+
+    return FileNames, Time, Timestep
 end

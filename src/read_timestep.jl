@@ -243,7 +243,7 @@ end
 
 
 """
-    data_output = Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
+    data_output = Read_LaMEM_PVTU_File(DirName, FileName; fields=nothing)
 
 Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -251,14 +251,16 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
+function Read_LaMEM_PVTU_File(DirName_base, FileName; fields=nothing)
     CurDir = pwd();
 
+    DirName, File = split_path_name(DirName_base, FileName)
+    
     # change to directory
     cd(DirName)
 
     # read data from parallel rectilinear grid
-    pvtu        = PVTKFile(FileName)
+    pvtu        = PVTKFile(File)
 
     cd(CurDir)
 
@@ -269,12 +271,11 @@ function Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
     end
 
     isCell  = true
-    #=
     if isnothing(fields)
         # read all data in the file
         data_fields = NamedTuple();
         for FieldName in names
-            dat, isCell = ReadField_3D_pVTR(pvtk, FieldName);
+            dat         = ReadField_3D_pVTU(pvtu, FieldName);
             data_fields = merge(data_fields,dat)
         end
 
@@ -287,28 +288,9 @@ function Read_LaMEM_PVTU_File(DirName, FileName; field=nothing)
             if isempty(ind)
                 error("the field $field does not exist in the data file")
             else
-                dat, isCell = ReadField_3D_pVTR(pvtk, field)
+                dat, isCell = ReadField_3D_pVTU(pvtk, field)
             end
             data_fields = merge(data_fields,dat)
-        end
-    end
-    =#
-    if isnothing(field)
-        # read all data in the file
-        data_fields = NamedTuple();
-        for FieldName in names
-            dat         = ReadField_3D_pVTU(pvtu, FieldName);
-            data_fields = merge(data_fields,dat)
-        end
-
-    else
-        # read just a single data set
-        ind = findall(contains.(field, names))
-        # check that it exists
-        if isempty(ind)
-            error("the field $field does not exist in the data file")
-        else
-            data_fields = ReadField_3D_pVTU(data, field)
         end
     end
 
@@ -380,6 +362,7 @@ Input Arguments:
 - `fields`: Tuple with optional fields; if not specified all will be loaded
 - `phase`: Loads the phase information of LaMEM if true
 - `surf`: Loads the free surface of LaMEM if true
+- `passive_tracers`: Loads passive tracers if true
 - `last`: Loads the last timestep
 
 Output:
@@ -387,9 +370,9 @@ Output:
 - `time`: The time of the timestep
 
 """
-function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=""; fields=nothing, phase=false, surf=false, last=false)
+function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=pwd(); fields=nothing, phase=false, surf=false, passive_tracers=false, last=false)
 
-    Timestep, FileNames, Time  = Read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf);
+    Timestep, FileNames, Time  = Read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf, passive_tracers=passive_tracers);
     
     ind = findall(Timestep.==TimeStep)
     
@@ -399,6 +382,8 @@ function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::Strin
     # Read file
     if surf==true
         data = Read_LaMEM_PVTS_File(DirName, FileNames[ind[1]], fields=fields)
+    elseif passive_tracers==true
+        data = Read_LaMEM_PVTU_File(DirName, FileNames[ind[1]], fields=fields)
     else
         data = Read_LaMEM_PVTR_File(DirName, FileNames[ind[1]], fields=fields)
     end
@@ -408,16 +393,18 @@ end
 
 
 """ 
-    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false)
+    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
 
 Reads a LaMEM simulation `FileName` in directory `DirName` and returns the timesteps, times and filenames of that simulation.
 """
-function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false)
+function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
 
     if phase==true
         pvd_file=FileName*"_phase.pvd"
     elseif surf==true
         pvd_file=FileName*"_surf.pvd"
+    elseif passive_tracers==true
+        pvd_file=FileName*"_passive_tracers.pvd"
     else
         pvd_file=FileName*".pvd"
     end
@@ -428,11 +415,11 @@ function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false
 end
 
 """
-    Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false)
+    Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
 
 Returns the names of the datasets stored in `FileName`
 """
-function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false)
+function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
 
     _, FileNames, _  = Read_LaMEM_simulation(FileName, DirName_base; phase=phase, surf=surf);
     
@@ -444,7 +431,11 @@ function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=
 
     # read data from parallel rectilinear grid
     cd(DirName)
-    pvtk        = PVTKFile(File)
+    if !tracers
+        pvtk = PVTKFile(File)
+    else
+        pvtk = PVTUFile(File)
+    end
     cd(cur_dir)
 
     # Fields stored in this data file:   

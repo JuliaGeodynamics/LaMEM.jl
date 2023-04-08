@@ -29,9 +29,9 @@ using LaMEM
     @test Time[2] ≈ 0.055
     
     # Read passive tracers 
-    #data    = Read_LaMEM_PVTU_File("Timestep_00000010_1.09635548e+00", "PlumeLithosphereInteraction_passive_tracers.pvtu")
-    #@test data.z[100] ≈ -298.4531f0
-    #@test data.fields.Temperature[100] ≈ 1350.0f0
+    data, time = Read_LaMEM_timestep("PlumeLithosphereInteraction",10, passive_tracers=true)
+    @test data.z[100] ≈ -298.4531f0
+    @test data.fields.Temperature[100] ≈ 1350.0f0
     
     # Read surface data
     data, time = Read_LaMEM_timestep("Subduction2D_FreeSurface_direct",5, surf=true)

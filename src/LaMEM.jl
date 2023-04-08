@@ -3,8 +3,8 @@ module LaMEM
 # Functions to read LaMEM output
 include("IO.jl")
 using .IO
-export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, field_names, readPVD, Read_LaMEM_PVTU_File
-export Read_LaMEM_simulation, Read_LaMEM_timestep
+export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
+export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
 
 # Functions 
 include("Run.jl")

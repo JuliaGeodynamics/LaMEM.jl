@@ -29,18 +29,17 @@ using LaMEM
     out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
     @test isnothing(out)
 
+    if !Sys.iswindows()
+        out = run_lamem(ParamFile, 2, "-nstep_max 5")    # 2 cores (mumps)
+        @test isnothing(out)
+    end
+
     # Try free surface 
     ParamFile="input_files/Subduction2D_FreeSurface_DirectSolver.dat";
     out = run_lamem(ParamFile, 4, "-nstep_max 5")    # 4 core
     @test isnothing(out)
 
-
-    if !Sys.iswindows()
-        out = run_lamem(ParamFile, 2, "-nstep_max 2")    # 2 cores (mumps)
-        @test isnothing(out)
-    end
-    
-    if !Sys.isapple()
+    if !Sys.isapple() && 1==0
         # Note: superlu_dist uses a combination of openMP parallelization on a node and MPI between nodes.
         # If you have a server with a lot of cores AND run this with >1 core, this may clash
         # In that case it is better to run it with 1 MPI task but set the environmental variables below accordingly

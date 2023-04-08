@@ -5,6 +5,7 @@ include("IO.jl")
 using .IO
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
 export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
+export clean_directory, changefolder
 
 # Functions 
 include("Run.jl")

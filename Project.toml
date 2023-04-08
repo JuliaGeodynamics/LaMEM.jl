@@ -12,8 +12,9 @@ ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 [compat]
 GeophysicalModelGenerator = "0.4"
 Glob = "1"
-LaMEM_jll = "1.2"
+LaMEM_jll = "1.2.3"
 julia = "1.6"
+ReadVTK = "0.1.5"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

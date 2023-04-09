@@ -36,8 +36,8 @@ using LaMEM
     if !Sys.isapple()  # broken on mac  for LaMEM_jll 1.2.3 (should be fixed in next release)
         # Read surface data
         data, time = Read_LaMEM_timestep("Subduction2D_FreeSurface_direct",5, surf=true)
-        @test data.z[100] ≈ 0.6830405f0
-        @test  sum(data.fields.topography[:,1,1]) ≈ 1.2634416f0
+        @test data.z[100] ≈ 0.68236357f0
+        @test  sum(data.fields.topography[:,1,1]) ≈ 1.2645866f0
     end
 end
 

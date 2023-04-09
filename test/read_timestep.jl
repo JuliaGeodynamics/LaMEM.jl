@@ -6,6 +6,7 @@ using LaMEM
     # Read a timestep
     FileName="FB_multigrid"
     Timestep = 1
+    @show readdir()
     data, time = Read_LaMEM_timestep(FileName,Timestep)
     @test  sum(data.fields.phase) ≈ 736.36414f0
     @test  sum(data.fields.strain_rate[1,:,:,:]) ≈ -0.019376338f0

@@ -1,6 +1,5 @@
 using Test
 using LaMEM
-using PythonCall
 
 include("runLaMEM.jl")
 include("read_timestep.jl")

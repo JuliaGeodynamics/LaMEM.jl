@@ -4,23 +4,6 @@
 # Note: This downloads the BinaryBuilder version of LaMEM, which is not necessarily the latest version of LaMEM 
 #       (or the same as the current repository), since we have to manually update the builds.
    
-""" 
-    run_lamem_save_grid(ParamFile::String, cores::Int64=1)
-This calls LaMEM simulation, for using the parameter file `ParamFile` 
-and creates processor paritioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
-# Example:
-The first step is to ensure that `LaMEM_jll` is installed on your system. You only need to do this once, or once LaMEM_jll is updated. 
-```julia
-julia> import Pkg
-julia> Pkg.add("LaMEM_jll")
-```
-Next you can call LaMEM with:
-```julia
-julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
-julia> run_lamem_save_grid(ParamFile, 2)
-```
-"""
-
 
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="")
         
@@ -48,7 +31,7 @@ function JuliaStringToArray(input)
 	return arr
 end
 
-function get_line_contatinig(stringarray::Vector{SubString{String}}, lookfor::String)
+function get_line_containing(stringarray::Vector{SubString{String}}, lookfor::String)
 
 
 	for line in stringarray
@@ -59,12 +42,31 @@ function get_line_contatinig(stringarray::Vector{SubString{String}}, lookfor::St
 	end
 end
 
+""" 
+    run_lamem_save_grid(ParamFile::String, cores::Int64=1)
+This calls LaMEM simulation, for using the parameter file `ParamFile` 
+and creates processor paritioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
+# Example:
+The first step is to ensure that `LaMEM_jll` is installed on your system. You only need to do this once, or once LaMEM_jll is updated. 
+```julia
+julia> import Pkg
+julia> Pkg.add("LaMEM_jll")
+```
+Next you can call LaMEM with:
+```julia
+julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
+julia> run_lamem_save_grid(ParamFile, 2)
+```
+"""
 function run_lamem_save_grid(ParamFile::String, cores::Int64=1)
-	if cores==1	return print("No partitioning file required for 1 core model setup \n")	end
+	if cores==1	
+		return print("No partitioning file required for 1 core model setup \n")	
+	end
+
 	ParamFile    = abspath(ParamFile)
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	arr          = JuliaStringToArray(logoutput)
-	foundline    = get_line_contatinig(arr,"Processor grid  [nx, ny, nz]         : ")
+	foundline    = get_line_containing(arr,"Processor grid  [nx, ny, nz]         : ")
 	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
 	sprtlftbrkt  = split(foundline,"[")
 	sprtrghtbrkt = split(sprtlftbrkt[3],"]")

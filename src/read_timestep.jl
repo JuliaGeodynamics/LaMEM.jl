@@ -4,26 +4,10 @@
                   
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, XYZGrid
-using Glob
+using Glob, ReadVTK
 
-export Read_VTR_File, field_names, readPVD, Read_VTU_File
-
-
-function vtkXMLPRectilinearGridReader(FileName)
-  reader1  = pyvtk.vtkXMLPRectilinearGridReader()
-  reader1.SetFileName(FileName)
-  reader1.Update()
-  data    = reader1.GetOutput()
-  return data
-end
-
-function vtkXMLPUnstructuredGridReader(FileName)
-    reader1  = pyvtk.vtkXMLPUnstructuredGridReader()
-    reader1.SetFileName(FileName)
-    reader1.Update()
-    data    = reader1.GetOutput()
-    return data
-  end
+export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
+export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -39,58 +23,25 @@ Output:
                                `data_field` is a tuple of size 1, or 3 depending on whether it is a scalar or vector field
     
 """
-function ReadField_3D_pVTR(data, FieldName)
-    
-    x               =   data.GetXCoordinates();
-    y               =   data.GetYCoordinates();
-    z               =   data.GetZCoordinates();
-    
-    nx              =   PythonCall.pyconvert(Int, x.GetSize());
-    ny              =   PythonCall.pyconvert(Int, y.GetSize());
-    nz              =   PythonCall.pyconvert(Int, z.GetSize());
+function ReadField_3D_pVTR(pvtk, FieldName)
     isCell          =   false;
     
-    # First assume they are point data
-    data_f          =   data.GetPointData().GetArray(FieldName)
-    if PythonCall.pyisnone(data_f)
-        data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
-    end
-    numData = PythonCall.pyconvert(Int,data_f.GetDataSize())
-    data_Field      =   PythonCall.pyconvert(Array, data_f);
-    if  size(data_Field,1) != nx*ny*nz
-        isCell = true;
-        nx = nx-1;
-        ny = ny-1;
-        nz = nz-1;
-    end
+    # first try to get point data 
+    data_f = get_point_data(pvtk)
+    # if empty then load cell data
+    if isempty(keys(data_f)) 
+        data_f      = get_cell_data(pvtk)
+        data_Field  = get_data_reshaped(data_f[FieldName], cell_data=true)
 
-    if size(data_Field,2) == 1
-        data_Field  =   reshape(data_Field     ,(nx,ny,nz))
         if typeof(data_Field[1])==UInt8
             data_Field = Int64.(data_Field)
         end
-
-        data_Tuple  =   (data_Field, )
-    elseif size(data_Field,2) == 3
-        Vx          =   reshape(data_Field[:,1],(nx,ny,nz));
-        Vy          =   reshape(data_Field[:,2],(nx,ny,nz));
-        Vz          =   reshape(data_Field[:,3],(nx,ny,nz));
-        data_Tuple  =   ((Vx,Vy,Vz),)
-    elseif size(data_Field,2) == 9
-        xx          =   reshape(data_Field[:,1],(nx,ny,nz));
-        xy          =   reshape(data_Field[:,2],(nx,ny,nz));
-        xz          =   reshape(data_Field[:,3],(nx,ny,nz));
-        yx          =   reshape(data_Field[:,4],(nx,ny,nz));
-        yy          =   reshape(data_Field[:,5],(nx,ny,nz));
-        yz          =   reshape(data_Field[:,6],(nx,ny,nz));
-        zx          =   reshape(data_Field[:,7],(nx,ny,nz));
-        zy          =   reshape(data_Field[:,8],(nx,ny,nz));
-        zz          =   reshape(data_Field[:,9],(nx,ny,nz));
-        
-        data_Tuple  =   ((xx,xy,xz,yx,yy,yz,zx,zy,zz),)
+        data_Tuple  = (data_Field,)
+        isCell      =   true;
     else
-        error("Not yet implemented for this size $(size(data_Field,2))")
+        data_Tuple  = (get_data_reshaped(data_f[FieldName]),)
     end
+
     name = filter(x -> !isspace(x), FieldName)  # remove white spaces
     
     id   = findfirst("[", name)
@@ -102,11 +53,41 @@ function ReadField_3D_pVTR(data, FieldName)
     return data_out, isCell
 end
 
+
+function ReadField_3D_pVTS(pvts, FieldName)
+    isCell          =   false;
+    
+    # first try to get point data 
+    data_f = get_point_data(pvts)
+    # if empty then load cell data
+    if isempty(keys(data_f)) 
+        data_f      = get_cell_data(pvts)
+        data_Field  = get_data_reshaped(data_f[FieldName], cell_data=true)[:,:,:,1]
+
+        if typeof(data_Field[1])==UInt8
+            data_Field = Int64.(data_Field)
+        end
+        data_Tuple  = (data_Field,)
+        isCell      =   true;
+    else
+        data_Tuple  = (get_data_reshaped(data_f[FieldName])[:,:,:,1],)
+    end
+
+    name = filter(x -> !isspace(x), FieldName)  # remove white spaces
+    
+    id   = findfirst("[", name)
+    if !isnothing(id)
+        name = name[1:id[1]-1]      # strip out "[" signs
+    end
+    data_out = NamedTuple{(Symbol(name),)}(data_Tuple,);
+
+    return data_out, isCell
+end
+
+
 """ 
     output, isCell = ReadField_3D_pVTU(data, FieldName::String)
-
 Extracts a 3D data field from a pVTU data structure `data`
-
 Input:
 - `data`:       Data structure obtained with Read_VTR_File
 - `FieldName`:  Exact name of the field as specified in the *.vtr file
@@ -115,46 +96,24 @@ Output:
 - `data_field`: Array with data, `data_field` is a tuple of size 1, 3 or 9 depending on whether it is a scalar, vector or tensor field
     
 """
-function ReadField_3D_pVTU(data, FieldName)
-    
-    n               =   PythonCall.pyconvert(Int, data.GetNumberOfPoints());
-    coords          =   PythonCall.pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
- 
-    # First assume they are point data
-    data_f          =   data.GetPointData().GetArray(FieldName)
-    if PythonCall.pyisnone(data_f)
-        data_f          =   data.GetCellData().GetArray(FieldName)      # Try Cell Data
-    end
-    numData = PythonCall.pyconvert(Int,data_f.GetDataSize())
-    data_Field      =   PythonCall.pyconvert(Array, data_f);
-   
-    if size(data_Field,2) == 1
-        data_Field  =   data_Field;
+function ReadField_3D_pVTU(pvtu, FieldName)
+
+    # first try to get point data 
+    data_f = get_point_data(pvtu)
+    # if empty then load cell data
+    if isempty(keys(data_f)) 
+        data_f      = get_cell_data(pvtk)
+        data_Field  = get_data(data_f[FieldName], cell_data=true)[1]
+
         if typeof(data_Field[1])==UInt8
             data_Field = Int64.(data_Field)
         end
+        data_Tuple  = (data_Field,)
 
-        data_Tuple  =   (data_Field, )
-    elseif size(data_Field,2) == 3
-        Vx          =   data_Field[:,1]
-        Vy          =   data_Field[:,2]
-        Vz          =   data_Field[:,3]
-        data_Tuple  =   ((Vx,Vy,Vz),)
-    elseif size(data_Field,2) == 9
-        xx          =   data_Field[:,1]
-        xy          =   data_Field[:,2]
-        xz          =   data_Field[:,3]
-        yx          =   data_Field[:,4]
-        yy          =   data_Field[:,5]
-        yz          =   data_Field[:,6]
-        zx          =   data_Field[:,7]
-        zy          =   data_Field[:,8]
-        zz          =   data_Field[:,9]
-        
-        data_Tuple  =   ((xx,xy,xz,yx,yy,yz,zx,zy,zz),)
     else
-        error("Not yet implemented for this size $(size(data_Field,2))")
+        data_Tuple  = (get_data(data_f[FieldName])[1],)
     end
+
     name = filter(x -> !isspace(x), FieldName)  # remove white spaces
     
     id   = findfirst("[", name)
@@ -166,57 +125,20 @@ function ReadField_3D_pVTU(data, FieldName)
     return data_out
 end
 
-
-
-"""
-    names = field_names(data)
-
-Returns the names of all fields stored in the vtr data structure `data`.
-"""
-function field_names(data)
-    names = [];
+ # The FileName can contain a directory as well; deal with that here
+function split_path_name(DirName_base::String, FileName::String)
+    FullName = joinpath(DirName_base,FileName)
+    id       = findlast("/", FullName)[1];
     
-    # Get Names of PointData arrays
-    pdata = data.GetPointData()
-    num = PythonCall.pyconvert(Int,pdata.GetNumberOfArrays())
-    for i=1:num
-        names = [names; PythonCall.pyconvert(String,pdata.GetArrayName(i-1))]
-    end
+    DirName  = FullName[1:id-1]
+    File     = FullName[id+1:end]
 
-     # Get Names of CellData arrays
-     cdata = data.GetCellData()
-     num = PythonCall.pyconvert(Int,cdata.GetNumberOfArrays())
-     for i=1:num
-         names = [names; PythonCall.pyconvert(String,cdata.GetArrayName(i-1))]
-     end
-
-    return names;
-end
-
-"""
-    names = field_names(DirName, FileName)
-
-Returns the names of all fields stored in the vtr file in the directory `Directory` and file `FileName`.
-"""
-function field_names(DirName, FileName)
-    CurDir = pwd();
-
-    # change to directory
-    cd(DirName)
-
-    # read data from parallel rectilinear grid
-    data = vtkXMLPRectilinearGridReader(FileName);      # this is how it should be done within modules
-    cd(CurDir)
-
-    # Fields stored in this data file:     
-    names = field_names(data);
-
-    return names;
+    return DirName, File
 end
 
 
 """
-    data_output = Read_VTR_File(DirName, FileName; field=nothing)
+    data_output = Read_LaMEM_PVTR_File(DirName, FileName; fields=nothing)
 
 Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -224,42 +146,56 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_VTR_File(DirName, FileName; field=nothing)
+function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
 
+    DirName, File = split_path_name(DirName_base, FileName)
+    
     # change to directory
     cd(DirName)
 
     # read data from parallel rectilinear grid
-    data = vtkXMLPRectilinearGridReader(FileName);      # this is how it should be done within modules
-    cd(CurDir)
+    pvtk        = PVTKFile(File)
 
-    # Fields stored in this data file:     
-    names = field_names(data);
+    # Fields stored in this data file:    
+    names = keys(get_point_data(pvtk))
+    if isempty(names)
+        names = keys(get_cell_data(pvtk))
+    end
+
     isCell  = true
-    if isnothing(field)
+    if isnothing(fields)
         # read all data in the file
         data_fields = NamedTuple();
+
         for FieldName in names
-            dat, isCell = ReadField_3D_pVTR(data, FieldName);
+            dat, isCell = ReadField_3D_pVTR(pvtk, FieldName);
             data_fields = merge(data_fields,dat)
         end
 
     else
-        # read just a single data set
-        ind = findall(contains.(field, names))
-        # check that it exists
-        if isempty(ind)
-            error("the field $field does not exist in the data file")
-        else
-            data_fields, isCell = ReadField_3D_pVTR(data, field)
+        # read the data sets specified
+        data_fields = NamedTuple();
+        for field in fields
+            ind = findall(contains.(field, names))
+            # check that it exists
+            if isempty(ind)
+                error("the field $field does not exist in the data file")
+            else
+                dat, isCell = ReadField_3D_pVTR(pvtk, field)
+            end
+            data_fields = merge(data_fields,dat)
         end
     end
+    cd(CurDir)
+
+    coords_read = get_coordinates(pvtk)
 
     # Read coordinates
-    x               =   PythonCall.pyconvert(Array,data.GetXCoordinates());
-    y               =   PythonCall.pyconvert(Array,data.GetYCoordinates());
-    z               =   PythonCall.pyconvert(Array,data.GetZCoordinates());
+    x = coords_read[1]
+    y = coords_read[2]
+    z = coords_read[3]
+
     if isCell 
         # In case we have cell data , coordinates are center of cell
         x = (x[1:end-1] + x[2:end])/2
@@ -272,11 +208,12 @@ function Read_VTR_File(DirName, FileName; field=nothing)
     return data_output   
 end
 
+
 """
 
-    FileNames, Time = readPVD(FileName::String)
+    FileNames, Time, Timestep = readPVD(FileName::String)
 
-This reads a PVD file & returns the timesteps and corresponding filenames
+This reads a PVD file & returns the `FileNames`, `Time` and `Timesteps`
 """
 function readPVD(FileName::String)
 
@@ -284,23 +221,31 @@ function readPVD(FileName::String)
     start_line = findall(lines .== "<Collection>")[1] + 1
     end_line   = findall(lines .== "</Collection>")[1] - 1
     
-    FileNames = [];
-    Time      = [];
+    FileNames = Vector{String}()
+    Time      = Vector{Float64}()
+    Timestep  = Vector{Int64}()
     for i=start_line:end_line
         line = lines[i]
         time = split(line)[2]; time = parse(Float64,time[11:end-1])
         file = split(line)[3]; file = String.(file[7:end-3]);
 
-        FileNames = [FileNames; file]
-        Time      = [Time;      time]
+        FileNames = push!(FileNames, file)
+        Time = push!(Time, time)
+
+        # retrieve the timestep 
+        file_name = split(file,Base.Filesystem.path_separator)[1];
+        
+        timestep = parse(Int64,split(file_name,"_")[2]);
+        Timestep = push!(Timestep, timestep)
+        
     end
 
-    return FileNames, Time
+    return FileNames, Time, Timestep
 end
 
 
 """
-    data_output = Read_VTU_File(DirName, FileName; field=nothing)
+    data_output = Read_LaMEM_PVTU_File(DirName, FileName; fields=nothing)
 
 Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -308,44 +253,199 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_VTU_File(DirName, FileName; field=nothing)
+function Read_LaMEM_PVTU_File(DirName_base, FileName; fields=nothing)
     CurDir = pwd();
 
+    DirName, File = split_path_name(DirName_base, FileName)
+    
     # change to directory
     cd(DirName)
 
     # read data from parallel rectilinear grid
-    data = vtkXMLPUnstructuredGridReader(FileName);      # this is how it should be done within modules
+    pvtu        = PVTKFile(File)
+
     cd(CurDir)
 
-    # Fields stored in this data file:     
-    names = field_names(data);
+    # Fields stored in this data file:    
+    names = keys(get_point_data(pvtu))
+    if isempty(names)
+        names = keys(get_cell_data(pvtu))
+    end
+
     isCell  = true
-    if isnothing(field)
+    if isnothing(fields)
         # read all data in the file
         data_fields = NamedTuple();
         for FieldName in names
-            dat         = ReadField_3D_pVTU(data, FieldName);
+            dat         = ReadField_3D_pVTU(pvtu, FieldName);
             data_fields = merge(data_fields,dat)
         end
 
     else
-        # read just a single data set
-        ind = findall(contains.(field, names))
-        # check that it exists
-        if isempty(ind)
-            error("the field $field does not exist in the data file")
-        else
-            data_fields = ReadField_3D_pVTU(data, field)
+        # read the data sets specified
+        data_fields = NamedTuple();
+        for field in fields
+            ind = findall(contains.(field, names))
+            # check that it exists
+            if isempty(ind)
+                error("the field $field does not exist in the data file")
+            else
+                dat, isCell = ReadField_3D_pVTU(pvtk, field)
+            end
+            data_fields = merge(data_fields,dat)
         end
     end
 
+    points  = get_points(pvtu)
+
     # Read coordinates
-    coords          =   PythonCall.pyconvert(Array,data.GetPoints().GetData()); # coordinates of points
-    x               =   coords[:,1];
-    y               =   coords[:,2];
-    z               =   coords[:,3];
-   
+    x = points[1][1,:]
+    y = points[1][2,:]
+    z = points[1][3,:]
+
     data_output     =   CartData(x,y,z, data_fields)
-    return data_output   
+    return data_output     
+end
+
+
+"""
+    data_output = Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
+
+Reads a 3D LaMEM timestep from VTS file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
+
+It will return `data_output` which is a `CartData` output structure.
+
+"""
+function Read_LaMEM_PVTS_File(DirName_base::String, FileName::String; fields=nothing)
+    CurDir = pwd();
+
+    DirName, File = split_path_name(DirName_base, FileName)
+    
+    # read data from parallel rectilinear grid
+    cd(DirName)
+    pvts        = PVTKFile(File)
+    cd(CurDir)
+
+    # Fields stored in this data file:    
+    names = keys(get_point_data(pvts))
+    if isempty(names)
+        names = keys(get_cell_data(pvts))
+    end
+
+    # Read coordinates
+    X,Y,Z = get_coordinates(pvts)
+    
+    # read all data in the file
+    data_fields = NamedTuple();
+    for FieldName in names
+        dat, _ = ReadField_3D_pVTS(pvts, FieldName);
+        if length(dat[1])>length(X)
+            dat_tup = ntuple(i->dat[1][i,:,:,:], size(dat[1],1))
+            dat = NamedTuple{keys(dat)}(tuple(dat_tup)) 
+        end
+        data_fields = merge(data_fields,dat)               
+    end
+
+    data_output     =   CartData(X,Y,Z, data_fields)
+    return data_output      
+end
+
+
+"""
+    data, time = Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=""; fields=nothing, phase=false, surf=false, last=false)
+
+This reads a LaMEM timestep.
+
+Input Arguments:
+- `FileName`: name of the simulation, w/out extension
+- `Timestep`: timestep to be read, unless `last=true` in which case we read the last one
+- `DirName`: name of the main directory (i.e. where the `*.pvd` files are located)
+- `fields`: Tuple with optional fields; if not specified all will be loaded
+- `phase`: Loads the phase information of LaMEM if true
+- `surf`: Loads the free surface of LaMEM if true
+- `passive_tracers`: Loads passive tracers if true
+- `last`: Loads the last timestep
+
+Output:
+- `data`: Cartesian data struct with LaMEM output
+- `time`: The time of the timestep
+
+"""
+function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=pwd(); fields=nothing, phase=false, surf=false, passive_tracers=false, last=false)
+
+    Timestep, FileNames, Time  = Read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf, passive_tracers=passive_tracers);
+    
+    ind = findall(Timestep.==TimeStep)
+    
+    if last==true; ind = length(Time); end
+    if isempty(ind); error("this timestep does not exist"); end
+
+    # Read file
+    if surf==true
+        data = Read_LaMEM_PVTS_File(DirName, FileNames[ind[1]], fields=fields)
+    elseif passive_tracers==true
+        data = Read_LaMEM_PVTU_File(DirName, FileNames[ind[1]], fields=fields)
+    else
+        data = Read_LaMEM_PVTR_File(DirName, FileNames[ind[1]], fields=fields)
+    end
+
+    return data, Time[ind]
+end
+
+
+""" 
+    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
+
+Reads a LaMEM simulation `FileName` in directory `DirName` and returns the timesteps, times and filenames of that simulation.
+"""
+function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
+
+    if phase==true
+        pvd_file=FileName*"_phase.pvd"
+    elseif surf==true
+        pvd_file=FileName*"_surf.pvd"
+    elseif passive_tracers==true
+        pvd_file=FileName*"_passive_tracers.pvd"
+    else
+        pvd_file=FileName*".pvd"
+    end
+
+    FileNames, Time, Timestep = readPVD(joinpath(DirName,pvd_file))
+
+    return Timestep, FileNames, Time
+end
+
+"""
+    Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
+
+Returns the names of the datasets stored in `FileName`
+"""
+function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
+
+    _, FileNames, _  = Read_LaMEM_simulation(FileName, DirName_base; phase=phase, surf=surf);
+    
+    # Read file
+    DirName, File = split_path_name(DirName_base, FileNames[1])
+    
+    # change to directory
+    cur_dir = pwd();
+
+    # read data from parallel rectilinear grid
+    cd(DirName)
+    if !tracers
+        pvtk = PVTKFile(File)
+    else
+        pvtk = PVTUFile(File)
+    end
+    cd(cur_dir)
+
+    # Fields stored in this data file:   
+    if phase==false 
+        names = keys(get_point_data(pvtk))
+    else
+        names = keys(get_cell_data(pvtk))
+    end
+
+    return names
 end

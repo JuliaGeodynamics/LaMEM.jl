@@ -4,32 +4,40 @@ using LaMEM
 @testset "read LaMEM output" begin
 
     # Read a timestep
-    FileName="FB_multigrid.pvtr"
-    DirName = "Timestep_00000001_6.72970343e+00"
-
-    data    = Read_VTR_File(DirName, FileName)
+    FileName="FB_multigrid"
+    Timestep = 1
+    data, time = Read_LaMEM_timestep(FileName,Timestep)
     @test  sum(data.fields.phase) ≈ 736.36414f0
-    @test  sum(data.fields.strain_rate[1]) ≈ -0.019376338f0
+    @test  sum(data.fields.strain_rate[1,:,:,:]) ≈ -0.019376338f0
 
-    fields = field_names(DirName, FileName)
-
+    fields = Read_LaMEM_fieldnames(FileName)
+    
     # with cell-data 
-    FileName="FB_multigrid_phase.pvtr"
+    FileName="FB_multigrid"
     DirName = "Timestep_00000001_6.72970343e+00"
-    data    = Read_VTR_File(DirName, FileName)
+    Timestep = 1
+    data, time = Read_LaMEM_timestep(FileName,Timestep, phase=true)
+    
     @test sum(data.fields.phase) == 19822
 
     # read subduction setup
-    data    = Read_VTR_File("Timestep_00000001_5.50000000e-02", "Subduction2D_FreeSlip_direct.pvtr")
+    data, time = Read_LaMEM_timestep("Subduction2D_FreeSlip_direct",1)
     @test sum(data.fields.density) ≈ 1.60555f8
 
     # Read PVD file 
-    FileNames, Time = readPVD("Subduction2D_FreeSlip_direct.pvd")
+    Timestep, FileNames, Time  = Read_LaMEM_simulation("Subduction2D_FreeSlip_direct")
     @test Time[2] ≈ 0.055
     
     # Read passive tracers 
-    data    = Read_VTU_File("Timestep_00000010_1.09635548e+00", "PlumeLithosphereInteraction_passive_tracers.pvtu")
-    @test data.z[100] ≈ -298.5178f0
+    data, time = Read_LaMEM_timestep("PlumeLithosphereInteraction",10, passive_tracers=true)
+    @test data.z[100] ≈ -298.4531f0
     @test data.fields.Temperature[100] ≈ 1350.0f0
     
+    if !Sys.isapple()  # broken on mac  for LaMEM_jll 1.2.3 (should be fixed in next release)
+        # Read surface data
+        data, time = Read_LaMEM_timestep("Subduction2D_FreeSurface_direct",5, surf=true)
+        @test data.z[100] ≈ 0.68236357f0
+        @test  sum(data.fields.topography[:,1,1]) ≈ 1.2645866f0
+    end
 end
+

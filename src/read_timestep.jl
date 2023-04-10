@@ -232,7 +232,9 @@ function readPVD(FileName::String)
         Time = push!(Time, time)
 
         # retrieve the timestep 
-        file_name = split(file,Base.Filesystem.path_separator)[1];
+        #file_name = split(file,Base.Filesystem.path_separator)[1];
+        file_name = split(file,"/")[1];
+        
         timestep = parse(Int64,split(file_name,"_")[2]);
         Timestep = push!(Timestep, timestep)
         

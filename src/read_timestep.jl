@@ -128,7 +128,6 @@ end
  # The FileName can contain a directory as well; deal with that here
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)
-    #id       = findlast(Base.Filesystem.path_separator, FullName)[1];
     id       = findlast("/", FullName)[1];
     
     DirName  = FullName[1:id-1]
@@ -150,9 +149,7 @@ It will return `data_output` which is a `CartData` output structure.
 function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
 
-    @show DirName_base FileName
     DirName, File = split_path_name(DirName_base, FileName)
-    @show DirName File
     
     # change to directory
     cd(DirName)
@@ -237,7 +234,6 @@ function readPVD(FileName::String)
 
         # retrieve the timestep 
         file_name = split(file,Base.Filesystem.path_separator)[1];
-        #file_name = split(file,"/")[1];
         
         timestep = parse(Int64,split(file_name,"_")[2]);
         Timestep = push!(Timestep, timestep)

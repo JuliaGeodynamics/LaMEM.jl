@@ -395,7 +395,7 @@ end
 
 
 """ 
-    FileNames, Time, Timestep = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
+    Timestep, FileNames, Time = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
 
 Reads a LaMEM simulation `FileName` in directory `DirName` and returns the timesteps, times and filenames of that simulation.
 """

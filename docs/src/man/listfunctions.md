@@ -1,7 +1,13 @@
 # List of all functions
 
-These are all functions that are available in the package:
+These are all functions that are available in the package, which can roughly be divided inton two groups (running & reading LaMEM)
 
+## Running LaMEM
 ```@autodocs
-Modules = [LaMEM]
+Modules = [LaMEM.Run]
+
+```
+## Reading LaMEM output back into julia
+```@autodocs
+Modules = [LaMEM.IO]
 ```

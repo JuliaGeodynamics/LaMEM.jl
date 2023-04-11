@@ -10,24 +10,18 @@ This starts a LaMEM simulation, for using the parameter file `ParamFile` on `cor
 Optional additional command-line parameters can be specified with `args`.
 
 # Example:
-The first step is to ensure that `LaMEM_jll` is installed on your system. You only need to do this once, or once LaMEM_jll is updated. 
+You can call LaMEM with:
 ```julia
-julia> import Pkg
-julia> Pkg.add("LaMEM_jll")
-```
-
-Next you can call LaMEM with:
-```julia
+julia> using LaMEM
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile)
 ```
 
-Do the same on 2 cores with
+Do the same on 2 cores with a command-line argument as:
 ```julia
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
-
 """
 function run_lamem(ParamFile::String, cores::Int64=1, args::String="")
         

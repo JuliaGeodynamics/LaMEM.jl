@@ -75,6 +75,6 @@ function changefolder()
         cd(chomp(read(`osascript -e $command`, String)))
         println(pwd())
     else
-        exit()
+        error("This only works on windows and mac")
     end
 end

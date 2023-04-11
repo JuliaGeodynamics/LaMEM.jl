@@ -43,19 +43,14 @@ function get_line_containing(stringarray::Vector{SubString{String}}, lookfor::St
 end
 
 """ 
-    run_lamem_save_grid(ParamFile::String, cores::Int64=1)
+	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1)
 This calls LaMEM simulation, for using the parameter file `ParamFile` 
 and creates processor paritioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
 # Example:
-The first step is to ensure that `LaMEM_jll` is installed on your system. You only need to do this once, or once LaMEM_jll is updated. 
 ```julia
-julia> import Pkg
-julia> Pkg.add("LaMEM_jll")
-```
-Next you can call LaMEM with:
-```julia
+julia> using LaMEM
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
-julia> run_lamem_save_grid(ParamFile, 2)
+julia> ProcessorPartFile = run_lamem_save_grid(ParamFile, 2)
 ```
 """
 function run_lamem_save_grid(ParamFile::String, cores::Int64=1)

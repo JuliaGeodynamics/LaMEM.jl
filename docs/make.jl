@@ -10,6 +10,8 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Installation" => "man/installation.md",
+        "Run LaMEM" => "man/runlamem.md",
+        "Reading timesteps" => "man/readtimesteps.md",
         "List of functions" => "man/listfunctions.md",
     ],
 )

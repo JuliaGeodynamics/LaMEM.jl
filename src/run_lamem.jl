@@ -27,7 +27,7 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         
     if cores==1
         # Run LaMEM on a single core, which does not require a working MPI
-        run(`$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`);
+        run(`$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`, wait=wait);
     else
         # set correct environment
         mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);

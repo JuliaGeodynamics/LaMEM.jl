@@ -43,7 +43,7 @@ function get_line_containing(stringarray::Vector{SubString{String}}, lookfor::St
 end
 
 """ 
-	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1)
+	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
 This calls LaMEM simulation, for using the parameter file `ParamFile` 
 and creates processor paritioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
 # Example:
@@ -53,8 +53,8 @@ julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> ProcessorPartFile = run_lamem_save_grid(ParamFile, 2)
 ```
 """
-function run_lamem_save_grid(ParamFile::String, cores::Int64=1)
-	if cores==1	
+function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
+	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
 

@@ -1,5 +1,0 @@
-[deps]
-vtk = "8.2"
-
-[deps.python]
-version = ">=3.7,<4"

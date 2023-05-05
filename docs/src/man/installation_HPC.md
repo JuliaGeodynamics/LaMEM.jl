@@ -12,13 +12,13 @@ It essentially consists of two steps:
 Here step-by-step instructions (for Linux, as that is what essentially all HPC systems use):
 
 
-1) Download [MPIwrapper](https://github.com/eschnett/MPIwrapper): 
+* Download [MPIwrapper](https://github.com/eschnett/MPIwrapper): 
 ```bash
 $git clone https://github.com/eschnett/MPIwrapper.git 
 $cd MPIwrapper
 ```
 
-2) Install it after making sure that `mpiexec` points to the one you want (you may have to load some modules, depending on your system):
+* Install it after making sure that `mpiexec` points to the one you want (you may have to load some modules, depending on your system):
 ```bash
 $cmake -S . -B build -DMPIEXEC_EXECUTABLE=mpiexec -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$HOME/mpiwrapper
 $cmake --build build
@@ -26,27 +26,27 @@ $cmake --install build
 ```
 At this stage, `MPItrampoline` is installed in `$HOME/mpiwrapper`
 
-3) Set the correct wrapper:
+* Set the correct wrapper:
 ```
 $export MPITRAMPOLINE_LIB=$HOME/mpiwrapper/lib64/libmpiwrapper.so
 ```
 Depending on the system it may be called `lib` instead of `lib64` (check!).
 
-4) Start julia and install the `MPI` and `MPIPreferences` packages:
+* Start julia and install the `MPI` and `MPIPreferences` packages:
 ```julia
 $julia
 julia> ]
 pkg>add MPI, MPIPreferences
 ```
 
-5) Set the preference to use `MPItrampoline`
+* Set the preference to use `MPItrampoline`
 ```julia
 julia> using MPIPreferences; MPIPreferences.use_jll_binary("MPItrampoline_jll")
 ┌ Info: MPIPreferences unchanged
 └   binary = "MPItrampoline_jll"
 ```
 
-6) Load `MPI` and verify it is the correct one
+* Load `MPI` and verify it is the correct one
 ```julia
 julia> using MPI
 julia> MPI.Get_library_version()
@@ -54,11 +54,11 @@ julia> MPI.Get_library_version()
 ```
 After this, restart julia (this only needs to be done once, next time all is fine).
 
-7) Now load `LaMEM` and check that it uses the `mpitrampoline` version:
+* Now load `LaMEM` and check that it uses the `mpitrampoline` version:
 ```julia
 julia> using MPI,LaMEM
 julia> LaMEM.LaMEM_jll.host_platform
 Linux x86_64 {cxxstring_abi=cxx11, julia_version=1.8.1, libc=glibc, libgfortran_version=5.0.0, mpi=mpitrampoline}
 ```
 
-Now the precompiled version of `LaMEM` should be useable on that system.
+At this stage the precompiled version of `LaMEM` should be useable on that system.

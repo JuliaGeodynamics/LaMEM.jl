@@ -10,6 +10,7 @@ makedocs(;
     pages=[
         "Home" => "index.md",
         "Installation" => "man/installation.md",
+        "Installation on HPC systems" => "man/installation_HPC.md",
         "Run LaMEM" => "man/runlamem.md",
         "Reading timesteps" => "man/readtimesteps.md",
         "List of functions" => "man/listfunctions.md",

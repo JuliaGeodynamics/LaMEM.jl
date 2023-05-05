@@ -14,7 +14,12 @@ const mpiexec = if isdefined(LaMEM_jll,:MPICH_jll)
     LaMEM_jll.MPICH_jll.mpiexec()
 elseif isdefined(LaMEM_jll,:MicrosoftMPI_jll) 
     LaMEM_jll.MicrosoftMPI_jll.mpiexec()
+elseif isdefined(LaMEM_jll,:OpenMPI_jll) 
+    LaMEM_jll.OpenMPI_jll.mpiexec()
+elseif isdefined(LaMEM_jll,:MPItrampoline_jll) 
+    LaMEM_jll.MPItrampoline_jll.mpiexec()
 else
+    println("Be careful! No MPI library detected; parallel runs won't work")
     nothing
 end
 

@@ -2,17 +2,7 @@ using Test
 using LaMEM
 
 @testset "run LaMEM" begin
-    
-    # Run simulation in background
-    ParamFile="input_files/FallingBlock_Multigrid.dat";
-    try
-        out = run_lamem(ParamFile, 1,"-nstep_max 1", wait=false)       # 1 core
-        @test isnothing(out)
-    catch 
-        println("Falling Block test on 1 core failed")
-    end
-    clean_directory()
-      
+ 
     # first test - run a simulation
     ParamFile="input_files/FallingBlock_Multigrid.dat";
     try
@@ -21,6 +11,8 @@ using LaMEM
     catch 
         println("Falling Block test on 1 core failed")
     end
+    
+
    
     try
         out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores

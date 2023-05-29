@@ -1,7 +1,7 @@
 name = "LaMEM"
 uuid = "2e889f3d-35ce-4a77-8ea2-858aecb630f7"
 authors = ["Boris Kaus <kaus@uni-mainz.de>"]
-version = "0.1.12"
+version = "0.1.13"
 
 [deps]
 GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"

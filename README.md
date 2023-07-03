@@ -15,6 +15,7 @@ It will automatically download a binary version of LaMEM which runs in parallel 
 ### 2. Starting a simulation
 As usual, you need a LaMEM (`*.dat`) input file, which you can run in parallel (here on 4 cores) with:
 ```julia
+julia> using LaMEM
 julia> ParamFile="input_files/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 4,"-time_end 1")
 -------------------------------------------------------------------------- 

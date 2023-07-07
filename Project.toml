@@ -8,6 +8,7 @@ GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
 PETSc_jll = "8fa3689e-f0b9-5420-9873-adf6ccf46f2d"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 
 [compat]

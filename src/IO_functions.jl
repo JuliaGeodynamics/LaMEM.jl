@@ -1,4 +1,4 @@
-module IO
+module IO_functions
 # this contains I/O routines of LaMEM, which don't require LaMEM_jll
 
 include("read_timestep.jl")

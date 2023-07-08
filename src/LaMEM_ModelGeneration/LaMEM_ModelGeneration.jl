@@ -18,6 +18,9 @@ export Grid
 include("Time.jl")      # Timestepping
 export Time
 
+include("FreeSurface.jl")      # Timestepping
+export FreeSurface
+
 include("Model.jl")     # main LaMEM_Model
 export Model
 

@@ -20,7 +20,7 @@ mutable struct Model
         Grid=Grid(), 
         Time=Time(),
         FreeSurface=FreeSurface(),
-        BoundaryConditions=nothing,
+        BoundaryConditions=BoundaryConditions(),
         SolutionParams=nothing,
         Solver=nothing,
         ModelSetup=nothing,
@@ -41,7 +41,9 @@ function show(io::IO, d::Model)
     show_short(io, d.Scaling)   
     show_short(io, d.Grid)     
     show_short(io, d.Time)      
-    show_short(io, d.FreeSurface)      
+    show_short(io, d.FreeSurface)   
+    show_short(io, d.BoundaryConditions)   
+       
 end
 
 
@@ -59,8 +61,7 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Write_LaMEM_InputFile(io, d.Grid)
     Write_LaMEM_InputFile(io, d.Time)
     Write_LaMEM_InputFile(io, d.FreeSurface)
-    
-
+    Write_LaMEM_InputFile(io, d.BoundaryConditions)
 
     close(io)
     

@@ -17,7 +17,7 @@ function show(io::IO, d::Scaling{T}) where T
 end
 
 function show_short(io::IO, d::Scaling{T}) where T
-    println(io,"|-- Scaling  :  $T")
+    println(io,"|-- Scaling             :  $T")
 end
 
 

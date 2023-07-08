@@ -7,7 +7,10 @@ using GeophysicalModelGenerator
 using GeophysicalModelGenerator.GeoParams
 import Base: show
 
+# Few utils that are being used
 filter_fields(fields, filter_out) = (setdiff(fields, filter_out)...,)
+gettext_color(d,Reference, field) = getfield(d,field) != getfield(Reference,field) ? :blue : :default
+
 
 include("Scaling.jl")   # Scaling
 export Scaling 
@@ -18,8 +21,11 @@ export Grid
 include("Time.jl")      # Timestepping
 export Time
 
-include("FreeSurface.jl")      # Timestepping
+include("FreeSurface.jl")      # Free surface
 export FreeSurface
+
+include("BoundaryConditions.jl")      # Boundary Conditions
+export BoundaryConditions
 
 include("Model.jl")     # main LaMEM_Model
 export Model

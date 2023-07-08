@@ -49,6 +49,7 @@ end
 
 # Print info about the structure
 function show(io::IO, d::Time)
+    Reference = Time();    # reference values
     println(io, "LaMEM Timestepping parameters: ")
     fields         = fieldnames(typeof(d))
 
@@ -60,14 +61,15 @@ function show(io::IO, d::Time)
 
     # print fields
     for f in fields
-        println(io,"  $(rpad(String(f),15)) = $(getfield(d,f))")        
+        col = gettext_color(d,Reference, f)
+        printstyled(io,"  $(rpad(String(f),15)) = $(getfield(d,f)) \n", color=col)        
     end
   
     return nothing
 end
 
 function show_short(io::IO, d::Time)
-    println(io,"|-- Time     :  nstep_max=$(d.nstep_max); nstep_out=$(d.nstep_out); time_end=$(d.time_end); dt=$(d.dt)")
+    println(io,"|-- Time                :  nstep_max=$(d.nstep_max); nstep_out=$(d.nstep_out); time_end=$(d.time_end); dt=$(d.dt)")
     return nothing
 end
 
@@ -92,6 +94,7 @@ function Write_LaMEM_InputFile(io, d::Time)
             name = rpad(String(f),15)
             comment = getfield(Info,f) 
             data = getfield(d,f) 
+            
             println(io,"    $name  = $(write_vec(data))     # $(comment)")
         end
     end

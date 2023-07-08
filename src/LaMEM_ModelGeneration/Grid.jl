@@ -155,8 +155,8 @@ end
 function show_short(io::IO, d::Grid)
     nel   = (sum(d.nel_x), sum(d.nel_y), sum(d.nel_z)) 
     x,y,z = extrema(d.coord_x), extrema(d.coord_y), extrema(d.coord_z)
-    println(io,"|-- Grid     :  nel=$(nel); xϵ$x, yϵ$y, zϵ$z ")
-
+    println(io,"|-- Grid                :  nel=$(nel); xϵ$x, yϵ$y, zϵ$z ")
+    
     return nothing
 end
 

@@ -5,11 +5,11 @@
 export FreeSurface, FreeSurface_info, Write_LaMEM_InputFile
 
 """
-    Structure that contains the LaMEM timestepping information. An explanation of the paramneters is given in the struct `Time_info`
+    Structure that contains the LaMEM free surface information.
 
 """
 Base.@kwdef mutable struct FreeSurface
-    surf_use::Int64             = 1                 # free surface activation flag
+    surf_use::Int64             = 0                 # free surface activation flag
     surf_corr_phase::Int64      = 1                 # air phase ratio correction flag (due to surface position)
     surf_level::Float64         = 0.5               # initial level
     surf_air_phase::Int64       = 0                 # phase ID of sticky air layer
@@ -39,7 +39,7 @@ Base.@kwdef struct FreeSurface_info
     surf_use::String            = "free surface activation flag"
     surf_corr_phase::String     = "air phase ratio correction flag (due to surface position)"
     surf_level::String          = "initial level"
-    surf_air_phase:String       = "phase ID of sticky air layer"
+    surf_air_phase::String      = "phase ID of sticky air layer"
     surf_max_angle::String      = "maximum angle with horizon (smoothed if larger)"
     surf_topo_file::String      = "initial topography file (redundant)"
     
@@ -66,8 +66,9 @@ end
 
 # Print info about the structure
 function show(io::IO, d::FreeSurface)
+    Reference = FreeSurface();
     println(io, "LaMEM Free Surface parameters: ")
-    fields         = fieldnames(typeof(d))
+    fields    = fieldnames(typeof(d))
 
     # Do we have multiple timestepping periods? 
     surf_use = d.surf_use
@@ -75,7 +76,8 @@ function show(io::IO, d::FreeSurface)
         
         # print fields
         for f in fields
-            println(io,"  $(rpad(String(f),15)) = $(getfield(d,f))")        
+            col = gettext_color(d,Reference, f)
+            printstyled(io,"  $(rpad(String(f),15)) = $(getfield(d,f)) \n", color=col)        
         end
     else
         println(io,"  Free surface inactive")        

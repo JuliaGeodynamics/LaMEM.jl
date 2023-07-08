@@ -111,22 +111,19 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
     Reference = BoundaryConditions();    # reference values
     Info      = BoundaryConditions_info()
     fields    = fieldnames(typeof(d))
-    surf_use  = d.surf_use
-
+    
     println(io, "#===============================================================================")
     println(io, "# Boundary conditions")
     println(io, "#===============================================================================")
     println(io,"")
 
-    if surf_use==1
-        for f in fields
-            if getfield(d,f) != getfield(Reference,f) 
-                # only print if value differs from reference value
-                name = rpad(String(f),15)
-                comment = getfield(Info,f) 
-                data = getfield(d,f) 
-                println(io,"    $name  = $(write_vec(data))     # $(comment)")
-            end
+    for f in fields
+        if getfield(d,f) != getfield(Reference,f) 
+            # only print if value differs from reference value
+            name = rpad(String(f),15)
+            comment = getfield(Info,f) 
+            data = getfield(d,f) 
+            println(io,"    $name  = $(write_vec(data))     # $(comment)")
         end
     end
 

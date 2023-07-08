@@ -171,13 +171,6 @@ function print_coord(io, direction, coord, bias, nseg, coord_vec)
     end
 end
 
-function write_vec(data)
-    str = ""
-    for d in data
-        str = str*" $d"
-    end
-    return str
-end
 
 """
     Write_LaMEM_InputFile(io, d::Grid)

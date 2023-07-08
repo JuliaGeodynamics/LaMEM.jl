@@ -11,6 +11,18 @@ import Base: show
 filter_fields(fields, filter_out) = (setdiff(fields, filter_out)...,)
 gettext_color(d,Reference, field) = getfield(d,field) != getfield(Reference,field) ? :blue : :default
 
+function write_vec(data)
+    if !isa(data,String)
+        str = ""
+        for d in data
+            str = str*" $d"
+        end
+    else
+        str = data
+    end
+
+    return str
+end
 
 include("Scaling.jl")   # Scaling
 export Scaling 
@@ -26,6 +38,9 @@ export FreeSurface
 
 include("BoundaryConditions.jl")      # Boundary Conditions
 export BoundaryConditions
+
+include("SolutionParams.jl")      # Solution parameters 
+export SolutionParams
 
 include("Model.jl")     # main LaMEM_Model
 export Model

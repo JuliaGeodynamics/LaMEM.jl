@@ -1,5 +1,9 @@
 module LaMEM
 
+using GeoParams
+using .GeoParams
+export NO_units, GEO_units, SI_units
+
 # Functions to read LaMEM output
 include("IO_functions.jl")
 using .IO_functions
@@ -15,7 +19,8 @@ export remove_popup_messages_mac, show_paths_LaMEM
 
 include("LaMEM_ModelGeneration/LaMEM_ModelGeneration.jl")
 using .LaMEM_Model
-export Model, Grid
+export  Model, Write_LaMEM_InputFile, Scaling, Grid, Time
+
 
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories

@@ -1,26 +1,65 @@
 # This is the main LaMEM Model struct
+using GeophysicalModelGenerator.GeoParams
 
-export Model
+export Model, Write_LaMEM_InputFile
 
 mutable struct Model
+    Scaling::Scaling
     Grid::Grid
-    output_Dir::String
+    Time
+    FreeSurface
+    BoundaryConditions
+    SolutionParams
+    Solver
+    ModelSetup
+    Output
+    Materials
 
     function Model(;
-        LaMEM_Grid=Grid(), 
-        output_Dir="output"
+        Scaling=Scaling(GEO_units()),
+        Grid=Grid(), 
+        Time=Time(),
+        FreeSurface=nothing,
+        BoundaryConditions=nothing,
+        SolutionParams=nothing,
+        Solver=nothing,
+        ModelSetup=nothing,
+        Output=nothing,
+        Materials=nothing
         )
 
-        return new(LaMEM_Grid, output_Dir)
+        return new(Scaling, Grid, Time, FreeSurface, BoundaryConditions, 
+                    SolutionParams, Solver, ModelSetup, Output, Materials)
     end
     
 end
 
-# Show brief overview 
+# Show brief overview of Model
 function show(io::IO, d::Model)
     println(io,"LaMEM Model setup")
     println(io,"|")
-    println(io,"|-- Scaling  : ")
-    show_short(io, d.Grid)  # grid
+    show_short(io, d.Scaling)   
+    show_short(io, d.Grid)     
+    show_short(io, d.Time)      
+end
 
+
+
+"""
+    Write_LaMEM_InputFile(d::Model,fname::String; dir=pwd())
+
+Writes a LaMEM input file based on the data stored in Model
+"""
+function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
+
+    io = open(fname,"w")
+
+    Write_LaMEM_InputFile(io, d.Scaling)
+    Write_LaMEM_InputFile(io, d.Grid)
+    Write_LaMEM_InputFile(io, d.Time)
+    
+
+
+    close(io)
+    
 end

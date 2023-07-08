@@ -1,5 +1,4 @@
 # This is the data that stores LaMEM grid-related info
-
 export Grid, Write_LaMEM_InputFile, show_short
 
 """
@@ -196,8 +195,6 @@ julia> close(io)
 
 """
 function Write_LaMEM_InputFile(io, d::Grid)
-    
-    io = open("test.dat","w")
 
     println(io, "#===============================================================================")
     println(io, "# Grid & discretization parameters")
@@ -236,7 +233,6 @@ function Write_LaMEM_InputFile(io, d::Grid)
     println(io,"    nmark_z =  $(d.nmark_z)")
     
     println(io,"")
-    close(io)
 
     return nothing
 end

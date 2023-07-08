@@ -4,12 +4,21 @@
 module LaMEM_Model
 
 using GeophysicalModelGenerator
+using GeophysicalModelGenerator.GeoParams
 import Base: show
 
-include("Grid.jl")  # LaMEM grid 
-export Grid, Write_LaMEM_InputFile
+filter_fields(fields, filter_out) = (setdiff(fields, filter_out)...,)
 
-include("Model.jl") # main LaMEM_Model
+include("Scaling.jl")   # Scaling
+export Scaling 
+
+include("Grid.jl")      # LaMEM grid 
+export Grid
+
+include("Time.jl")      # Timestepping
+export Time
+
+include("Model.jl")     # main LaMEM_Model
 export Model
 
 end

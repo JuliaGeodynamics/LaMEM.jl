@@ -4,43 +4,155 @@
 export Output, Write_LaMEM_InputFile
 
 """
-    Structure that contains the LaMEM solver options
+    Structure that contains the LaMEM output options
     
     $(TYPEDFIELDS)
 """
 Base.@kwdef mutable struct Output
-    "solver employed [`\"direct\"` or `\"multigrid\"`]"
-    SolverType::String      =	"direct"
+    "output file name"
+    out_file_name       = "output"
 
-    "mumps/superlu_dist/pastix/umfpack  (requires these external PETSc packages to be installed!)"
-    DirectSolver::String    =	"superlu_dist"		
+    "activate writing .pvd file"
+    out_pvd             = 1     
 
-    "penalty parameter [employed if we use a direct solver]"
-    DirectPenalty::Float64  =	1e4			
+    "dominant phase"
+    out_phase           = 1     
 
-    "number of MG levels [default=3]"
-    MGLevels::Int64 	    =	3			
+    "density"
+    out_density         = 1     
 
-    "number of MG smoothening steps per level [default=10]"
-    MGSweeps::Int64 	    =	10			
+    "total (viscoelastoplastic) viscosity"
+    out_visc_total      = 1     
 
-    "type of smoothener used [chebyshev or jacobi]"
-    MGSmoother::String      =	"chebyshev" 	
+    "creep viscosity"
+    out_visc_creep      = 1     
 
-    "Dampening parameter [only employed for Jacobi smoothener; default=0.6]"
-    MGJacobiDamp::Float64   =	0.5			
+    "velocity"
+    out_velocity        = 1     
 
-    "coarse grid solver if using multigrid [direct/mumps/superlu_dist or redundant - more options specifiable through the command-line options -crs_ksp_type & -crs_pc_type]"
-    MGCoarseSolver::String  =	"direct" 		
+    "(dynamic) pressure"
+    out_pressure        = 0     
 
-    "How many times do we copy the coarse grid? [only employed for redundant solver; default is 4]"
-    MGRedundantNum::Int64   =	4			
+    "total pressure"
+    out_tot_press       = 0     
 
-    "The coarse grid solver for each of the redundant solves [only employed for redundant; options are mumps/superlu_dist with default superlu_dist]"
-    MGRedundantSolver::String   = 	"superlu_dist"		
+    "effective pressure"
+    out_eff_press       = 0     
 
-    "List with (optional) PETSc options"
-    PETSc_options::NTuple = ()
+    out_over_press      = 0
+
+    out_litho_press     = 0
+
+    out_pore_press      = 0
+
+    "temperature"
+    out_temperature     = 0     
+
+    "deviatoric strain rate tensor"
+    out_dev_stress      = 0     
+
+    "second invariant of deviatoric stress tensor"
+    out_j2_dev_stress   = 0     
+
+    "deviatoric strain rate tensor"
+    out_strain_rate     = 0     
+
+    "second invariant of strain rate tensor"
+    out_j2_strain_rate  = 0     
+
+    out_shmax           = 0
+
+    out_ehmax           = 0
+
+    out_yield           = 0
+
+    "relative proportion of diffusion creep strainrate"
+    out_rel_dif_rate    = 0     
+
+    "relative proportion of dislocation creep strainrate"
+    out_rel_dis_rate    = 0     
+
+    "relative proportion of peierls creep strainrate"
+    out_rel_prl_rate    = 0     
+
+    "relative proportion of plastic strainrate"
+    out_rel_pl_rate     = 0     
+
+    "accumulated plastic strain"
+    out_plast_strain    = 0     
+
+    "plastic dissipation"
+    out_plast_dissip    = 0     
+
+    out_tot_displ       = 0
+
+    out_moment_res      = 0
+
+    out_cont_res        = 0
+
+    out_energ_res       = 0
+
+    out_melt_fraction   = 0
+
+    out_fluid_density   = 0
+
+    out_conductivity    = 0
+
+    out_vel_gr_tensor   = 0 
+
+    "activate surface output"
+    out_surf            = 0 
+
+    "activate writing .pvd file"
+    out_surf_pvd        = 0 
+    
+    "surface velocity"
+    out_surf_velocity   = 0
+
+    "surface topography "
+    out_surf_topography = 0
+
+    "amplitude of topography (=topo-average(topo))"
+    out_surf_amplitude  = 0
+
+    "activate marker output"
+    out_mark     = 0 
+
+    "activate writing .pvd file"
+    out_mark_pvd = 0 
+
+    "activate AVD phase output"
+    out_avd     = 0 
+
+    "activate writing .pvd file"
+    out_avd_pvd = 0 
+
+    "AVD grid refinement factor"
+    out_avd_ref = 0 
+
+    "activate"
+    out_ptr              = 0    
+
+    "ID of the passive tracers"
+    out_ptr_ID           = 0    
+
+    "phase of the passive tracers"
+    out_ptr_phase        = 0    
+
+    "interpolated pressure"
+    out_ptr_Pressure     = 0    
+
+    "temperature"
+    out_ptr_Temperature  = 0    
+
+    "melt fraction computed using P-T of the marker"
+    out_ptr_MeltFraction = 0    
+
+    "option that highlight the marker that are currently active"
+    out_ptr_Active       = 0    
+
+    "option that allow to store the melt fraction seen within the cell"
+    out_ptr_Grid_Mf      = 0    
 end
 
 # Print info about the structure
@@ -52,7 +164,7 @@ function show(io::IO, d::Output)
     # print fields
     for f in fields
         col = gettext_color(d,Reference, f)
-        printstyled(io,"  $(rpad(String(f),17)) = $(getfield(d,f)) \n", color=col)        
+        printstyled(io,"  $(rpad(String(f),20)) = $(getfield(d,f)) \n", color=col)        
     end
 
   
@@ -60,7 +172,7 @@ function show(io::IO, d::Output)
 end
 
 function show_short(io::IO, d::Output)
-    println(io,"|-- Output options      :  $(d.SolverType) solver; ")
+    println(io,"|-- Output options      :  filename=$(d.out_file_name); pvd=$(d.out_pvd)")
 
     return nothing
 end

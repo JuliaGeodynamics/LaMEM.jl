@@ -56,7 +56,7 @@ Base.@kwdef mutable struct ModelSetup
     "max number of same phase markers per subcell (subgrid marker control)"
     nmark_sub::Int64                = 1        
 
-    "Different geometric primitives that can be selected"
+    "Different geometric primitives that can be selected if we `msetup``=`geom`; see `geom_Sphere`"
     geom_primitives::NTuple    = ()
 end
 

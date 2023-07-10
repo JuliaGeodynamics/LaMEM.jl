@@ -68,6 +68,12 @@ export Solver
 include("ModelSetup.jl")            # model setup options
 export ModelSetup, geom_Sphere
 
+include("Output.jl")            # output options
+export Output
+
+include("Materials.jl")     # main LaMEM_Model
+export Materials, Phase
+
 include("Model.jl")     # main LaMEM_Model
 export Model
 

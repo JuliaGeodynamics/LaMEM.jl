@@ -22,7 +22,9 @@ using .LaMEM_Model
 export  Model, Write_LaMEM_InputFile, 
         Scaling, Grid, Time, FreeSurface, BoundaryConditions, SolutionParams,
         Solver, ModelSetup, 
-        geom_Sphere
+        geom_Sphere,
+        Output,
+        Materials, Phase
 
 
 using .Run.LaMEM_jll

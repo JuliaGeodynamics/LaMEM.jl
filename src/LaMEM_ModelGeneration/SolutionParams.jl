@@ -16,8 +16,7 @@ Base.@kwdef mutable struct SolutionParams
     gravity::Vector{Float64} = [0.0, 0.0, -9.81] 
 
     """
-    free surface stabilization parameter [0 - 1]
-        The value has to be between 0 and 1
+    free surface stabilization parameter [0 - 1]; The value has to be between 0 and 1
     """
     FSSA::Float64            = 1.0         
 
@@ -114,16 +113,16 @@ Base.@kwdef mutable struct SolutionParams
     lmaxit::Int64          = 25              
     
     "local rheology iterations relative tolerance"
-    lrtol::Float64           = 1e-6         
+    lrtol::Float64          = 1e-6         
     
     "dike activation flag (additonal term in divergence)  "
-    act_dike::Int64        = 1               
+    act_dike::Int64         = 1               
     
     "switch to use T-dependent conductivity, 0: not active"
-    useTk::Int64           = 1              
+    useTk::Int64            = 1              
     
     "switch to use Behn & Ito heat source in the dike "
-    dikeHeat::Int64        = 1		        
+    dikeHeat::Int64         = 1		        
 
     "compute the velocity gradient tensor 1: active, 0: not active. If active, it automatically activates the output in the .pvd file"
     Compute_velocity_gradient::Int64 = 1     

@@ -4,6 +4,7 @@ export Grid, Write_LaMEM_InputFile, show_short
 """
     Structure that contains the LaMEM grid information
 
+    $(TYPEDFIELDS)
 
 Example 1
 ====
@@ -30,21 +31,52 @@ LaMEM grid with constant Δ:
 ```
 """
 mutable struct Grid
+    "number of markers/element in x-direction"
     nmark_x :: Int64
+    
+    "number of markers/element in y-direction"
     nmark_y :: Int64 
+    
+    "number of markers/element in x-direction"
     nmark_z :: Int64
+
+    "number of elements in x-direction"
     nel_x   :: Vector{Int64}
+
+    "number of elements in y-direction"
     nel_y   :: Vector{Int64}
+
+    "number of elements in z-direction"
     nel_z   :: Vector{Int64}
+
+    "coordinates in x-direction"
     coord_x :: Vector{Float64} 
+
+    "coordinates in y-direction"
     coord_y :: Vector{Float64} 
+
+    "coordinates in z-direction"
     coord_z :: Vector{Float64} 
+
+    "number of segments in x-direction (if we employ variable grid spacing in x-direction)"
     nseg_x  :: Int64
+
+    "number of segments in y-direction (if we employ variable grid spacing in y-direction)"
     nseg_y  :: Int64
+
+    "number of segments in z-direction (if we employ variable grid spacing in z-direction)"
     nseg_z  :: Int64
+
+    "bias in x-direction (if we employ variable grid spacing in x-direction)"
     bias_x  :: Vector{Float64} 
+
+    "bias in y-direction (if we employ variable grid spacing in y-direction)"
     bias_y  :: Vector{Float64} 
+
+    "bias in z-direction (if we employ variable grid spacing in z-direction)"
     bias_z  :: Vector{Float64} 
+
+    "Contains the LaMEM Grid object"
     Grid:: GeophysicalModelGenerator.LaMEM_grid
 
     # set default parameters
@@ -74,12 +106,11 @@ mutable struct Grid
         nseg_x = length(nel_x)
         nseg_y = length(nel_y)
         nseg_z = length(nel_z)
-        
 
         # Create a LaMEM grid
         Grid_LaMEM = Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, coord_y, coord_z, 
-        nseg_x, nseg_y, nseg_z, bias_x, bias_y, bias_z)
-
+                                 nseg_x, nseg_y, nseg_z, bias_x, bias_y, bias_z)
+        
         # Create struct
         return new(nmark_x, nmark_y, nmark_z, [nel_x...], [nel_y...], [nel_z...], [coord_x...], [coord_y...], [coord_z...], 
             nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM)

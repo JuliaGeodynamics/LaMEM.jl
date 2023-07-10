@@ -66,3 +66,32 @@ include("Model.jl")     # main LaMEM_Model
 export Model
 
 end
+
+
+#=
+
+# this simplifies the process to create the correct structures from the LaMEM input *.dat file
+function transfer_data()
+    io = open("test_in.dat","r")
+    io_w = open("test_out.dat","w")
+
+    while !eof(io)
+        line = readline(io)
+        line_new    = split(line,"#")
+        if length(line_new)==2
+            line_new = line_new[2:-1:1]
+            line_new[1] = "    \""*strip(line_new[1])*"\""
+        end
+        for i=1:length(line_new)
+            println(io_w,line_new[i])
+        end
+        println(io_w,"")
+
+    end
+
+    close(io)
+    close(io_w)
+end
+
+
+=#

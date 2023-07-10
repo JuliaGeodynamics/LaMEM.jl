@@ -1,6 +1,14 @@
 export Scaling, Write_LaMEM_InputFile 
 
+"""
+    Scaling{T} is a structure that contains the scaling info, employed in the current simulation
+    
+    $(TYPEDFIELDS)
+
+"""
 mutable struct Scaling{T}
+
+    "Scaling object (as in GeoParams), which can be `GEO_units()`, `NO_units()`, or `SI_units()`"
     Scaling::T
     
     function Scaling(

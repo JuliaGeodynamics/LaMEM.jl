@@ -4,8 +4,11 @@ using GeophysicalModelGenerator.GeoParams
 export Model, Write_LaMEM_InputFile
 
 mutable struct Model
+    "Scaling parameters"
     Scaling::Scaling
+    "LaMEM Grid"
     Grid::Grid
+    ""
     Time
     FreeSurface
     BoundaryConditions
@@ -67,3 +70,18 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     close(io)
     
 end
+
+
+"test T"
+mutable struct T
+    "x number"
+    x
+    "y"
+    y
+
+    function T(;x=1,y=2)
+        return new(x,y)
+    end
+end
+
+

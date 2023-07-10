@@ -5,6 +5,7 @@ module LaMEM_Model
 
 using GeophysicalModelGenerator
 using GeophysicalModelGenerator.GeoParams
+using DocStringExtensions
 import Base: show
 
 # Few utils that are being used
@@ -13,15 +14,25 @@ gettext_color(d,Reference, field) = getfield(d,field) != getfield(Reference,fiel
 
 function write_vec(data)
     if !isa(data,String)
-        str = ""
-        for d in data
-            str = str*" $d"
-        end
+        str = ""; for d in data; str = str*" $d" end
     else
         str = data
     end
 
     return str
+end
+
+"""
+    help_info::String = get_doc(structure, field::Symbol) 
+This returns a string with the documentation for a parameter `field` that is within the `structure`. 
+Note that this structure must be a help structure of the current one.
+"""
+function get_doc(structure, field::Symbol) 
+    alldocs       =   Docs.meta(LaMEM_Model);
+    var           =   eval(Meta.parse("Docs.@var($structure)"))
+    fields_local  =   alldocs[var].docs[Union{}].data[:fields]
+
+    return fields_local[field]
 end
 
 include("Scaling.jl")   # Scaling

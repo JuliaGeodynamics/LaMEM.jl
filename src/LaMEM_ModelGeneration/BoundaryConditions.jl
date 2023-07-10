@@ -2,8 +2,6 @@
 #
 # WARNING: incomplete, more parameters to be added 
 
-
-
 export BoundaryConditions, Write_LaMEM_InputFile
 
 """
@@ -65,7 +63,7 @@ function show(io::IO, d::BoundaryConditions)
     # print fields
     for f in fields
         col = gettext_color(d,Reference, f)
-        printstyled(io,"  $(rpad(String(f),15)) = $(getfield(d,f)) \n", color=col)        
+        printstyled(io,"  $(rpad(String(f),17)) = $(getfield(d,f)) \n", color=col)        
     end
     
     return nothing

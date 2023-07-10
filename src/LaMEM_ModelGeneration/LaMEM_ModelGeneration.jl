@@ -62,8 +62,15 @@ export BoundaryConditions
 include("SolutionParams.jl")        # Solution parameters 
 export SolutionParams
 
+include("Solver.jl")                # solver options
+export Solver
+
+include("ModelSetup.jl")            # model setup options
+export ModelSetup, geom_Sphere
+
 include("Model.jl")     # main LaMEM_Model
 export Model
+
 
 end
 

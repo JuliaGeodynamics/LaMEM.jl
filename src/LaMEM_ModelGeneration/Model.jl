@@ -6,16 +6,32 @@ export Model, Write_LaMEM_InputFile
 mutable struct Model
     "Scaling parameters"
     Scaling::Scaling
+    
     "LaMEM Grid"
     Grid::Grid
-    ""
+    
+    "Time options"
     Time
+
+    "Free surface options"
     FreeSurface
+
+    "Boundary conditions"
     BoundaryConditions
+
+    "Global solution parameters"
     SolutionParams
+
+    "Solver options and optional PETSc options"
     Solver
+
+    "Model setup"
     ModelSetup
+
+    "Output options"
     Output
+
+    "Material parameters for each of the phases"
     Materials
 
     function Model(;
@@ -25,8 +41,8 @@ mutable struct Model
         FreeSurface=FreeSurface(),
         BoundaryConditions=BoundaryConditions(),
         SolutionParams=SolutionParams(),
-        Solver=nothing,
-        ModelSetup=nothing,
+        Solver=Solver(),
+        ModelSetup=ModelSetup(),
         Output=nothing,
         Materials=nothing
         )
@@ -47,6 +63,10 @@ function show(io::IO, d::Model)
     show_short(io, d.FreeSurface)   
     show_short(io, d.BoundaryConditions)   
     show_short(io, d.SolutionParams)   
+    show_short(io, d.Solver)   
+    show_short(io, d.ModelSetup)   
+    
+    
 end
 
 
@@ -66,22 +86,13 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Write_LaMEM_InputFile(io, d.FreeSurface)
     Write_LaMEM_InputFile(io, d.BoundaryConditions)
     Write_LaMEM_InputFile(io, d.SolutionParams)
+    Write_LaMEM_InputFile(io, d.Solver)
+    Write_LaMEM_InputFile(io, d.ModelSetup)
     
+
     close(io)
     
 end
 
-
-"test T"
-mutable struct T
-    "x number"
-    x
-    "y"
-    y
-
-    function T(;x=1,y=2)
-        return new(x,y)
-    end
-end
 
 

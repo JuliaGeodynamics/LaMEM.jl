@@ -159,9 +159,9 @@ function Write_LaMEM_InputFile(io, d::SolutionParams)
     Reference = SolutionParams();    # reference values
     fields    = fieldnames(typeof(d))
     
-    println(io, "===============================================================================")
-    println(io, " Solution parameters & controls")
-    println(io, "===============================================================================")
+    println(io, "#===============================================================================")
+    println(io, "# Solution parameters & controls")
+    println(io, "#===============================================================================")
     println(io,"")
 
     for f in fields

@@ -2,11 +2,11 @@
 
 # related to timestepping
 
-export FreeSurface, FreeSurface_info, Write_LaMEM_InputFile
+export FreeSurface, Write_LaMEM_InputFile
 
 """
     Structure that contains the LaMEM free surface information.
-    
+
     $(TYPEDFIELDS)
 """
 Base.@kwdef mutable struct FreeSurface

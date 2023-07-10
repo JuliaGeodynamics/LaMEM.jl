@@ -20,7 +20,7 @@ export remove_popup_messages_mac, show_paths_LaMEM
 include("LaMEM_ModelGeneration/LaMEM_ModelGeneration.jl")
 using .LaMEM_Model
 export  Model, Write_LaMEM_InputFile, 
-        Scaling, Grid, Time, FreeSurface, SolutionParams
+        Scaling, Grid, Time, FreeSurface, BoundaryConditions, SolutionParams
 
 
 using .Run.LaMEM_jll

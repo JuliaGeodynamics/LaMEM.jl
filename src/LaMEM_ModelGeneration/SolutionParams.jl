@@ -1,5 +1,4 @@
 #Solution Parameters
-using DocStringExtensions
 
 # Capture meta-data with:
 # Docs.meta(LaMEM.LaMEM_Model)[Docs.@var(LaMEM.LaMEM_Model.SolutionParams)].docs[Union{}].data

@@ -31,8 +31,17 @@ function get_doc(structure, field::Symbol)
     alldocs       =   Docs.meta(LaMEM_Model);
     var           =   eval(Meta.parse("Docs.@var($structure)"))
     fields_local  =   alldocs[var].docs[Union{}].data[:fields]
+    str = fields_local[field]
 
-    return fields_local[field]
+    # Add comment to next line (if required)
+    str = replace(str, "\n" => "\n #")
+
+    # remove the # at the end of the string
+    if str[end]=='#'
+        str = str[1:end-1]
+    end
+
+    return str
 end
 
 include("Scaling.jl")   # Scaling
@@ -44,13 +53,13 @@ export Grid
 include("Time.jl")      # Timestepping
 export Time
 
-include("FreeSurface.jl")      # Free surface
+include("FreeSurface.jl")           # Free surface
 export FreeSurface
 
-include("BoundaryConditions.jl")      # Boundary Conditions
+include("BoundaryConditions.jl")    # Boundary Conditions
 export BoundaryConditions
 
-include("SolutionParams.jl")      # Solution parameters 
+include("SolutionParams.jl")        # Solution parameters 
 export SolutionParams
 
 include("Model.jl")     # main LaMEM_Model

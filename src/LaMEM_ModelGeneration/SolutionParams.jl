@@ -27,7 +27,7 @@ Base.@kwdef mutable struct SolutionParams
     Adiabatic_Heat::Float64  = 0.0    
     
     "temperature diffusion activation flag"
-    act_temp_diff::Int64   = 1        
+    act_temp_diff::Int64   = 0        
 
     "thermal expansion activation flag"
     act_therm_exp::Int64   = 1              
@@ -60,7 +60,8 @@ Base.@kwdef mutable struct SolutionParams
     p_lim_plast::Int64     = 1              
     
     "add a constant value [MPa] to the total pressure field, before evaluating plasticity (e.g., when the domain is located @ some depth within the crust)  	"
-    p_shift::Int64 		    = 0              
+    p_shift::Int64 		    = 0
+
     "pressure shift activation flag (enforce zero pressure on average in the top cell layer); note: this overwrites p_shift above!"
     act_p_shift::Int64       = 1 
 
@@ -95,10 +96,10 @@ Base.@kwdef mutable struct SolutionParams
     gw_level_type::String    = "top"          
     
     "ground water level at the free surface (if defined)"
-    gw_level::Float64        = 10.0       
+    gw_level::Float64        = 1e100
     
     "Biot pressure parameter"
-    biot::Float64            = 0.7            
+    biot::Float64            = 1.0           
     
     "effective permeability computation activation flag"
     get_permea::Float64      = 1             
@@ -107,7 +108,7 @@ Base.@kwdef mutable struct SolutionParams
     rescal::Float64          = 1             
     
     "maximum melt fraction affecting viscosity reduction"
-    mfmax::Float64           = 0.1            
+    mfmax::Float64           = 0.15            
     
     "maximum number of local rheology iterations "
     lmaxit::Int64          = 25              
@@ -165,7 +166,10 @@ function Write_LaMEM_InputFile(io, d::SolutionParams)
     println(io,"")
 
     for f in fields
-        if getfield(d,f) != getfield(Reference,f) 
+        if getfield(d,f) != getfield(Reference,f) ||
+            (f == :eta_ref) ||
+            (f == :gravity)
+
             # only print if value differs from reference value
             name = rpad(String(f),15)
             data = getfield(d,f) 

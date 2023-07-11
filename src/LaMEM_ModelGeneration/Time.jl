@@ -51,7 +51,7 @@ Base.@kwdef mutable struct Time
     step_dt_periods::Vector{Float64} = []   
 
     "save output for n initial steps"
-    nstep_ini::Int64   = 5            
+    nstep_ini::Int64   = 1            
 
     "relative tolerance for time comparisons"
     time_tol::Float64  = 1e-8        
@@ -98,7 +98,12 @@ function Write_LaMEM_InputFile(io, d::Time)
     println(io,"")
 
     for f in fields
-        if getfield(d,f) != getfield(Reference,f) 
+        if getfield(d,f) != getfield(Reference,f) ||
+            (f == :dt_max)  ||  
+            (f == :time_end) ||
+            (f == :nstep_max)
+            
+
             # only print if value differs from reference value
             name = rpad(String(f),15)
             comment = get_doc(Time, f)

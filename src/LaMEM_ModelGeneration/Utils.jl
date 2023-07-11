@@ -1,5 +1,6 @@
 # Contains a number of useful functions
-export add_phase!, rm_phase!, rm_last_phase!, add_softening!, add_phasetransition!, add_dike!
+export  add_phase!, rm_phase!, rm_last_phase!, add_softening!, add_phasetransition!, 
+        add_dike!, add_geom! 
 
 
 """
@@ -86,5 +87,18 @@ This adds a phase transition `phase_trans` to `model`
 """
 function add_dike!(model::Model, dike::Dike)
     push!(model.Materials.Dikes, dike);
+    return nothing
+end
+
+
+"""
+    add_geom!(model::Model, geom_object)
+This adds an internal geometric primitive object `geom_object` to the LaMEM Model Setup `model`.
+
+Currently available primitive geom objects are:
+- `geom_Sphere`
+"""
+function add_geom!(model::Model, geom_object)
+    push!(model.ModelSetup.geom_primitives, geom_object);
     return nothing
 end

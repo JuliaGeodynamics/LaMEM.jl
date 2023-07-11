@@ -27,7 +27,7 @@ export  Model, Write_LaMEM_InputFile,
         Output,
         Materials, Phase, Softening, PhaseTransition, Dike, 
         add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
-        add_phasetransition!, add_dike!    
+        add_phasetransition!, add_dike!, add_geom!     
 
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories

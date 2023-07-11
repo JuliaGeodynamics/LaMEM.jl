@@ -84,12 +84,20 @@ function Write_LaMEM_InputFile(io, d::Solver)
     println(io,"")
 
     for f in fields
-        if getfield(d,f) != getfield(Reference,f) 
-            # only print if value differs from reference value
-            name = rpad(String(f),15)
-            comment = get_doc(Solver, f)
-            data = getfield(d,f) 
-            println(io,"    $name  = $(write_vec(data))     # $(comment)")
+        # Note that some keywords should always be specified
+        if (getfield(d,f) != getfield(Reference,f)) || 
+            (f == :SolverType)  ||
+            (f == :DirectPenalty)
+
+
+            if (f != :PETSc_options)
+                # only print if value differs from reference value
+                name = rpad(String(f),15)
+                comment = get_doc(Solver, f)
+                data = getfield(d,f) 
+                println(io,"    $name  = $(write_vec(data))     # $(comment)")
+            end
+
         end
     end
 

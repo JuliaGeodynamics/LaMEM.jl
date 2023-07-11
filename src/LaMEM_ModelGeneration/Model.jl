@@ -3,6 +3,13 @@ using GeophysicalModelGenerator.GeoParams
 
 export Model, Write_LaMEM_InputFile
 
+"""
+    Model
+
+Structure that holds all the information to create a LaMEM input file
+
+    $(TYPEDFIELDS)
+"""
 mutable struct Model
     "Scaling parameters"
     Scaling::Scaling
@@ -34,7 +41,11 @@ mutable struct Model
     "Material parameters for each of the phases"
     Materials
 
-    function Model(;
+    
+end
+
+"""
+    Model(;
         Scaling=Scaling(GEO_units()),
         Grid=Grid(), 
         Time=Time(),
@@ -47,10 +58,62 @@ mutable struct Model
         Materials=Materials()
         )
 
-        return new(Scaling, Grid, Time, FreeSurface, BoundaryConditions, 
-                    SolutionParams, Solver, ModelSetup, Output, Materials)
-    end
-    
+Creates a LaMEM Model setup.
+
+    $(TYPEDFIELDS)
+
+"""
+function Model(;
+    Scaling=Scaling(GEO_units()),
+    Grid=Grid(), 
+    Time=Time(),
+    FreeSurface=FreeSurface(),
+    BoundaryConditions=BoundaryConditions(),
+    SolutionParams=SolutionParams(),
+    Solver=Solver(),
+    ModelSetup=ModelSetup(),
+    Output=Output(),
+    Materials=Materials()
+    )
+
+    return Model(Scaling, Grid, Time, FreeSurface, BoundaryConditions, 
+                SolutionParams, Solver, ModelSetup, Output, Materials)
+end
+
+"""
+    Model(args...)
+
+Allow to define a model setup by specifying some of the basic objects
+
+Example
+===
+```julia
+julia> d = Model(Grid(nel=(10,1,20)), Scaling(NO_units()))
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GeoParams.Units.NONE}
+|-- Grid                :  nel=(10, 1, 20); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=geom; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  1 phases;  
+
+```
+
+"""
+function Model(args...)
+    names_str = typeof.(args);  # this may have { } in them
+    names_strip = ();
+    for name in names_str
+        name_str = split("$name","{")[1]
+        names_strip = (names_strip..., name_str)
+    end 
+    args_tuple = NamedTuple{Symbol.(names_strip)}(args)
+
+    return Model(; args_tuple...)
 end
 
 # Show brief overview of Model
@@ -78,6 +141,8 @@ end
 Writes a LaMEM input file based on the data stored in Model
 """
 function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
+    Check_LaMEM_Model(d)    # check for mistakes in input
+
 
     io = open(fname,"w")
 

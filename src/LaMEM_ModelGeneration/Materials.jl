@@ -284,7 +284,7 @@ end
 """
 Base.@kwdef mutable struct Materials
     "Different Materials implemented"
-    Phases::Vector{Phase}               =	[Phase(ID=0, eta=1, rho=1)]
+    Phases::Vector{Phase}               =	[]
 
     "Softening laws implemented"
     SofteningLaws::Vector{Softening}    =	[]
@@ -475,6 +475,6 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     println(io,"")
-    
+
     return nothing
 end

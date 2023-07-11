@@ -39,7 +39,7 @@ Base.@kwdef mutable struct Solver
     MGRedundantSolver::String   = 	"superlu_dist"		
 
     "List with (optional) PETSc options"
-    PETSc_options::NTuple = ()
+    PETSc_options::Vector{String} = []
 end
 
 # Print info about the structure
@@ -93,6 +93,31 @@ function Write_LaMEM_InputFile(io, d::Solver)
         end
     end
 
+    println(io,"")
+    return nothing
+end
+
+
+"""
+    Write_LaMEM_InputFile_PETSc(io, d::Solver)
+Writes the (optional) PETSc options to file
+"""
+function Write_LaMEM_InputFile_PETSc(io, d::Solver)
+    PETSc_options = d.PETSc_options
+
+    println(io, "#===============================================================================")
+    println(io, "# PETSc options")
+    println(io, "#===============================================================================")
+    println(io,"")
+
+    if length(PETSc_options)>0
+        println(io, "<PetscOptionsStart>")
+        for opt in PETSc_options
+            println(io,"    $opt")
+        end
+
+        println(io, "<PetscOptionsEnd>")
+    end
     println(io,"")
     return nothing
 end

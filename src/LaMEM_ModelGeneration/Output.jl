@@ -184,7 +184,6 @@ end
 Writes the free surface related parameters to file
 """
 function Write_LaMEM_InputFile(io, d::Output)
-    Reference = Solver();    # reference values
     fields    = fieldnames(typeof(d))
 
     println(io, "#===============================================================================")
@@ -192,8 +191,9 @@ function Write_LaMEM_InputFile(io, d::Output)
     println(io, "#===============================================================================")
     println(io,"")
 
+    # Write all fields that are active
     for f in fields
-        if getfield(d,f) != getfield(Reference,f) 
+        if getfield(d,f) == 1
             # only print if value differs from reference value
             name = rpad(String(f),15)
             comment = get_doc(Output, f)
@@ -201,7 +201,6 @@ function Write_LaMEM_InputFile(io, d::Output)
             println(io,"    $name  = $(write_vec(data))     # $(comment)")
         end
     end
-
 
     println(io,"")
     return nothing

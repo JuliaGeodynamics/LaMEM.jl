@@ -2,7 +2,8 @@ module LaMEM
 
 using GeoParams
 using .GeoParams
-export NO_units, GEO_units, SI_units
+export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
+#export GeoParams
 
 # Functions to read LaMEM output
 include("IO_functions.jl")
@@ -24,7 +25,9 @@ export  Model, Write_LaMEM_InputFile,
         Solver, ModelSetup, 
         geom_Sphere,
         Output,
-        Materials, Phase
+        Materials, Phase, Softening,
+        add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!
+
 
 
 using .Run.LaMEM_jll

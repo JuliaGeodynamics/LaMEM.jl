@@ -102,7 +102,7 @@ end
 function show_short(io::IO, d::FreeSurface)
     surf_use = d.surf_use
     if surf_use==1
-        println(io,"|-- Free Surface     :  ")
+        println(io,"|-- Free Surface        :  surf_level=$(d.surf_level); topo_file=$(d.surf_topo_file)")
     end
     
     return nothing

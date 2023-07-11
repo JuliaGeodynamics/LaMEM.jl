@@ -154,7 +154,7 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
     end
 
     # Write geometric primitives in a separate manner
-    if length(d.geometric_primitives)>0
+    if length(d.geom_primitives)>0
         println(io, "# Geometric primitives:")
         for object in d.geom_primitives
             Write_LaMEM_InputFile(io, object)

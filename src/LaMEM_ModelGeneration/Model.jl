@@ -92,8 +92,9 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Write_LaMEM_InputFile(io, d.Output)
     Write_LaMEM_InputFile(io, d.Materials)
     
+    Write_LaMEM_InputFile_PETSc(io, d.Solver)   # add PETSc options last
+
     close(io)
-    
 end
 
 

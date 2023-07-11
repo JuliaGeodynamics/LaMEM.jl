@@ -66,7 +66,7 @@ include("Solver.jl")                # solver options
 export Solver
 
 include("ModelSetup.jl")            # model setup options
-export ModelSetup, geom_Sphere
+export ModelSetup, geom_Sphere, set_geom!
 
 include("Output.jl")                # output options
 export Output

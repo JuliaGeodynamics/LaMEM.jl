@@ -12,6 +12,12 @@ Base.@kwdef mutable struct Output
     "output file name"
     out_file_name       = "output"
 
+    "output directory"
+    out_dir             = ""
+
+    "write VTK initial model setup"
+    write_VTK_setup     = true
+    
     "activate writing .pvd file"
     out_pvd             = 1     
 

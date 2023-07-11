@@ -77,13 +77,20 @@ mutable struct Grid
     bias_z  :: Vector{Float64} 
 
     "Contains the LaMEM Grid object"
-    Grid:: GeophysicalModelGenerator.LaMEM_grid
+    Grid    :: GeophysicalModelGenerator.LaMEM_grid
+
+    "Phases; 3D phase information"
+    Phases  ::  Array{Int32} 
+
+    "Temp; 3D phase information"
+    Temp    ::  Array{Float64} 
 
     # set default parameters
     function Grid(;
         nmark_x=3, nmark_y=3, nmark_z=3,
         nel_x=[16], nel_y=16, nel_z=16,
         coord_x=[-10.0, 10.0], coord_y=[-10.0,0.0], coord_z=[-10.0,0.0],
+        x=nothing, y=nothing, z=nothing,
         bias_x=1.0, bias_y=1.0, bias_z=0.0,
         nel=nothing, nmark=nothing
     )   
@@ -95,6 +102,11 @@ mutable struct Grid
                 nel_y = nel[2]
             end
         end
+
+        # alternative (shorter) way to define coordinates
+        if !isnothing(x);   coord_x = x;    end
+        if !isnothing(y);   coord_y = y;    end
+        if !isnothing(z);   coord_z = z;    end
 
         # Define number of markers/cell with a shortcut
         if !isnothing(nmark)
@@ -110,17 +122,20 @@ mutable struct Grid
         # Create a LaMEM grid
         Grid_LaMEM = Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, coord_y, coord_z, 
                                  nseg_x, nseg_y, nseg_z, bias_x, bias_y, bias_z)
-        
+
+        # Define Phase and Temp structs                                 
+        Phases  = zeros(Int32,size(Grid_LaMEM.X));
+        Temp    = zeros(Float64,size(Grid_LaMEM.X));
+
         # Create struct
         return new(nmark_x, nmark_y, nmark_z, [nel_x...], [nel_y...], [nel_z...], [coord_x...], [coord_y...], [coord_z...], 
-            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM)
+            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM, Phases, Temp)
     end
 
 end
 
 
 """
-
 This creates a LaMEM grid
 """
 function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, coord_y, coord_z, 
@@ -179,6 +194,9 @@ function show(io::IO, d::Grid)
     print_coord(io, "x", d.coord_x, d.bias_x, d.nseg_x, d.Grid.xn_vec)
     print_coord(io, "y", d.coord_y, d.bias_y, d.nseg_y, d.Grid.yn_vec)
     print_coord(io, "z", d.coord_z, d.bias_z, d.nseg_z, d.Grid.zn_vec)
+    println(io,"  Phases      : range ϵ [$(minimum(d.Phases)) - $(maximum(d.Phases))]")
+    println(io,"  Temp        : range ϵ [$(minimum(d.Temp)) - $(maximum(d.Temp))]")
+
 
     return nothing
 end

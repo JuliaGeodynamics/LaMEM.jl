@@ -100,5 +100,6 @@ Currently available primitive geom objects are:
 """
 function add_geom!(model::Model, geom_object)
     push!(model.ModelSetup.geom_primitives, geom_object);
+    set_geom!(model, geom_object)
     return nothing
 end

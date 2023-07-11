@@ -146,7 +146,7 @@ function show(io::IO, d::SolutionParams)
 end
 
 function show_short(io::IO, d::SolutionParams)
-    println(io,"|-- Solution parameters :  ")
+    println(io,"|-- Solution parameters :  eta_min=$(d.eta_min); eta_max=$(d.eta_max); eta_ref=$(d.eta_ref); act_temp_diff=$(d.act_temp_diff)")
     return nothing
 end
 

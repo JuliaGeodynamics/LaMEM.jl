@@ -1,7 +1,8 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
+import LaMEM.Run: run_lamem
 
-export Model, Write_LaMEM_InputFile
+export Model, Write_LaMEM_InputFiles
 
 """
     Model
@@ -143,7 +144,12 @@ Writes a LaMEM input file based on the data stored in Model
 function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Check_LaMEM_Model(d)    # check for mistakes in input
 
+    if d.Output.write_VTK_setup
+        # If we want to write an input file 
+        Write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
+    end
 
+        
     io = open(fname,"w")
 
     Write_LaMEM_InputFile(io, d.Scaling)
@@ -163,4 +169,22 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
 end
 
 
+"""
+    run_lamem(model::Model, cores::Int64=1, args:String=""; wait=true)
+
+Performs a LaMEM run for the parameters that are specified in `model`
+"""
+function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
+
+    Write_LaMEM_InputFile(model, model.Output.param_file_name)
+
+    if model.ModelSetup.msetup=="files"
+        # write marker files to disk before running LaMEM
+
+    end
+
+    run_lamem(model.Output.param_file_name, cores, args; wait=wait)
+
+    return nothing
+end
 

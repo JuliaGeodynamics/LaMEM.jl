@@ -103,3 +103,24 @@ function add_geom!(model::Model, geom_object)
     set_geom!(model, geom_object)
     return nothing
 end
+
+
+"""
+
+This sets the geometry 
+"""
+function set_geom!(model::Model, d::geom_Sphere)
+   
+    cen = (d.center...,)
+    radius = d.radius
+    phase  =  ConstantPhase(d.phase)
+    T = d.Temperature
+    if !isnothing(T)
+        T=ConstantTemp(T)
+    end
+
+    # call a GMG routine
+    AddSphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
+
+    return nothing
+end

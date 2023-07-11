@@ -120,25 +120,6 @@ Base.@kwdef struct geom_Sphere
     cstTemp::Union{Float64,Nothing}     = nothing   
 end
 
-"""
-
-This sets the geometry 
-"""
-function set_geom!(model::Model, d::geom_Sphere)
-   
-    cen = (d.center...,)
-    radius = d.radius
-    phase  =  ConstantPhase(d.phase)
-    T = d.Temperature
-    if !isnothing(T)
-        T=ConstantTemp(T)
-    end
-
-    # call a GMG routine
-    AddSphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
-
-    return nothing
-end
 
 function show(io::IO, d::geom_Sphere)
     println(io, "Sphere(ph=$(d.phase), r=$(d.radius), cen=$(d.center), T=$(d.Temperature)=$(d.cstTemp))")

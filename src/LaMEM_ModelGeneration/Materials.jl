@@ -21,6 +21,155 @@ Base.@kwdef mutable struct Phase
     "Linear viscosity [Pas]"
     eta::Union{Nothing,Float64} = nothing
 
+    "material ID for phase visualization (default is ID)"
+    visID::Union{Nothing,Int64}      = nothing     
+
+    "DIFFUSION creep profile; example: \"Dry_Olivine_diff_creep-Hirth_Kohlstedt_2003\""
+    diff_prof::Union{Nothing,String}  = nothing
+
+    "DISLOCATION creep profile; example: \"Granite-Tirel_et_al_2008\""
+    disl_prof::Union{Nothing,String}  = nothing                    
+
+    "PEIERLS creep profile; example:  \"Olivine_Peierls-Kameyama_1999\""
+    peir_prof::Union{Nothing,String}  = nothing               
+
+    "depth-dependent density model parameter"
+    rho_n::Union{Nothing,Float64}       = nothing   
+
+    "depth-dependent density model parameter"
+    rho_c::Union{Nothing,Float64}       = nothing   
+
+    "pressure-dependent density model parameter"
+    beta::Union{Nothing,Float64}       = nothing   
+
+    "shear modulus"
+    G::Union{Nothing,Float64}       = nothing   
+
+    "bulk modulus"
+    Kb::Union{Nothing,Float64}       = nothing   
+
+    "Young's modulus"
+    E::Union{Nothing,Float64}       = nothing   
+
+    "Poisson's ratio"
+    nu::Union{Nothing,Float64}       = nothing   
+
+    "pressure dependence parameter"
+    Kp::Union{Nothing,Float64}       = nothing   
+
+    "DIFFUSION creep pre-exponential constant"
+    Bd::Union{Nothing,Float64}       = nothing   
+
+    "activation energy"
+    Ed::Union{Nothing,Float64}       = nothing   
+
+    "activation volume"
+    Vd::Union{Nothing,Float64}       = nothing   
+
+    "POWER LAW reference viscosity"
+    eta0::Union{Nothing,Float64}       = nothing   
+
+    "reference strain rate"
+    e0 ::Union{Nothing,Float64}       = nothing   
+
+    "DISLOCATION creep pre-exponential constant"
+    Bn::Union{Nothing,Float64}       = nothing   
+
+    "activation energy"
+    En::Union{Nothing,Float64}       = nothing   
+
+    "activation volume"
+    Vn::Union{Nothing,Float64}       = nothing   
+
+    "power law exponent"
+    n::Union{Nothing,Float64}       = nothing   
+
+    "PEIERLS creep pre-exponential constant"
+    Bp::Union{Nothing,Float64}       = nothing   
+
+    "activation energy"
+    Ep::Union{Nothing,Float64}       = nothing   
+
+    "activation volume"
+    Vp::Union{Nothing,Float64}       = nothing   
+
+    "scaling stress"
+    taup::Union{Nothing,Float64}       = nothing   
+
+    "approximation parameter"
+    gamma::Union{Nothing,Float64}       = nothing   
+
+    "stress-dependence parameter"
+    q ::Union{Nothing,Float64}       = nothing   
+
+    "reference viscosity for Frank-Kamenetzky viscosity"
+    eta_fk::Union{Nothing,Float64}       = nothing   
+
+    "gamma parameter for Frank-Kamenetzky viscosity"
+    gamma_fk::Union{Nothing,Float64}       = nothing   
+
+    "reference Temperature for Frank-Kamenetzky viscosity (if not set it is 0°C)"
+    TRef_fk::Union{Nothing,Float64}       = nothing   
+
+    "cohesion"
+    ch::Union{Nothing,Float64}       = nothing   
+
+    "friction angle"
+    fr::Union{Nothing,Float64}       = nothing   
+
+    "stabilization viscosity (default is eta_min)"
+    eta_st::Union{Nothing,Float64}       = nothing   
+
+    "pore-pressure ratio"
+    rp::Union{Nothing,Float64}       = nothing   
+
+    "friction softening law ID"
+    chSoftID::Union{Nothing,Int64}       = nothing   
+
+    "cohesion softening law ID"
+    frSoftID::Union{Nothing,Int64}       = nothing  
+
+    "healing ID, points to healTau in Softening"
+    healID::Union{Nothing,Int64}       = nothing  
+
+    "thermal expansivity"
+    alpha::Union{Nothing,Float64}       = nothing 
+
+    "specific heat (capacity), J⋅K−1⋅kg−1"
+    Cp::Union{Nothing,Float64}       = nothing 
+
+    "thermal conductivity"
+    k::Union{Nothing,Float64}       = nothing 
+
+    "radiogenic heat production"
+    A::Union{Nothing,Float64}       = nothing 
+
+    "optional temperature to set within the phase"
+    T::Union{Nothing,Float64}       = nothing 
+
+    "optional, used for dike heating, J/kg"
+    Latent_hx::Union{Nothing,Float64}       = nothing 
+
+    "optional, used for dike heating, liquidus temperature of material, celsius"
+    T_liq::Union{Nothing,Float64}       = nothing 
+
+    "optional, used for dike heating, solidus temperature of material, celsius"
+    T_sol::Union{Nothing,Float64}       = nothing 
+
+    "default value for thermal conductivity boundary"
+    T_Nu::Union{Nothing,Float64}       = nothing 
+
+    "optional parameter, Nusselt number for use with conductivity"
+    nu_k::Union{Nothing,Float64}       = nothing 
+
+    "name of the phase diagram you want to use (still needs rho to be defined for the initial guess of pressure)"
+    rho_ph::Union{Nothing,String}     = nothing
+
+    "in case the phase diagram has a different path provide the path (without the name of the actual PD) here"
+    rho_ph_dir::Union{Nothing,String}     = nothing
+
+    "melt fraction viscosity correction factor (positive scalar)"
+    mfc::Union{Nothing,Float64}       = nothing 
 end
 
 function show(io::IO, d::Phase)

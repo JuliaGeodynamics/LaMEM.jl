@@ -25,14 +25,12 @@ export  Model, Write_LaMEM_InputFile,
         Solver, ModelSetup, 
         geom_Sphere,
         Output,
-        Materials, Phase, Softening,
-        add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!
-
-
+        Materials, Phase, Softening, PhaseTransition, Dike, 
+        add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
+        add_phasetransition!, add_dike!    
 
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories
-
 
 
 end # module

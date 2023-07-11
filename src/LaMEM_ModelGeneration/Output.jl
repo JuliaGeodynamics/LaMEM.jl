@@ -172,12 +172,10 @@ function show(io::IO, d::Output)
 end
 
 function show_short(io::IO, d::Output)
-    println(io,"|-- Output options      :  filename=$(d.out_file_name); pvd=$(d.out_pvd)")
+    println(io,"|-- Output options      :  filename=$(d.out_file_name); pvd=$(d.out_pvd); avd=$(d.out_avd); surf=$(d.out_surf)")
 
     return nothing
 end
-
-
 
 """
     Write_LaMEM_InputFile(io, d::Output)

@@ -72,13 +72,15 @@ include("Output.jl")                # output options
 export Output
 
 include("Materials.jl")             # main LaMEM_Model
-export Materials, Phase, Softening
+export Materials, Phase, Softening, PhaseTransition, Dike
 
 include("Model.jl")                 # main LaMEM_Model
 export Model
 
 include("Utils.jl")
-export add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!
+export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
+        add_phasetransition!, add_dike!        
+
 
 
 end

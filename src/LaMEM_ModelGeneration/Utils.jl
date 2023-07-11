@@ -1,5 +1,5 @@
 # Contains a number of useful functions
-export add_phase!, rm_phase!, rm_last_phase!, add_softening!
+export add_phase!, rm_phase!, rm_last_phase!, add_softening!, add_phasetransition!, add_dike!
 
 
 """
@@ -68,5 +68,23 @@ This adds a plastic softening law `soft` to `model`
 """
 function add_softening!(model::Model, soft::Softening) 
     push!(model.Materials.SofteningLaws, soft);
+    return nothing
+end
+
+"""
+    add_phasetransition!(model::Model, phase_trans::PhaseTransition)
+This adds a phase transition `phase_trans` to `model`
+"""
+function add_phasetransition!(model::Model, phase_trans::PhaseTransition) 
+    push!(model.Materials.PhaseTransitions, phase_trans);
+    return nothing
+end
+
+"""
+    add_dike!(model::Model, dike::Dike)
+This adds a phase transition `phase_trans` to `model`
+"""
+function add_dike!(model::Model, dike::Dike)
+    push!(model.Materials.Dikes, dike);
     return nothing
 end

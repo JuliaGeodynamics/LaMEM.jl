@@ -9,5 +9,5 @@ Modules = [LaMEM.Run]
 ```
 ## Reading LaMEM output back into julia
 ```@autodocs
-Modules = [LaMEM.IO]
-```
+Modules = [LaMEM.IO_functions] 
+``` 

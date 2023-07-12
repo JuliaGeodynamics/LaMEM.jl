@@ -29,6 +29,8 @@ Note that this structure must be a help structure of the current one.
 """
 function get_doc(structure, field::Symbol) 
     alldocs       =   Docs.meta(LaMEM_Model);
+    #alldocs       =   Docs.meta();
+    
     var           =   eval(Meta.parse("Docs.@var($structure)"))
     @show var
     #=

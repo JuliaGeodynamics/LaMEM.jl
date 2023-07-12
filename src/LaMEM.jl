@@ -20,9 +20,9 @@ export run_lamem, run_lamem_save_grid, mpiexec
 export remove_popup_messages_mac, show_paths_LaMEM
 
 # Functions that help running LaMEM directly from julia
-include("LaMEM_ModelGeneration/LaMEM_ModelGeneration.jl")
+include("LaMEM_ModelGeneration/LaMEM_Model.jl")
 using .LaMEM_Model
-export  Model, Write_LaMEM_InputFile, create_initialsetup,
+export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
         Scaling, Grid, Time, FreeSurface, BoundaryConditions, SolutionParams,
         Solver, ModelSetup, 
         geom_Sphere,

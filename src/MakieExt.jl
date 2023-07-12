@@ -43,7 +43,6 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
         x_str,z_str = "x","y"
     end
     
-
     # Create figure
     if phases
         data = Phase2D

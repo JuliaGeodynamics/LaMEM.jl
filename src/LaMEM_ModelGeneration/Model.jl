@@ -178,8 +178,12 @@ Performs a LaMEM run for the parameters that are specified in `model`
 function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 
     create_initialsetup(model, cores, args);    
-
+    
+    cur_dir = pwd(); cd(model.Output.out_dir)
+    
     run_lamem(model.Output.param_file_name, cores, args; wait=wait)
+    
+    cd(cur_dir)
 
     return nothing
 end
@@ -198,7 +202,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String="")
     # Move to the working directory
     cur_dir = pwd()
     if !isempty(model.Output.out_dir)
-        if !exist(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
+        if !isdir(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
         cd(model.Output.out_dir)
     end
 
@@ -209,8 +213,6 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String="")
         Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
 
         if cores>1
-           # PartFile = CreatePartitioningFile(model.Output.param_file_name, cores, LaMEM_options=args)
-            
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
             Save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile)

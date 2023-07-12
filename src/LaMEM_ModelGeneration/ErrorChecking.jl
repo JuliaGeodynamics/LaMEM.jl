@@ -23,6 +23,10 @@ function Check_LaMEM_Model(m::Model)
         You do need to set some variability to see action, for example with the GMG function `AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` ")
     end
 
+    if (m.Solver.SolverType!="direct") &&  (m.Solver.SolverType!="multigrid")
+        error("Unknown SolverType; choose either \"direct\" or \"multigrid\"!")
+    end
+
     
     return nothing
 end

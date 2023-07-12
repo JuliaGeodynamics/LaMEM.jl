@@ -1,4 +1,6 @@
 # Contains a number of useful functions
+import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
+
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_softening!, add_phasetransition!, 
         add_dike!, add_geom! 
@@ -155,4 +157,29 @@ function set_geom!(model::Model, d::geom_Sphere)
     AddSphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
 
     return nothing
+end
+
+
+"""
+    Timestep, FileNames, Time = Read_LaMEM_simulation(model::Model; phase=false, surf=false, passive_tracers=false)
+
+Reads a LaMEM simulation as specified in `model` and returns the timesteps, times and filenames of that simulation once it is finished.
+"""
+Read_LaMEM_simulation(model::Model; kwargs...) = Read_LaMEM_simulation(model.Output.out_file_name,model.Output.out_dir; kwargs...)
+
+"""
+    data, time = Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; fields=nothing, phase=false, surf=false, last=true)
+
+Reads a specific `Timestep` from a simulation specified in `model`
+"""
+function Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...) 
+    FileName    = model.Output.out_file_name
+
+    cur_dir = pwd(); cd(model.Output.out_dir)
+
+    data, time = Read_LaMEM_timestep(FileName,TimeStep; kwargs...)
+    
+    cd(cur_dir)
+
+    return data, time
 end

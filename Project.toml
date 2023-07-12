@@ -12,6 +12,7 @@ LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
 PETSc_jll = "8fa3689e-f0b9-5420-9873-adf6ccf46f2d"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 GeophysicalModelGenerator = "0.4 - 0.6"
@@ -19,10 +20,12 @@ Glob = "1"
 LaMEM_jll = "1.2.4 - 1.2.4"
 PETSc_jll = "3.16.8 - 3.16.8"
 ReadVTK = "0.1.7"
-julia = "1.6"
+Requires = "1.0, 2"
+julia = "1.9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 
 [targets]
 test = ["Test"]

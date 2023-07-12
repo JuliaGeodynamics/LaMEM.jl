@@ -28,6 +28,7 @@ This returns a string with the documentation for a parameter `field` that is wit
 Note that this structure must be a help structure of the current one.
 """
 function get_doc(structure, field::Symbol) 
+    #=
     alldocs       =   Docs.meta(LaMEM_Model);
     var           =   eval(Meta.parse("Docs.@var($structure)"))
     fields_local  =   alldocs[var].docs[Union{}].data[:fields]
@@ -40,7 +41,8 @@ function get_doc(structure, field::Symbol)
     if str[end]=='#'
         str = str[1:end-1]
     end
-
+=#
+    str="#"
     return str
 end
 

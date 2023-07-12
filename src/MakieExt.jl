@@ -1,5 +1,5 @@
 # Plotting extensions, that are only loaded when GLMakie is available
-println("adding GLMakie plotting extensions for LaMEM")
+println("adding Plots.jl plotting extensions for LaMEM")
 
 using LaMEM, GeophysicalModelGenerator
 using .Plots

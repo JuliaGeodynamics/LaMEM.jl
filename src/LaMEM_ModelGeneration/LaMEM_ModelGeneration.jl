@@ -83,9 +83,14 @@ include("Utils.jl")
 export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
         add_phasetransition!, add_dike!, add_geom!        
 
-    
 include("ErrorChecking.jl")
 export Check_LaMEM_Model
+
+# optional dependency
+#if !isdefined(Base, :get_extension)
+#    include("MakieExt.jl")
+#end
+
 
 end
 

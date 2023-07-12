@@ -9,7 +9,7 @@ export ModelSetup, Write_LaMEM_InputFile, geom_Sphere, set_geom!
 """
 Base.@kwdef mutable struct ModelSetup
     "Setup type - can be `geom` (phases are assigned from geometric primitives), `files` (from julia input), `polygons` (from geomIO input, which requires `poly_file` to be specified) "
-    msetup::String          = "geom"              
+    msetup::String          = "files"              
      
     "add random noise to the particle location"
     rand_noise::Int64      = 1                 

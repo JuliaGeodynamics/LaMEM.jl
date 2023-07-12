@@ -1,10 +1,11 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
-import LaMEM.Run: run_lamem
+import LaMEM.Run: run_lamem, run_lamem_save_grid
+using LaMEM.Run.LaMEM_jll
 
-export Model, Write_LaMEM_InputFiles
+export Model, Write_LaMEM_InputFiles, create_initialsetup
 
-"""
+""";
     Model
 
 Structure that holds all the information to create a LaMEM input file
@@ -176,15 +177,49 @@ Performs a LaMEM run for the parameters that are specified in `model`
 """
 function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 
+    create_initialsetup(model, cores, args);    
+
+    run_lamem(model.Output.param_file_name, cores, args; wait=wait)
+
+    return nothing
+end
+
+"""
+    create_initialsetup(model::Model, cores::Int64=1, args::String="")
+
+Creates the initial model setup of LaMEM from `model`, which includes:
+- Writing the LaMEM (*.dat) input file
+- Write the VTK file (if requested when `model.Output.write_VTK_setup=true`)
+- Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
+
+"""
+function create_initialsetup(model::Model, cores::Int64=1, args::String="")
+    
+    # Move to the working directory
+    cur_dir = pwd()
+    if !isempty(model.Output.out_dir)
+        if !exist(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
+        cd(model.Output.out_dir)
+    end
+
     Write_LaMEM_InputFile(model, model.Output.param_file_name)
 
     if model.ModelSetup.msetup=="files"
         # write marker files to disk before running LaMEM
+        Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
 
+        if cores>1
+           # PartFile = CreatePartitioningFile(model.Output.param_file_name, cores, LaMEM_options=args)
+            
+            PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
+
+            Save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile)
+        else
+            Save_LaMEMMarkersParallel(Model3D)
+        end
     end
 
-    run_lamem(model.Output.param_file_name, cores, args; wait=wait)
-
+    cd(cur_dir)
     return nothing
 end
 

@@ -2,6 +2,7 @@ module LaMEM
 
 using GeoParams
 using .GeoParams
+using Requires
 export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
 #export GeoParams
 
@@ -18,19 +19,28 @@ using .Run
 export run_lamem, run_lamem_save_grid, mpiexec
 export remove_popup_messages_mac, show_paths_LaMEM
 
+# Functions that help running LaMEM directly from julia
 include("LaMEM_ModelGeneration/LaMEM_ModelGeneration.jl")
 using .LaMEM_Model
-export  Model, Write_LaMEM_InputFile, 
+export  Model, Write_LaMEM_InputFile, create_initialsetup,
         Scaling, Grid, Time, FreeSurface, BoundaryConditions, SolutionParams,
         Solver, ModelSetup, 
         geom_Sphere,
         Output,
         Materials, Phase, Softening, PhaseTransition, Dike, 
-        add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
+        add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!,
         add_phasetransition!, add_dike!, add_geom!     
+
 
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories
+
+
+function __init__()
+    @require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin 
+        @eval include("MakieExt.jl")
+    end
+end
 
 
 end # module

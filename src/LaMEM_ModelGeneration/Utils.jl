@@ -1,5 +1,6 @@
 # Contains a number of useful functions
-export  add_phase!, rm_phase!, rm_last_phase!, add_softening!, add_phasetransition!, 
+export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
+        add_softening!, add_phasetransition!, 
         add_dike!, add_geom! 
 
 
@@ -11,6 +12,17 @@ function add_phase!(model::Model, phase::Phase)
     push!(model.Materials.Phases, phase);
     return nothing
 end
+
+"""
+    add_phase!(model::Model, phases...) 
+Add several phases @ once.
+"""
+function add_phase!(model::Model, phases...) 
+    for phase in phases
+        push!(model.Materials.Phases, phase);
+    end
+end
+
 
 """
     rm_last_phase!(model::Model, phase::Phase)
@@ -31,6 +43,26 @@ function rm_phase!(model::Model, ID::Int64)
     id_vec = [phase.ID for phase in model.Materials.Phases]
     id = findall(id_vec .== ID)
     deleteat!(model.Materials.Phases,id)
+    return nothing
+end
+
+
+"""
+    replace_phase!(model::Model, phase_new::Phase; ID::Int64=nothing, Name::String=nothing)
+
+This replaces a `phase` within a LaMEM Model Setup `model` with `phase_new` either based on its `Name` or `ID`. 
+Note that it is expected that only one such phase is present in the current setup.
+"""
+function replace_phase!(model::Model, phase_new::Phase; ID::Union{Nothing,Int64}=nothing, Name::Union{Nothing,String}=nothing) 
+    id_vec   = [phase.ID for phase in model.Materials.Phases]
+    name_vec = [phase.Name for phase in model.Materials.Phases]
+    if !isnothing(ID)
+        id = findfirst(id_vec .== ID)
+    elseif !isnothing(Name)
+        id = findfirst(name_vec .== Name)
+    end
+    model.Materials.Phases[id] = phase_new
+
     return nothing
 end
 

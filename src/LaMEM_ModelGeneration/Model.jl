@@ -3,7 +3,7 @@ using GeophysicalModelGenerator.GeoParams
 import LaMEM.Run: run_lamem, run_lamem_save_grid
 using LaMEM.Run.LaMEM_jll
 
-export Model, Write_LaMEM_InputFiles, create_initialsetup
+export Model, Write_LaMEM_InputFiles, create_initialsetup, run_lamem
 
 """;
     Model

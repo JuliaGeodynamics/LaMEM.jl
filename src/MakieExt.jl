@@ -2,7 +2,7 @@
 println("adding GLMakie plotting extensions for LaMEM")
 
 using LaMEM, GeophysicalModelGenerator
-using .GLMakie
+using .Plots
  
 export plot_initial_setup
 
@@ -46,19 +46,23 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
     # Create figure
     if phases
         data = Phase2D
-        title_str = "Phases "*title_str
+        title_str = "Phases; "*title_str
     else
         data = Temp2D
-        title_str = "Temperature "*title_str
+        title_str = "Temperature; "*title_str
     end
 
+    #=
     fig = Figure()
     ax = Axis(fig[1, 1], aspect = DataAspect(), title = title_str, xlabel=x_str, ylabel=z_str)
-    hm = heatmap!(ax, x_vec, z_vec, data)
+    hm = heatmap(ax, x_vec, z_vec, data)
    
     Colorbar(fig[:, end+1], hm)
 
     display(fig)
+    =#
+    h = Plots.heatmap(x_vec, z_vec, data, xlabel=x_str, ylabel=z_str, title=title_str, aspect_ratio=:equal)
+    display(h)
 
-    return nothing
+    return h
 end

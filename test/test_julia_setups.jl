@@ -7,7 +7,6 @@ using GeophysicalModelGenerator
 
     # ===============================
     # Simple linear viscous setup with falling sphere
-    clean_directory()
 
     # Main model setup
     model  = Model(Grid(nel=(16,16,16), x=[-2,2], coord_y=[-1,1], coord_z=[-1,1]),
@@ -20,7 +19,7 @@ using GeophysicalModelGenerator
     sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
     add_phase!(model, sphere, matrix)
 
-    # Add an initial geometry (using GMG routines)
+    # Add an initial geometry (using GeophysicalModelGenerator routines)
     AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # run the simulation on 1 core
@@ -29,10 +28,12 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = Read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.velocity[3,:,:,:]) ≈ 0.1084832f0 # Vz
+    @test  sum(data.fields.velocity[3,:,:,:]) ≈ 0.1084832f0 # check Vz
 
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
+
+
 
 end

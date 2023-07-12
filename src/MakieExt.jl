@@ -61,7 +61,7 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
 
     display(fig)
     =#
-    h = Plots.heatmap(x_vec, z_vec, data, xlabel=x_str, ylabel=z_str, title=title_str, aspect_ratio=:equal)
+    h = heatmap(x_vec, z_vec, data, xlabel=x_str, ylabel=z_str, title=title_str, aspect_ratio=:equal)
     display(h)
 
     return h

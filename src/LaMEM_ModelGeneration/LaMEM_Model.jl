@@ -7,6 +7,7 @@ using GeophysicalModelGenerator
 using GeophysicalModelGenerator.GeoParams
 using DocStringExtensions
 import Base: show
+import LaMEM: get_doc
 
 # Few utils that are being used
 filter_fields(fields, filter_out) = (setdiff(fields, filter_out)...,)
@@ -22,32 +23,6 @@ function write_vec(data)
     return str
 end
 
-"""
-    help_info::String = get_doc(structure, field::Symbol) 
-This returns a string with the documentation for a parameter `field` that is within the `structure`. 
-Note that this structure must be a help structure of the current one.
-"""
-function get_doc(structure, field::Symbol) 
-    alldocs       =   Docs.meta(LaMEM_Model);
-    #alldocs       =   Docs.meta();
-    
-    var           =   eval(Meta.parse("Docs.@var($structure)"))
-    @show var
-    #=
-    fields_local  =   alldocs[var].docs[Union{}].data[:fields]
-    str = fields_local[field]
-
-    # Add comment to next line (if required)
-    str = replace(str, "\n" => "\n #")
-
-    # remove the # at the end of the string
-    if str[end]=='#'
-        str = str[1:end-1]
-    end
-=#
-    str="#"
-    return str
-end
 
 include("Scaling.jl")   # Scaling
 export Scaling 
@@ -98,6 +73,10 @@ export Check_LaMEM_Model
 
 
 end
+
+
+
+
 
 
 #=

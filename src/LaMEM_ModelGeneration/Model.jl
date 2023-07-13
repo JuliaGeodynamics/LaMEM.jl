@@ -118,7 +118,11 @@ function Model(args...)
     return Model(; args_tuple...)
 end
 
+"""
+    Model(Grid_LaMEM::Grid, args...)
+"""
 function Model(Grid_LaMEM::Grid, args...)
+    @show args
     names_str = typeof.(args);  # this may have { } in them
     names_strip = ("Grid",);
     for name in names_str

@@ -7,12 +7,11 @@ using .Plots
 export plot_initial_setup
 
 """
-    plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
+    x_vec, z_vec, data, axes_str = cross_section_initialsetup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
 
-Plots a 2D setup through the LaMEM model setup `model`. if `phases=true` we plot phases; otherwise temperature
+This creates a cross-section through the initial model setup & returns a 2D array
 """
-function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
-
+function cross_section_initialsetup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
     Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
     
     if !isnothing(z); Depth_level = z*km; else Depth_level=nothing; end
@@ -51,6 +50,20 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
         data = Temp2D
         title_str = "Temperature; "*title_str
     end
+    axes_str = (x_str=x_str, z_str=z_str, axes_str=axes_str)
+
+    return x_vec, z_vec, data, axes_str
+end
+
+"""
+    plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
+
+Plots a 2D setup through the LaMEM model setup `model`. if `phases=true` we plot phases; otherwise temperature
+"""
+function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing, phases=true)
+
+    # get cross-section
+    x_vec, z_vec, data, axes_str = cross_section_initialsetup(model::LaMEM.Model; x=x, y=y, z=z, phases=phases)
 
     #=
     fig = Figure()
@@ -61,7 +74,9 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
 
     display(fig)
     =#
-    h = heatmap(x_vec, z_vec, data, xlabel=x_str, ylabel=z_str, title=title_str, aspect_ratio=:equal)
+    
+    # using Plots
+    h = heatmap(x_vec, z_vec, data, xlabel=axes_str.x_str, ylabel=axes_str.z_str, title=axes_str.title_str, aspect_ratio=:equal)
     display(h)
 
     return h

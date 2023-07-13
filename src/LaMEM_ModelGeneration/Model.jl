@@ -120,27 +120,6 @@ function Model(args...)
     return Model(; args_tuple...)
 end
 
-#=
-"""
-    Model(Grid_LaMEM::Grid, args...)
-"""
-function Model(Grid_LaMEM::Grid, args...)
-    @show args
-    names_str = typeof.(args);  # this may have { } in them
-    names_strip = ("Grid",);
-    for name in names_str
-        if (name!=:Grid)
-            name_str = split("$name","{")[1]
-            names_strip = (names_strip..., name_str)
-        end
-    end 
-    @show names_strip 
-    args_tuple = NamedTuple{Symbol.(names_strip)}((Grid_LaMEM, args...))
-
-    return Model(; args_tuple...)
-end
-=#
-
 # Show brief overview of Model
 function show(io::IO, d::Model)
     println(io,"LaMEM Model setup")
@@ -155,10 +134,7 @@ function show(io::IO, d::Model)
     show_short(io, d.ModelSetup)   
     show_short(io, d.Output)   
     show_short(io, d.Materials)
-    
 end
-
-
 
 """
     Write_LaMEM_InputFile(d::Model,fname::String; dir=pwd())
@@ -202,7 +178,10 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 
     create_initialsetup(model, cores, args);    
     
-    cur_dir = pwd(); cd(model.Output.out_dir)
+    cur_dir = pwd(); 
+    if !isempty(model.Output.out_dir)
+        cd(model.Output.out_dir)
+    end
     
     run_lamem(model.Output.param_file_name, cores, args; wait=wait)
     

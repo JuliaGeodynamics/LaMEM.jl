@@ -25,7 +25,7 @@ Output:
 """
 function ReadField_3D_pVTR(pvtk, FieldName)
     isCell          =   false;
-    
+
     # first try to get point data 
     data_f = get_point_data(pvtk)
     # if empty then load cell data
@@ -36,10 +36,17 @@ function ReadField_3D_pVTR(pvtk, FieldName)
         if typeof(data_Field[1])==UInt8
             data_Field = Int64.(data_Field)
         end
+
+        data_Field  = ArrayToTuple(data_Field);
+        
         data_Tuple  = (data_Field,)
         isCell      =   true;
     else
-        data_Tuple  = (get_data_reshaped(data_f[FieldName]),)
+        data_Field = get_data_reshaped(data_f[FieldName]);
+        
+        data_Field = ArrayToTuple(data_Field);
+
+        data_Tuple = (data_Field,)
     end
 
     name = filter(x -> !isspace(x), FieldName)  # remove white spaces
@@ -53,6 +60,24 @@ function ReadField_3D_pVTR(pvtk, FieldName)
     return data_out, isCell
 end
 
+"""
+    data_Field = ArrayToTuple(data_Field)
+Transfers a n by 3D array (n>1) to 
+"""
+function ArrayToTuple(data_Field)
+    if length(size(data_Field))>3
+        # this a vector or tensor field. For compatibility with GMG, we need to make a tuple out of this
+        n = size(data_Field)[1]
+        data_t=();
+        for i=1:n
+            data_t = (data_t..., data_Field[i,:,:,:])
+        end
+        data_t
+    else
+        data_t = data_Field
+    end
+    return data_t
+end
 
 function ReadField_3D_pVTS(pvts, FieldName)
     isCell          =   false;

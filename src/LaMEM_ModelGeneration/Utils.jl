@@ -3,7 +3,7 @@ import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_softening!, add_phasetransition!, 
-        add_dike!, add_geom! 
+        add_dike!, add_geom! , cross_section
 
 
 """
@@ -175,11 +175,83 @@ Reads a specific `Timestep` from a simulation specified in `model`
 function Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...) 
     FileName    = model.Output.out_file_name
 
-    cur_dir = pwd(); cd(model.Output.out_dir)
+    cur_dir = pwd(); 
+    if !isempty(model.Output.out_dir)
+        cd(model.Output.out_dir)
+    end
 
     data, time = Read_LaMEM_timestep(FileName,TimeStep; kwargs...)
     
     cd(cur_dir)
 
     return data, time
+end
+
+
+
+"""
+    x_vec, z_vec, data, axes_str = cross_section(model::LaMEM.Model, field=:phases; x=nothing, y=nothing, z=nothing)
+
+This creates a cross-section through the initial model setup & returns a 2D array
+"""
+function cross_section(model::Model, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
+    Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
+    
+    if !isnothing(z); Depth_level = z*km; else Depth_level=nothing; end
+    if !isnothing(x); Lon_level = x; else Lon_level=nothing; end
+    if !isnothing(y); Lat_level = y; else Lat_level=nothing; end
+    
+    Cross = CrossSectionVolume(Model3D, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
+
+
+    # Flatten arrays + coordinates
+    if      !isnothing(x)
+        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=1), dropdims(Cross.fields.Temp,dims=1)
+        X2D, Z2D = dropdims(Cross.y.val,dims=1), dropdims(Cross.z.val,dims=1)
+        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
+        title_str = "x = $x"
+        x_str,z_str = "y","z"
+    elseif !isnothing(y)
+        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=2), dropdims(Cross.fields.Temp,dims=2)
+        X2D, Z2D = dropdims(Cross.x.val,dims=2), dropdims(Cross.z.val,dims=2)
+        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
+        title_str = "y = $y"
+        x_str,z_str = "x","z"
+    elseif !isnothing(z)
+        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=3), dropdims(Cross.fields.Temp,dims=3)
+        X2D, Z2D = dropdims(Cross.x.val,dims=3), dropdims(Cross.y.val,dims=3)
+
+        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
+        title_str = "z = $z"
+        x_str,z_str = "x","y"
+    end
+    
+    # Create figure
+    if field == :phases
+        data = Phase2D
+        title_str = "Phases; "*title_str
+    else
+        data = Temp2D
+        title_str = "Temperature; "*title_str
+    end
+    axes_str = (x_str=x_str, z_str=z_str, title_str=title_str)
+
+    return x_vec, z_vec, data, axes_str
+end
+
+
+"""
+    Cross = cross_section(cart::CartData, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
+
+Creates a cross-section through the data
+"""
+function cross_section(cart::CartData, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
+    
+    if !isnothing(z); Depth_level = z*km; else Depth_level=nothing; end
+    if !isnothing(x); Lon_level = x; else Lon_level=nothing; end
+    if !isnothing(y); Lat_level = y; else Lat_level=nothing; end
+    
+    Cross = CrossSectionVolume(cart, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
+
+    return Cross
 end

@@ -61,7 +61,8 @@ include("GMG_interface.jl")
 
 include("Utils.jl")
 export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
-        add_phasetransition!, add_dike!, add_geom!        
+        add_phasetransition!, add_dike!, add_geom!, cross_section
+
 
 include("ErrorChecking.jl")
 export Check_LaMEM_Model

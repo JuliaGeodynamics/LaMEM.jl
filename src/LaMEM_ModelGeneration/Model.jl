@@ -118,6 +118,21 @@ function Model(args...)
     return Model(; args_tuple...)
 end
 
+function Model(Grid_LaMEM::Grid, args...)
+    names_str = typeof.(args);  # this may have { } in them
+    names_strip = ("Grid",);
+    for name in names_str
+        if (name!=:Grid)
+            name_str = split("$name","{")[1]
+            names_strip = (names_strip..., name_str)
+        end
+    end 
+    args_tuple = NamedTuple{Symbol.(names_strip)}((Grid_LaMEM, args...))
+
+    return Model(; args_tuple...)
+end
+
+
 # Show brief overview of Model
 function show(io::IO, d::Model)
     println(io,"LaMEM Model setup")

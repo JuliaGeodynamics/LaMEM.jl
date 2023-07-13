@@ -41,7 +41,7 @@ function Write_LaMEM_InputFile(io, d::Scaling)
             println(io,"    units = si")
         end
         println(io,"    unit_temperature = $(d.Scaling.temperature)")
-        println(io,"    unit_length      = $(d.Scaling.length)")
+        println(io,"    unit_length      = $(d.Scaling.length*1e3)")
         println(io,"    unit_viscosity   = $(d.Scaling.viscosity)")
         println(io,"    unit_stress      = $(d.Scaling.stress)")
 

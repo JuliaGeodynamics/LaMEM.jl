@@ -64,7 +64,6 @@ function plot_initial_setup(model::LaMEM.Model; x=nothing, y=nothing, z=nothing,
 
     # get cross-section
     x_vec, z_vec, data, axes_str = cross_section_initialsetup(model::LaMEM.Model; x=x, y=y, z=z, phases=phases)
-    @show axes_str
     #=
     fig = Figure()
     ax = Axis(fig[1, 1], aspect = DataAspect(), title = title_str, xlabel=x_str, ylabel=z_str)

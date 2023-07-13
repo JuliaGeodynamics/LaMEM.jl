@@ -113,11 +113,13 @@ function Model(args...)
         name_str = split("$name","{")[1]
         names_strip = (names_strip..., name_str)
     end 
+    @show names_strip name_str
     args_tuple = NamedTuple{Symbol.(names_strip)}(args)
 
     return Model(; args_tuple...)
 end
 
+#=
 """
     Model(Grid_LaMEM::Grid, args...)
 """
@@ -131,11 +133,12 @@ function Model(Grid_LaMEM::Grid, args...)
             names_strip = (names_strip..., name_str)
         end
     end 
+    @show names_strip 
     args_tuple = NamedTuple{Symbol.(names_strip)}((Grid_LaMEM, args...))
 
     return Model(; args_tuple...)
 end
-
+=#
 
 # Show brief overview of Model
 function show(io::IO, d::Model)

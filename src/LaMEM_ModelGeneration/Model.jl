@@ -113,7 +113,7 @@ function Model(args...)
         name_str = split("$name","{")[1]
         names_strip = (names_strip..., name_str)
     end 
-    @show names_strip name_str
+    @show names_strip args
     args_tuple = NamedTuple{Symbol.(names_strip)}(args)
 
     return Model(; args_tuple...)

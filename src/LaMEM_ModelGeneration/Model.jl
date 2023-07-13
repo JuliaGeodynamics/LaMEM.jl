@@ -111,6 +111,8 @@ function Model(args...)
     names_strip = ();
     for name in names_str
         name_str = split("$name","{")[1]
+        name_str = split("$name_str",".")[end]
+        
         names_strip = (names_strip..., name_str)
     end 
     @show names_strip args

@@ -190,62 +190,24 @@ end
 
 
 """
-    x_vec, z_vec, data, axes_str = cross_section(model::LaMEM.Model, field=:phases; x=nothing, y=nothing, z=nothing)
+    data_tuple, axes_str = cross_section(model::LaMEM.Model, field=:phases; x=nothing, y=nothing, z=nothing)
 
 This creates a cross-section through the initial model setup & returns a 2D array
 """
-function cross_section(model::Model, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
-    Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
+function cross_section(model::Model, field::Symbol=:phase; x=nothing, y=nothing, z=nothing)
+    Model3D = CartData(model.Grid.Grid, (phase=model.Grid.Phases,temperature=model.Grid.Temp));
     
-    if !isnothing(z); Depth_level = z*km; else Depth_level=nothing; end
-    if !isnothing(x); Lon_level = x; else Lon_level=nothing; end
-    if !isnothing(y); Lat_level = y; else Lat_level=nothing; end
+    data_tuple, axes_str = cross_section(Model3D, field; x=x, y=y, z=z)
     
-    Cross = CrossSectionVolume(Model3D, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
-
-
-    # Flatten arrays + coordinates
-    if      !isnothing(x)
-        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=1), dropdims(Cross.fields.Temp,dims=1)
-        X2D, Z2D = dropdims(Cross.y.val,dims=1), dropdims(Cross.z.val,dims=1)
-        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
-        title_str = "x = $x"
-        x_str,z_str = "y","z"
-    elseif !isnothing(y)
-        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=2), dropdims(Cross.fields.Temp,dims=2)
-        X2D, Z2D = dropdims(Cross.x.val,dims=2), dropdims(Cross.z.val,dims=2)
-        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
-        title_str = "y = $y"
-        x_str,z_str = "x","z"
-    elseif !isnothing(z)
-        Phase2D, Temp2D =   dropdims(Cross.fields.Phases,dims=3), dropdims(Cross.fields.Temp,dims=3)
-        X2D, Z2D = dropdims(Cross.x.val,dims=3), dropdims(Cross.y.val,dims=3)
-
-        x_vec, z_vec = X2D[:,1],  Z2D[1,:]
-        title_str = "z = $z"
-        x_str,z_str = "x","y"
-    end
-    
-    # Create figure
-    if field == :phases
-        data = Phase2D
-        title_str = "Phases; "*title_str
-    else
-        data = Temp2D
-        title_str = "Temperature; "*title_str
-    end
-    axes_str = (x_str=x_str, z_str=z_str, title_str=title_str)
-
-    return x_vec, z_vec, data, axes_str
+    return data_tuple, axes_str
 end
 
-
 """
-    Cross = cross_section(cart::CartData, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
+    Cross = cross_section(cart::CartData, field::Symbol =:phase; x=nothing, y=nothing, z=nothing)
 
-Creates a cross-section through the data
+Creates a cross-section through the data and returns `x,z` coordinates
 """
-function cross_section(cart::CartData, field::Symbol =:phases; x=nothing, y=nothing, z=nothing)
+function cross_section(cart::CartData, field::Symbol=:phase; x=nothing, y=nothing, z=nothing)
     
     if !isnothing(z); Depth_level = z*km; else Depth_level=nothing; end
     if !isnothing(x); Lon_level = x; else Lon_level=nothing; end
@@ -253,5 +215,47 @@ function cross_section(cart::CartData, field::Symbol =:phases; x=nothing, y=noth
     
     Cross = CrossSectionVolume(cart, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
 
-    return Cross
+    data_tuple, axes_str = flatten(Cross, field,x,y,z)
+    return data_tuple, axes_str
 end
+
+"""
+Creates a 2D array out of a cross-section and a specified data field
+"""
+function flatten(cross::CartData, field::Symbol,x,y,z)
+    dim     =   findall(size(cross.x.val) .== 1)[1]
+    X       =   dropdims(cross.x.val, dims=dim)
+    Y       =   dropdims(cross.y.val, dims=dim)
+    Z       =   dropdims(cross.z.val, dims=dim)
+    data_or =   getfield(cross.fields,field)
+
+    # flatten data array
+    if isa(data_or, Array)
+        data = dropdims(data_or, dims=dim)
+    elseif isa(data_or,Tuple)
+        # vectors or tensors
+        data = ()
+        for d in data_or
+            data = (data..., dropdims(d, dims=dim) )
+        end
+    end
+
+    if  dim==1
+        title_str = "x = $x"
+        x_str,z_str = "y","z"
+        x, z = Y[:,1],  Z[1,:]
+    elseif  dim==2
+        title_str = "y = $y"
+        x_str,z_str = "x","z"
+        x, z = X[:,1],  Z[1,:]
+    elseif dim==3
+        title_str = "z = $z"
+        x_str,z_str = "x","y"
+        x, z = X[:,1],  Y[1,:]
+    end
+    axes_str = (x_str=x_str, z_str=z_str, title_str=title_str)
+    data_tuple = (x=x,z=z,data=data)
+    return data_tuple, axes_str
+end
+
+    

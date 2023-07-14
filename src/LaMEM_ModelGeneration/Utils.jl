@@ -48,6 +48,14 @@ function rm_phase!(model::Model, ID::Int64)
     return nothing
 end
 
+"""
+    rm_phase!(model::Model)
+This removes all existing phases from `model`
+"""
+function rm_phase!(model::Model) 
+    model.Materials.Phases = []
+    return nothing
+end
 
 """
     replace_phase!(model::Model, phase_new::Phase; ID::Int64=nothing, Name::String=nothing)

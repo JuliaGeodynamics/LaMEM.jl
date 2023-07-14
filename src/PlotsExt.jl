@@ -1,5 +1,5 @@
 # Plotting extensions, that are only loaded when GLMakie is available
-println("adding Plots.jl plotting extensions for LaMEM")
+println("Adding Plots.jl plotting extensions for LaMEM")
 
 using LaMEM, GeophysicalModelGenerator
 using .Plots
@@ -31,7 +31,7 @@ function Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:pha
 
     title_str = axes_str.title_str
     if !isnothing(timestep)
-        title_str=title_str*"; time=$time[1]"
+        title_str=title_str*"; time=$(time[1])"
     end
 
     hm = heatmap(data_tuple.x, data_tuple.z, data_field', 

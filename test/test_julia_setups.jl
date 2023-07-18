@@ -28,7 +28,7 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = Read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.velocity[3,:,:,:]) ≈ 0.1084832f0 # check Vz
+    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10747005f0 # check Vz
 
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)

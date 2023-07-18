@@ -7,7 +7,7 @@ using Test
     Timestep = 1
     data, time = Read_LaMEM_timestep(FileName,Timestep)
     @test  data.fields.phase[1000] ≈ 0.0f0
-    @test  data.fields.strain_rate[1] ≈ -0.0010996389f0
+    @test  data.fields.strain_rate[1][1] ≈ -0.0010996389f0
 
     fields = Read_LaMEM_fieldnames(FileName)
     

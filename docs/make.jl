@@ -11,6 +11,8 @@ makedocs(;
         "Home" => "index.md",
         "Installation" => "man/installation.md",
         "Installation on HPC systems" => "man/installation_HPC.md",
+        "Create LaMEM models in julia" => ["Overview" => "man/juliasetups.md",
+                                            "Avaialble functions" => "man/LaMEM_ModelFunctions.md"],
         "Run LaMEM" => "man/runlamem.md",
         "Reading timesteps" => "man/readtimesteps.md",
         "List of functions" => "man/listfunctions.md",

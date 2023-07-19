@@ -4,6 +4,7 @@ println("Adding Plots.jl plotting extensions for LaMEM")
 using LaMEM, GeophysicalModelGenerator
 using .Plots
 import .Plots: heatmap
+export plot_topo
  
 """
     Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:phase,  dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
@@ -17,6 +18,10 @@ function Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:pha
         # load a particular timestep
         data_cart, time = Read_LaMEM_timestep(model,timestep)
         model = data_cart
+    end
+
+    if isnothing(x) && isnothing(y) && isnothing(z)
+        x = mean(extrema(model.Grid.Grid.X))
     end
     
     data_tuple, axes_str = cross_section(model, field; x=x, y=y, z=z)
@@ -41,6 +46,25 @@ function Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:pha
                 title=title_str,
                 colorbar_title=cb_str,
                 args...)
+                
+    return hm
+end
+
+
+"""
+    plot_topo(topo::CartData, args...)
+
+Simple function to plot the topography 
+"""
+function plot_topo(topo::CartData; kwargs...)
+   
+    hm = heatmap(topo.x.val[:,1,1], topo.y.val[1,:,1], topo.fields.Topography[:,:,1]'; 
+                aspect_ratio=:equal, 
+                xlabel="x",
+                ylabel="y",
+                title="topography [km]",
+                colormap=:oleron,
+                kwargs...)
                 
     return hm
 end

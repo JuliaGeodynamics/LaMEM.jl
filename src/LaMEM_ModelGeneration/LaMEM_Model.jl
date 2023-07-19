@@ -58,10 +58,11 @@ include("Model.jl")                 # main LaMEM_Model
 export Model
 
 include("GMG_interface.jl")
+export AboveSurface!, BelowSurface!
 
 include("Utils.jl")
 export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
-        add_phasetransition!, add_dike!, add_geom!, cross_section
+        add_phasetransition!, add_dike!, add_geom!, cross_section, add_topography!
 
 
 include("ErrorChecking.jl")

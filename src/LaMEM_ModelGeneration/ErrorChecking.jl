@@ -31,5 +31,35 @@ function Check_LaMEM_Model(m::Model)
     return nothing
 end
 
+"""
+    is_rectilinear(topography::CartData)
 
+Checks whether `topography` is rectilinear
+"""
+function is_rectilinear(topography::CartData)
+    dx = extrema(diff(ustrip.(topography.x.val[:,:,1]), dims=1))
+    dy = extrema(diff(ustrip.(topography.y.val[:,:,1]), dims=2))
+    
+    return (dx[2] ≈ dx[1]) .& (dy[2] ≈ dy[1])
+end
+
+"""
+    within_bounds(model::Model, topography::CartData)
+
+Verifies that the bounds of the topography grid are larger than that of the model
+"""
+function within_bounds(model::Model, topography::CartData)
+    x_topo = extrema(topography.x.val)
+    y_topo = extrema(topography.y.val)
+    x =extrema(model.Grid.Grid.X)
+    y =extrema(model.Grid.Grid.Y)
+
+    if (x_topo[1]>x[1]) ||  (x_topo[2]<x[2]) ||
+       (y_topo[1]>y[1]) ||  (y_topo[2]<y[2])
+        within = false
+    else
+        within = true
+    end
+    return within
+end
 

@@ -31,7 +31,8 @@ export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
         Output,
         Materials, Phase, Softening, PhaseTransition, Dike, 
         add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!,
-        add_phasetransition!, add_dike!, add_geom!     
+        add_phasetransition!, add_dike!, add_geom!, set_air, copy_phase,
+        add_topography!, AboveSurface!, BelowSurface!    
 
 
 using .Run.LaMEM_jll

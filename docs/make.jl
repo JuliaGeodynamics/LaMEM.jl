@@ -15,7 +15,6 @@ makedocs(;
                                                     "Example 1: Sphere" => "man/juliasetup_example_sphere.md",
                                                     "Example 2: Volcano" => "man/juliasetup_LaPalma.md",
                                                     "Pluto notebooks" => "man/juliasetup_pluto.md",
-                                                    
                                                     "Available functions" => "man/LaMEM_ModelFunctions.md"],
         "Run LaMEM" => "man/runlamem.md",
         "Reading timesteps" => "man/readtimesteps.md",

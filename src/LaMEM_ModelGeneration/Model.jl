@@ -209,6 +209,10 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String="")
     end
 
     Write_LaMEM_InputFile(model, model.Output.param_file_name)
+    
+    if !isnothing(model.FreeSurface.Topography)
+        Save_LaMEMTopography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
+    end
 
     if model.ModelSetup.msetup=="files"
         # write marker files to disk before running LaMEM

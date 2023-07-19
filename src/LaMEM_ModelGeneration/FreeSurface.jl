@@ -74,7 +74,10 @@ Base.@kwdef mutable struct FreeSurface
     hDown::Float64              = 0.1               
 
     "half of transition zone"
-    dTrans::Float64             = 1.0               
+    dTrans::Float64             = 1.0    
+    
+    "Topography grid"
+    Topography::Union{CartData, Nothing} =   nothing
 end
 
 # Print info about the structure
@@ -126,7 +129,7 @@ function Write_LaMEM_InputFile(io, d::FreeSurface)
 
     if surf_use==1
         for f in fields
-            if getfield(d,f) != getfield(Reference,f) 
+            if getfield(d,f) != getfield(Reference,f) && (f != :Topography)
                 # only print if value differs from reference value
                 name = rpad(String(f),15)
                 comment = get_doc(FreeSurface, f)

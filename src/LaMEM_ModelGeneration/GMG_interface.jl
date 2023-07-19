@@ -2,7 +2,8 @@
 #
 # Some wrappers around GMG routines
 
-import GeophysicalModelGenerator: AddBox!, AddSphere!, AddEllipsoid!, AddCylinder!
+import GeophysicalModelGenerator: AddBox!, AddSphere!, AddEllipsoid!, AddCylinder!, AboveSurface, BelowSurface
+export AboveSurface!, BelowSurface!
 
 """
     AddBox!(model::Model; xlim=Tuple{2}, [ylim=Tuple{2}], zlim=Tuple{2},
@@ -49,3 +50,59 @@ See the documentation of the GMG routine
 
 """
 AddEllipsoid!(model::Model; kwargs...) = AddEllipsoid!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
+
+
+"""
+    AboveSurface(model::Model, DataSurface_Cart::CartData)
+
+Returns a boolean grid that is `true` if the `Phases/Temp` grid are above the surface
+"""
+AboveSurface(model::Model, DataSurface_Cart::CartData) = AboveSurface(model.Grid.Grid, DataSurface_Cart)
+
+
+"""
+    AboveSurface!(model::Model, DataSurface_Cart::CartData; phase::Int64=nothing, T::Number=nothing) 
+    
+Sets the `Temp` or `Phases` above the surface `DataSurface_Cart` to a constant value.
+"""
+function AboveSurface!(model::Model, DataSurface_Cart::CartData; phase::Union{Int64,Nothing}=nothing, T::Union{Number,Nothing}=nothing) 
+    
+    id = AboveSurface(model, DataSurface_Cart)
+    if !isnothing(phase)
+        model.Grid.Phases[id] .= phase
+    end
+    if !isnothing(T)
+        model.Grid.Temp[id] .= T
+    end
+
+    return nothing
+end
+
+
+
+
+"""
+    BelowSurface(model::Model, DataSurface_Cart::CartData)
+
+Returns a boolean grid that is `true` if the `Phases/Temp` grid are below the surface
+"""
+BelowSurface(model::Model, DataSurface_Cart::CartData) = BelowSurface(model.Grid.Grid, DataSurface_Cart)
+
+
+"""
+    BelowSurface!(model::Model, DataSurface_Cart::CartData; phase::Union{Int64,Nothing}=nothing, T::Union{Number,Nothing}=nothing) 
+    
+Sets the `Temp` or `Phases` below the surface `DataSurface_Cart` to a constant value.
+"""
+function BelowSurface!(model::Model, DataSurface_Cart::CartData; phase::Union{Int64,Nothing}=nothing, T::Union{Number,Nothing}=nothing) 
+    
+    id = BelowSurface(model, DataSurface_Cart)
+    if !isnothing(phase)
+        model.Grid.Phases[id] .= phase
+    end
+    if !isnothing(T)
+        model.Grid.Temp[id] .= T
+    end
+
+    return nothing
+end

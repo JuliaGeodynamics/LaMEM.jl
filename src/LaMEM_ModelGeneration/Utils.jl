@@ -3,7 +3,8 @@ import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_softening!, add_phasetransition!, 
-        add_dike!, add_geom! , cross_section
+        add_dike!, add_geom! , cross_section,
+        set_air, copy_phase
 
 
 """
@@ -267,3 +268,51 @@ function flatten(cross::CartData, field::Symbol,x,y,z)
 end
 
     
+"""
+    set_air(; Name="air", ID=0, rho=1, alpha=nothing, eta=1e17, G=nothing, nu=nothing, fr=nothing, ch=nothing, k=30,Cp=1000)
+Sets an air phase, with high conductivity 
+"""
+function set_air(; Name="air", ID=0, rho=1, alpha=nothing, eta=1e17, G=nothing, nu=nothing, fr=nothing, ch=nothing,
+                k=30,Cp=1000)
+    return Phase(Name=Name, ID=ID, rho=100, alpha=alpha, eta=eta, G=G, nu=nu, k=k, Cp=Cp, fr=fr, ch=ch)
+end
+
+
+"""
+    copy_phase(phase::Phase; kwargs...)
+
+This copies a phase with material properties, while allowing to change some parameters
+"""
+function copy_phase(phase::Phase; kwargs...)
+    phase_new = deepcopy(phase)
+    # update fields
+    for ph in keys(kwargs)
+        setfield!(phase_new,ph, kwargs[ph])
+    end
+
+    return phase_new
+end
+
+
+"""
+    add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt")
+
+Adds the topography surface to the model
+"""
+function add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt")
+    if !is_rectilinear(topography)
+        error("topography grid must be rectilinear")
+    end
+    if !within_bounds(model, topography)
+        error("topography grid must be larger than the model")
+    end
+
+    model.FreeSurface.Topography = topography # add topo
+    model.FreeSurface.surf_use = 1
+    model.FreeSurface.surf_air_phase = surf_air_phase
+    if isempty(model.FreeSurface.surf_topo_file)
+        model.FreeSurface.surf_topo_file = surf_topo_file
+    end
+
+    return nothing
+end

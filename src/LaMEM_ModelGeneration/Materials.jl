@@ -179,7 +179,7 @@ function show(io::IO, d::Phase)
     # print fields
     for f in fields
         if !isnothing(getfield(d,f)) & (f != :ID) & (f != :Name)
-            printstyled(io,"  $(rpad(String(f),6)) = $(getfield(d,f)) \n")        
+            printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
         end
     end
 

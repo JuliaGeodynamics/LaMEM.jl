@@ -2,147 +2,145 @@
 
 It is also possible to construct a LaMEM setup directly in julia & run that. You can do the same from within a [Pluto](https://plutojl.org) notebook. The advantage is that it is easier to use, has build-in plotting functions and extensive documentation. 
 
-
-
-### 1. Example 1: Falling sphere
-This is a first example that illustrates how to build a setup using the LaMEM.jl package, run it and visualize the results, all without leaving julia.
-
-We start with loading the packages we need:
-```julia
->julia using LaMEM, GeophysicalModelGenerator, Plots
-```
-The [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) package can be used to generate model setups and [Plots](https://github.com/JuliaPlots/Plots.jl) for plotting.
-
-#### 1.1 Define model setup
-
-Next, we define a general model setup, in which we specify the units with which we work (for most cases, you'll want to use the default `GEO` units), the size of the computational box and various timestepping parameters. In this case, we use a multigrid solver.
+The main routine to do this is: 
 
 ```julia
-julia> model  = Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]), 
-          Time(nstep_max=20, dt_min=1e-3, dt=1, dt_max=10, time_end=100), 
-          Solver(SolverType="multigrid", MGLevels=2),
-          Output(out_dir="example_1"))
+julia> using LaMEM
+julia> model  = Model()
 LaMEM Model setup
 |
 |-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
-|-- Grid                :  nel=(16, 16, 16); xϵ(-1.0, 1.0), yϵ(-1.0, 1.0), zϵ(-1.0, 1.0) 
-|-- Time                :  nstep_max=20; nstep_out=1; time_end=100.0; dt=1.0
+|-- Grid                :  nel=(16, 16, 16); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
-|-- Solver options      :  multigrid solver; coarse grid solver=direct; 2 levels
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  0 phases; 
 ```
 
-Note that each of the fields within `Model` has many additional and adjustable parameters. You can view that by typing:
-```julia
-julia> model.Time
-LaMEM Timestepping parameters: 
-  time_end        = 100.0 
-  dt              = 1.0 
-  dt_min          = 0.001 
-  dt_max          = 10.0 
-  dt_out          = 0.2 
-  inc_dt          = 0.1 
-  CFL             = 0.5 
-  CFLMAX          = 0.8 
-  nstep_max       = 20 
-  nstep_out       = 1 
-  nstep_rdb       = 100 
-  nstep_ini       = 1 
-  time_tol        = 1.0e-8 
+`Model` is a structure that contains all the information about the LaMEM simulation and consists of the following sub-structures that can all be adjusted.
+```
+BoundaryConditions  FreeSurface         Grid                
+Materials           ModelSetup          Output              
+Scaling             SolutionParams      Solver              
+Time
 ```
 
-#### 1.2 Specify material properties
-Once this is specified, we need to set material properties for each of the `Phases` we will consider in the simulation. This can be done with the `Phase` structure. First, we define two phases
-```julia
-julia> rm_phase!(model)
-julia> matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000)
-Phase 0 (matrix): 
-  rho    = 3000.0 
-  eta    = 1.0e20 
-julia> sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
-Phase 1 (sphere): 
-  rho    = 3200.0 
-  eta    = 1.0e23 
-```
-and add them to the model with:
-```julia
-add_phase!(model, sphere, matrix)
-```
-
-#### 1.3 Set initial model geometry
-We also need to specify an initial model geometry. The julia package `GeophysicalModelGenerator` has a number of functions for that, which can be used here. For the current setup, we just add a sphere: 
-```julia
-julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
-```
-It is often useful to plot the initial model setup. You can do this with the `heatmap` function from the `Plots.jl` package, for which we provide a LaMEM plugin that allows you to specify a cross-section through a 3D LaMEM setup:
-
-```julia
-julia> heatmap(model, field=:phase, y=0)
-```
-
-![InitialSetupSphere](InitialSetupSphere.png)
-
-In the initial setup we define two fields: `:phase` which defines the rocktypes and `:temperature` which has the initial temperature. They are stored as 3D arrays in `model.Grid.Phases` and `model.Grid.Temp`:
+You can, for example, look at the current `Grid`:
 ```julia
 julia> model.Grid
 LaMEM grid with constant Δ: 
   nel         : ([16], [16], [16])
   marker/cell : (3, 3, 3)
-  x           ϵ [-1.0 : 1.0]
-  y           ϵ [-1.0 : 1.0]
-  z           ϵ [-1.0 : 1.0]
-  Phases      : range ϵ [0 - 1]
+  x           ϵ [-10.0 : 10.0]
+  y           ϵ [-10.0 : 0.0]
+  z           ϵ [-10.0 : 0.0]
+  Phases      : range ϵ [0 - 0]
   Temp        : range ϵ [0.0 - 0.0]
 ```
+and change the dimensions and number of grid-cells with:
+```julia
+julia> model.Grid = Grid(nel=[32,32,32], x=[-20,20])
+LaMEM grid with constant Δ: 
+  nel         : ([32], [32], [32])
+  marker/cell : (3, 3, 3)
+  x           ϵ [-20.0 : 20.0]
+  y           ϵ [-10.0 : 0.0]
+  z           ϵ [-10.0 : 0.0]
+  Phases      : range ϵ [0 - 0]
+  Temp        : range ϵ [0.0 - 0.0]
+```
+or do it by directly accessing the respectyive data field:
+```julia
+julia> model.Grid.nel_x = [32]
+1-element Vector{Int64}:
+ 32
+ ```
 
-#### 1.4 Run LaMEM
+Every LaMEM model setup needs to specify material properties for the different materials. By default it has nothing:
+```
+julia> model.Materials
+LaMEM Material Properties: 
+  Softening       = 
+  PhaseTransition = 
+ ```
 
-At this stage we are ready to run a LaMEM simulation which can simply be done with the `run_lamem` command. By default, it will run on one processor. If you want to run this in parallel, you can specify the number of cores you want to use. Please note that running things in parallel is only worth the effort for large resolutions; for smaller setups it will be faster on one processor:
+yet, we can specify different materials using the `Phase` structure:
+```julia
+julia> sphere = Phase(Name="Sphere", ID=1, eta=1e20, rho=2800)
+Phase 1 (Sphere): 
+  rho    = 2800.0 
+  eta    = 1.0e20 
+ ```
+and add that to the model with:
+```julia
+julia> add_phase!(model, sphere)
+julia> model
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
+|-- Grid                :  nel=(32, 32, 32); xϵ(-20.0, 20.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=files; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  1 phases; 
+ ```
+Note that the model now has 1 phase.
 
+In order to run a simulation, we need to define at least 1 phase and heterogeneities in either the initial temperature field (`model.Grid.Temp`) or the Phases field (`model.Grid.Phases`).
+The easiest way to do that is to use routines from the `GeophyicalModelGenerator` package, for which we created simple interfaces to many of the relevant routines:
+```julia
+julia> using GeophysicalModelGenerator
+julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+ ```
+
+For the sake of this example, lets add another phase:
+```julia
+julia> matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000)
+Phase 0 (matrix): 
+  rho    = 3000.0 
+  eta    = 1.0e20 
+julia> add_phase!(model, matrix)
+```
+
+At this stage you have a model setup with 2 phases and heterogeneities in the `Phases` field, which you can check with:
+```julia 
+julia> model
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
+|-- Grid                :  nel=(32, 32, 32); xϵ(-20.0, 20.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=files; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  2 phases; 
+
+
+julia> model.Grid
+LaMEM grid with constant Δ: 
+  nel         : ([32], [32], [32])
+  marker/cell : (3, 3, 3)
+  x           ϵ [-20.0 : 20.0]
+  y           ϵ [-10.0 : 0.0]
+  z           ϵ [-10.0 : 0.0]
+  Phases      : range ϵ [0 - 1]
+  Temp        : range ϵ [0.0 - 0.0]
+   ```
+
+Running a model is very simple:
 ```julia
 julia> run_lamem(model,1)
-Saved file: Model3D.vts
-Writing LaMEM marker file -> ./markers/mdb.00000000.dat
--------------------------------------------------------------------------- 
-                   Lithosphere and Mantle Evolution Model                   
-     Compiled: Date: Apr  7 2023 - Time: 22:11:23           
-     Version : 1.2.4 
--------------------------------------------------------------------------- 
-        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
--------------------------------------------------------------------------- 
-Parsing input file : output.dat 
-Finished parsing input file : output.dat 
---------------------------------------------------------------------------
-Scaling parameters:
-   Temperature : 1000. [C/K] 
-   Length      : 1e+06 [m] 
-   Viscosity   : 1e+20 [Pa*s] 
-   Stress      : 10. [Pa] 
---------------------------------------------------------------------------
-Time stepping parameters:
-   Simulation end time          : 100. [Myr] 
-   Maximum number of steps      : 20 
-   Time step                    : 1. [Myr] 
-   Minimum time step            : 0.001 [Myr] 
-   Maximum time step            : 10. [Myr] 
-   Time step increase factor    : 0.1 
-   CFL criterion                : 0.5 
-   CFLMAX (fixed time steps)    : 0.8 
-   Output every [n] steps       : 1 
-   Output [n] initial steps     : 1 
---------------------------------------------------------------------------
---------------------------------------------------------------------------
 ```
 
-#### 1.5 Visualize results
 
-Once the simulation is done, you can look at the results using the same `heatmap` function, but by specifying a timestep, which will read that timestep and plot a cross-section though it:
 
-```julia
-julia> heatmap(model, y=0, timestep=20, field=:phase)	
-```
-
-![FallingSphere_t20](FallingSphere_t20.png)
+### More examples
+More examples can be found on the left hand side menu.

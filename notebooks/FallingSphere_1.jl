@@ -32,6 +32,9 @@ This is a first example that illustrates how to build a setup using the LaMEM.jl
 We start with loading a few packages.
 """
 
+# ╔═╡ 4cd42d73-d63d-4149-9062-037a82f54255
+
+
 # ╔═╡ 03abfcd4-b3bb-44eb-ba97-c03d64126195
 md"""
 ### Define model setup
@@ -179,7 +182,8 @@ Since we are using Pluto, changing values in one cell will update the full noteb
 # ╔═╡ Cell order:
 # ╟─78136b07-5d33-407a-afcf-e0a656181043
 # ╠═f744857e-20e6-11ee-1720-311279133704
-# ╠═03abfcd4-b3bb-44eb-ba97-c03d64126195
+# ╠═4cd42d73-d63d-4149-9062-037a82f54255
+# ╟─03abfcd4-b3bb-44eb-ba97-c03d64126195
 # ╠═4a533c45-2ad6-4970-963b-abbbc798275b
 # ╟─b192e665-20f2-4f65-ace9-fe7fffd7b7c7
 # ╠═965f3210-d4da-4a0b-8db5-cce85779fd58
@@ -192,14 +196,14 @@ Since we are using Pluto, changing values in one cell will update the full noteb
 # ╟─78c4db3c-3f5d-4a91-9ab9-bd00ce0810af
 # ╠═2e88e435-288e-4d08-b482-e3d2398563f1
 # ╠═773314ed-bc12-4097-88a7-bad62b5b1b66
-# ╠═5681b716-2959-4ff4-bd14-4c94641310a4
+# ╟─5681b716-2959-4ff4-bd14-4c94641310a4
 # ╠═a3afc50b-2fcd-4067-895d-fde7fb7f8742
-# ╠═e0411cc1-60ae-43cf-9500-93a246e62e1b
+# ╟─e0411cc1-60ae-43cf-9500-93a246e62e1b
 # ╠═fb23a0a3-1485-4726-8b6e-1a810e50ce7a
-# ╠═4e5cb7d3-f6c0-4dd9-b508-643e38335297
-# ╠═0993d48a-e07a-4b28-bd0c-89b2a8f08af3
+# ╟─4e5cb7d3-f6c0-4dd9-b508-643e38335297
+# ╟─0993d48a-e07a-4b28-bd0c-89b2a8f08af3
 # ╠═0873aa40-111d-421b-a72c-9ed8240a8782
-# ╠═319aa787-f641-42ab-bdfa-76b04e6e478a
+# ╟─319aa787-f641-42ab-bdfa-76b04e6e478a
 # ╟─eaa307f7-5655-4cf3-8638-47faa28a6a4b
 # ╠═3040c159-7281-4971-80ad-8104abb3a6d9
 # ╟─b7ca7625-4910-4faf-919c-4b785438c574

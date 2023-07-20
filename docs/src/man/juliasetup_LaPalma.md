@@ -43,12 +43,15 @@ julia> plot_topo(topo, clim=(-4,4))
 
 Next, we generate a model setup  for LaMEM with:
 ```julia
-julia> model = Model(Grid(x=[-50.,50.], y=[-40.,40.], z=[-80,15] , nel=(64,64,32)) )
+julia> model = Model(Grid(x=[-50.,50.], y=[-40.,40.], z=[-80,15] , nel=(64,64,32)),
+                     BoundaryConditions(temp_bot=1350, open_top_bound=1),
+                     Scaling(GEO_units(stress=1e9Pa, length=1km)),
+                     Time(nstep_max=20) )
 LaMEM Model setup
 |
 |-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
 |-- Grid                :  nel=(64, 64, 32); xϵ(-50.0, 50.0), yϵ(-40.0, 40.0), zϵ(-80.0, 15.0) 
-|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Time                :  nstep_max=20; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
 |-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
@@ -178,7 +181,34 @@ julia> add_topography!(model, Topo_LaMEM)
 
 You will want to use a multigrid solver in this case:
 ```julia
-julia> model.Solver = Solver(SolverType="multigrid")
+julia> model.Solver = Solver(SolverType="multigrid",  MGLevels=4)
+
  ```
 
 ### 3. Run LaMEM
+Running LaMEM is simple; here on 4 processors:
+```julia
+julia> run_lamem(model, 4)
+Saved file: Model3D.vts
+Written LaMEM topography file: topography.txt
+Writing LaMEM marker file -> ./markers/mdb.00000000.dat
+Writing LaMEM marker file -> ./markers/mdb.00000001.dat
+Writing LaMEM marker file -> ./markers/mdb.00000002.dat
+Writing LaMEM marker file -> ./markers/mdb.00000003.dat
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Apr  7 2023 - Time: 22:11:23           
+     Version : 1.2.4 
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : output.dat 
+Finished parsing input file : output.dat 
+--------------------------------------------------------------------------
+Scaling parameters:
+   Temperature : 1000. [C/K] 
+   Length      : 1000. [m] 
+   Viscosity   : 1e+20 [Pa*s] 
+   Stress      : 1e+09 [Pa] 
+--------------------------------------------------------------------------
+ ```

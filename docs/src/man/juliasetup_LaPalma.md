@@ -9,7 +9,7 @@ julia> using LaMEM, GeophysicalModelGenerator, GMT, Plots
 Loading GMT routines within GMG
 WARNING: using GMT.meshgrid in module GeophysicalModelGenerator conflicts with an existing identifier.
 adding Plots.jl plotting extensions for LaMEM
- ```
+```
 
 Load the topography, choose a projection point & project the topography to cartesian coordinates:
 ```julia
@@ -23,7 +23,7 @@ CartData
     z       ϵ [ -4.38352685546875 : 2.414]
     fields  : (:Topography,)
   attributes: ["note"]
- ```
+```
 This shows the dimensions of our domain in kilometers. The issue is that this projected topography is not an orthogonal grid, but (slightly) distorted. In any case, we see the approximate dimensions of the grid (in horizontal directions), so we can create an orthogonal grid on which to project this:
 
 ```julia
@@ -80,37 +80,37 @@ LaMEM grid with constant Δ:
   z           ϵ [-80.0 : 15.0]
   Phases      : range ϵ [0 - 0]
   Temp        : range ϵ [20.0 - 1350.0]
- ```
+```
 
 Set `Phases` to two everywhere:
 ```julia
 julia> model.Grid.Phases .= 2;
- ```
+```
 
 Now set points above the topography to zero (will be air later), the ones above the topography but below zero to 'water` and below 40 km to mantle (if we had a Moho surface we could use that):
 ```julia
  julia> AboveSurface!(model, Topo_LaMEM, phase=0, T=0)
  julia> model.Grid.Phases[Z.<-0 .&& model.Grid.Phases .== 0] .= 1;
  julia> model.Grid.Phases[Z.<-40] .= 3;
-  ```
+```
 
 Finally, we define some magma chambers:
 ```julia 
 julia> AddSphere!(model, cen=(0,0,-35), radius=5, phase=ConstantPhase(5), T=ConstantTemp(1200));
 julia> AddEllipsoid!(model, cen=(-1,0,-11), axes=(3,3,8), StrikeAngle=225, DipAngle=45, phase=ConstantPhase(5), T=ConstantTemp(1200));
 julia> AddEllipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngle=0, phase=ConstantPhase(5), T=ConstantTemp(1200));
- ```
+```
 
  We can plot a cross-section through the model:
- ```julia
+```julia
  julia> heatmap(model, x=0, field=:phase)
- ```
+```
  ![LaPalma_CrossSection](LaPalma_CrossSection.png)
 
 
 ##### Set material properties
 
-First we set air and water properties:
+First, we set air and water properties:
 ```julia
 julia> air = set_air(alpha=3e-5, G=1e10, nu=0.2, ch=10e6, fr=30)
 Phase 0 (air): 
@@ -124,7 +124,7 @@ Phase 0 (air):
   Cp     = 1000.0 
   k      = 30.0 
 julia> water=deepcopy(air); water.Name="water"; water.ID=1
-   ```
+```
 Next, we set the crust:
 ```julia
 julia> crust = Phase(Name="Crust", ID=2, rho=2900, alpha=3e-5, disl_prof="Mafic_Granulite-Ranalli_1995",
@@ -139,22 +139,22 @@ Phase 2 (Crust):
   alpha     = 3.0e-5 
   Cp        = 1000.0 
   k         = 3.0 
-   ```
+```
 The mantle is done as a copy of that, while changing a few parameters:
 ```julia
  julia> mantle = copy_phase(crust, Name="Mantle", ID=3, rho=3320.0, disl_prof="Dry_Olivine-Ranalli_1995", G=6.5e10, k=3.3);
-  ```
+```
 And we define two different types of magma:
 ```julia
 julia> andesite = Phase(Name="andesitic_magma",ID=4,rho=2700, alpha=3e-5, eta=1e18, G=1.5e10, nu=0.2, k=3, Cp=1000, T=980, ch=1e7, fr=30);
 julia> dacite = copy_phase(andesite,Name="dacite_magma", ID=5, rho=2575.0, eta=1e19, T=800.0)
- ```
+```
 
 Now we add all of this to the model:
 ```julia
 julia> rm_phase!(model)
 julia> add_phase!(model, air, water, crust, mantle, andesite, dacite)
- ```
+```
 And check that we indeed have 6 phases:
 ```julia
 julia> model
@@ -169,21 +169,20 @@ LaMEM Model setup
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  0 phases; 
- ```
+```
 
 ##### Add topography to model
 We can add the topography grid that we created earlier to the model with:
 ```julia
 julia> add_topography!(model, Topo_LaMEM)
- ```
+```
 
 ##### Set solver options
 
 You will want to use a multigrid solver in this case:
 ```julia
 julia> model.Solver = Solver(SolverType="multigrid",  MGLevels=4)
-
- ```
+```
 
 ### 3. Run LaMEM
 Running LaMEM is simple; here on 4 processors:
@@ -211,4 +210,4 @@ Scaling parameters:
    Viscosity   : 1e+20 [Pa*s] 
    Stress      : 1e+09 [Pa] 
 --------------------------------------------------------------------------
- ```
+```

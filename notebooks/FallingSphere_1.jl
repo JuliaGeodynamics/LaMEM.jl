@@ -19,7 +19,7 @@ begin
     import Pkg
     Pkg.activate(mktempdir())
     Pkg.add(Pkg.PackageSpec(name="LaMEM", rev="bk-julia-model-setup"))
-    using LaMEM, GeophysicalModelGenerator, Plots, PlutoUI
+    using LaMEM, GeophysicalModelGenerator, Plots, PlutoUI, GMT
 end
 
 # ╔═╡ 78136b07-5d33-407a-afcf-e0a656181043
@@ -33,7 +33,7 @@ We start with loading a few packages.
 """
 
 # ╔═╡ 4cd42d73-d63d-4149-9062-037a82f54255
-
+Topo = ImportTopo(lon = [-18.7, -17.1], lat=[28.0, 29.2], file="@earth_relief_03s.grd");
 
 # ╔═╡ 03abfcd4-b3bb-44eb-ba97-c03d64126195
 md"""
@@ -43,7 +43,7 @@ Next, we define a general model setup, in which we specify the units with which 
 """
 
 # ╔═╡ 4a533c45-2ad6-4970-963b-abbbc798275b
-  model  = Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]), 
+  model  = Model(Grid(nel=(32,16,16), x=[-1,1], y=[-1,1], z=[-1,1]), 
   				 Time(nstep_max=20, dt_min=1e-3, dt=1, dt_max=10, time_end=100), 
                  Solver(SolverType="multigrid", MGLevels=2),
   				 Output(out_dir="example_1"))
@@ -108,7 +108,7 @@ It is often useful to plot the initial model setup. You can do this with the `he
 """
 
 # ╔═╡ fb23a0a3-1485-4726-8b6e-1a810e50ce7a
-heatmap(model, field=:phase, y=0)
+heatmap(model, field=:phase, y=0.1)
 
 # ╔═╡ 4e5cb7d3-f6c0-4dd9-b508-643e38335297
 md"""
@@ -154,7 +154,7 @@ And use that to slice through time
 """
 
 # ╔═╡ 66d66323-71a4-455a-9a7b-bd1ec3d5ae1c
-heatmap(model, y=0, timestep=t, field=:phase, dim=3)	
+heatmap(model, y=0.2, timestep=t, field=:phase, dim=3)	
 
 # ╔═╡ 2cb9ffa5-48da-4d48-8381-51c5d8f65da5
 md"""

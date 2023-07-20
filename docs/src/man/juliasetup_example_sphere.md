@@ -3,7 +3,7 @@ This is a first example that illustrates how to build a setup using the LaMEM.jl
 
 We start with loading the packages we need:
 ```julia
->julia using LaMEM, GeophysicalModelGenerator, Plots
+julia> using LaMEM, GeophysicalModelGenerator, Plots
 ```
 The [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) package can be used to generate model setups and [Plots](https://github.com/JuliaPlots/Plots.jl) for plotting.
 
@@ -63,7 +63,7 @@ Phase 1 (sphere):
 ```
 and add them to the model with:
 ```julia
-add_phase!(model, sphere, matrix)
+julia> add_phase!(model, sphere, matrix)
 ```
 
 #### 1.3 Set initial model geometry
@@ -140,3 +140,33 @@ julia> heatmap(model, y=0, timestep=20, field=:phase)
 ```
 
 ![FallingSphere_t20](FallingSphere_t20.png)
+
+Alternatively, you can visualize the results with Paraview.
+Change to the directory where you did the simulation:
+```julia
+julia> cd(model.Output.out_dir)
+julia> julia> readdir()
+25-element Vector{String}:
+ "Model3D.vts"
+ "Timestep_00000000_0.00000000e+00"
+ "Timestep_00000001_1.10000000e+00"
+ "Timestep_00000002_2.31000000e+00"
+ "Timestep_00000003_3.64100000e+00"
+ "Timestep_00000004_5.10510000e+00"
+ "Timestep_00000005_6.71561000e+00"
+ ⋮
+ "Timestep_00000017_4.45991731e+01"
+ "Timestep_00000018_5.01590904e+01"
+ "Timestep_00000019_5.62749995e+01"
+ "Timestep_00000020_6.30024994e+01"
+ "markers"
+ "output.dat"
+ "output.pvd"
+```
+And you can open `output.pvd` with paraview. If your systems recogized that `*.pvd` files can be opened with paraview, you can do that with
+```julia
+julia> ;
+shell> open output.pvd
+```
+Otherwise, start paraview and open the file.
+

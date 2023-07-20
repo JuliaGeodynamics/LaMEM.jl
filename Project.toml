@@ -16,6 +16,7 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 [compat]
 GeoParams = "0.4"
 GeophysicalModelGenerator = "0.4 - 0.6"
+DocStringExtensions = "0.9"
 Glob = "1"
 LaMEM_jll = "1.2.4 - 1.2.4"
 PETSc_jll = "3.16.8 - 3.16.8"

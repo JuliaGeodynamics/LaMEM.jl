@@ -5,7 +5,7 @@ using GeophysicalModelGenerator
 
 # Load LaMEM particles grid
 ParamFile_2 =   "input_files/Subduction2D_FreeSlip_Particles_Linear_DirectSolver.dat"
-Grid        =   ReadLaMEM_InputFile(ParamFile_2)
+Grid_LaMEM  =   ReadLaMEM_InputFile(ParamFile_2)
 
 # Specify slab parameters
 Trench_x_location   = -500;     # trench location
@@ -21,17 +21,17 @@ T_surface           =   0;
 
 ThicknessSlab = ThicknessCrust+ThicknessML
 
-Phases      =   zeros(Int64, size(Grid.X));             # Rock numbers
-Temp        =   ones(Float64,size(Grid.X))*T_mantle;    # Temperature in C    
+Phases      =   zeros(Int64, size(Grid_LaMEM.X));             # Rock numbers
+Temp        =   ones(Float64,size(Grid_LaMEM.X))*T_mantle;    # Temperature in C    
 
 # Create horizontal part of slab with crust & mantle lithosphere
-AddBox!(Phases,Temp,Grid,
+AddBox!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location, Trench_x_location+Length_Horiz_Slab), 
         zlim=(-ThicknessSlab   , 0.0),
         phase=LithosphericPhases(Layers=[ThicknessCrust ThicknessML], Phases=[1 2 0]) );               
 
 # Add inclined part of slab                            
-AddBox!(Phases,Temp,Grid,
+AddBox!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location-Length_Subduct_Slab, Trench_x_location), 
         zlim=(-ThicknessSlab   , 0.0),
         DipAngle=-SubductionAngle,
@@ -39,7 +39,7 @@ AddBox!(Phases,Temp,Grid,
         phase=LithosphericPhases(Layers=[ThicknessCrust ThicknessML], Phases=[1 2 0]) );               
 
 # Save julia setup 
-Model3D     =   CartData(Grid, (Phases=Phases,Temp=Temp))   # Create LaMEM model:
+Model3D     =   CartData(Grid_LaMEM, (Phases=Phases,Temp=Temp))   # Create LaMEM model:
 Write_Paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
 
 # Save LaMEM markers

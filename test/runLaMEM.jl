@@ -1,5 +1,4 @@
 using Test
-using LaMEM
 
 @testset "run LaMEM" begin
  

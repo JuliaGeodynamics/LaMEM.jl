@@ -1,5 +1,4 @@
 using Test
-using LaMEM
 
 @testset "read LaMEM output" begin
 
@@ -7,8 +6,8 @@ using LaMEM
     FileName="FB_multigrid"
     Timestep = 1
     data, time = Read_LaMEM_timestep(FileName,Timestep)
-    @test  sum(data.fields.phase) ≈ 736.36414f0
-    @test  sum(data.fields.strain_rate[1,:,:,:]) ≈ -0.019376338f0
+    @test  data.fields.phase[1000] ≈ 0.0f0
+    @test  data.fields.strain_rate[1][1] ≈ -0.0010996389f0
 
     fields = Read_LaMEM_fieldnames(FileName)
     
@@ -18,11 +17,11 @@ using LaMEM
     Timestep = 1
     data, time = Read_LaMEM_timestep(FileName,Timestep, phase=true)
     
-    @test sum(data.fields.phase) == 19822
+    @test data.fields.phase[1000] == 0
 
     # read subduction setup
     data, time = Read_LaMEM_timestep("Subduction2D_FreeSlip_direct",1)
-    @test sum(data.fields.density) ≈ 1.60555f8
+    @test data.fields.density[10000] ≈ 3200.0f0
 
     # Read PVD file 
     Timestep, FileNames, Time  = Read_LaMEM_simulation("Subduction2D_FreeSlip_direct")

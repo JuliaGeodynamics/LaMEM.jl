@@ -7,7 +7,7 @@ pkg>add LaMEM
 It will automatically download a binary version of LaMEM which runs in parallel (along with the correct PETSc version). This will work on linux, mac and windows.
 
 ### Starting a simulation
-As usual, you need a LaMEM (`*.dat`) input file, which you can run in parallel (here on 4 cores) with:
+If you have a LaMEM (`*.dat`) input file, you can run in parallel (here on 4 cores) with:
 ```julia
 julia> ParamFile="input_files/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 4,"-time_end 1")

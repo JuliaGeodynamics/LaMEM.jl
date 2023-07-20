@@ -1,6 +1,7 @@
 using Test
 using LaMEM
 
+include("test_julia_setups.jl")
 include("runLaMEM.jl")
 include("read_timestep.jl")
 include("run_lamem_save_grid_test.jl")

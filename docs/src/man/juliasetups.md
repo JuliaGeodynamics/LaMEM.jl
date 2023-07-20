@@ -17,7 +17,7 @@ LaMEM Model setup
 |-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
-|-- Materials           :  0 phases; 
+|-- Materials           :  0 phases;
 ```
 
 `Model` is a structure that contains all the information about the LaMEM simulation and consists of the following sub-structures that can all be adjusted.
@@ -57,15 +57,15 @@ or do it by directly accessing the respectyive data field:
 julia> model.Grid.nel_x = [32]
 1-element Vector{Int64}:
  32
- ```
+```
 
 Every LaMEM model setup needs to specify material properties for the different materials. By default it has nothing:
 ```
 julia> model.Materials
 LaMEM Material Properties: 
   Softening       = 
-  PhaseTransition = 
- ```
+  PhaseTransition =
+```
 
 yet, we can specify different materials using the `Phase` structure:
 ```julia
@@ -73,7 +73,7 @@ julia> sphere = Phase(Name="Sphere", ID=1, eta=1e20, rho=2800)
 Phase 1 (Sphere): 
   rho    = 2800.0 
   eta    = 1.0e20 
- ```
+```
 and add that to the model with:
 ```julia
 julia> add_phase!(model, sphere)
@@ -89,7 +89,7 @@ LaMEM Model setup
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  1 phases; 
- ```
+```
 Note that the model now has 1 phase.
 
 In order to run a simulation, we need to define at least 1 phase and heterogeneities in either the initial temperature field (`model.Grid.Temp`) or the Phases field (`model.Grid.Phases`).
@@ -97,7 +97,7 @@ The easiest way to do that is to use routines from the `GeophyicalModelGenerator
 ```julia
 julia> using GeophysicalModelGenerator
 julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
- ```
+```
 
 For the sake of this example, lets add another phase:
 ```julia
@@ -133,14 +133,12 @@ LaMEM grid with constant Δ:
   z           ϵ [-10.0 : 0.0]
   Phases      : range ϵ [0 - 1]
   Temp        : range ϵ [0.0 - 0.0]
-   ```
+```
 
 Running a model is very simple:
 ```julia
 julia> run_lamem(model,1)
 ```
-
-
 
 ### More examples
 More examples can be found on the left hand side menu.

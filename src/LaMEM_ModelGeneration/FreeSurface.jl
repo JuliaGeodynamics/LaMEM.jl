@@ -17,10 +17,10 @@ Base.@kwdef mutable struct FreeSurface
     surf_corr_phase::Int64      = 1                 
 
     "initial level of the free surface"
-    surf_level::Float64         = 0.5               
+    surf_level::Union{Float64,Nothing}  = nothing               
 
     "phase ID of sticky air layer"
-    surf_air_phase::Int64       = 0                 
+    surf_air_phase::Union{Int64,Nothing}       = nothing                 
 
     "maximum angle with horizon (smoothed if larger)"
     surf_max_angle::Float64     = 45.0              

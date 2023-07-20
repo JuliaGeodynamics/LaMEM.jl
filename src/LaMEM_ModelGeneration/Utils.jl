@@ -295,11 +295,12 @@ end
 
 
 """
-    add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt")
+    add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt", open_top_bound=1,  surf_level=0.0)
 
 Adds the topography surface to the model
 """
-function add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt")
+function add_topography!(model::Model, topography::CartData; surf_air_phase=0, surf_topo_file="topography.txt", 
+            open_top_bound=1, surf_level=0.0)
     if !is_rectilinear(topography)
         error("topography grid must be rectilinear")
     end
@@ -310,9 +311,13 @@ function add_topography!(model::Model, topography::CartData; surf_air_phase=0, s
     model.FreeSurface.Topography = topography # add topo
     model.FreeSurface.surf_use = 1
     model.FreeSurface.surf_air_phase = surf_air_phase
+    model.FreeSurface.surf_level = surf_level
     if isempty(model.FreeSurface.surf_topo_file)
         model.FreeSurface.surf_topo_file = surf_topo_file
     end
+
+    # usually we want an open top boundary when we have a free surface:
+    model.BoundaryConditions.open_top_bound=open_top_bound
 
     return nothing
 end

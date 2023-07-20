@@ -16,6 +16,7 @@ ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
+GeoParams = "0.4"
 GeophysicalModelGenerator = "0.4 - 0.6"
 Glob = "1"
 LaMEM_jll = "1.2.4 - 1.2.4"

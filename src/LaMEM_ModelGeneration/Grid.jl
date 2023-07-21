@@ -159,10 +159,11 @@ function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, c
     nump_z    = nel_z_tot*nmark_z;
 
     # Create 1D coordinate vectors (either regular or refined)
+    
     xn, x = GeophysicalModelGenerator.Create1D_grid_vector(coord_x, nel_x, nmark_x, nseg_x, bias_x)
     yn, y = GeophysicalModelGenerator.Create1D_grid_vector(coord_y, nel_y, nmark_y, nseg_y, bias_y)
     zn, z = GeophysicalModelGenerator.Create1D_grid_vector(coord_z, nel_z, nmark_z, nseg_z, bias_z)
-
+    
     # node grid
     Xn,Yn,Zn = GeophysicalModelGenerator.XYZGrid(xn, yn, zn); 
 

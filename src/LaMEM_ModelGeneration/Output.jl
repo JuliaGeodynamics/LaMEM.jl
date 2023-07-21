@@ -48,10 +48,13 @@ Base.@kwdef mutable struct Output
     "effective pressure"
     out_eff_press       = 0     
 
+    "out_over_press"
     out_over_press      = 0
 
+    "lithospheric pressure"
     out_litho_press     = 0
 
+    "pore pressure"
     out_pore_press      = 0
 
     "temperature"
@@ -69,10 +72,13 @@ Base.@kwdef mutable struct Output
     "second invariant of strain rate tensor"
     out_j2_strain_rate  = 0     
 
+    "sh max"
     out_shmax           = 0
 
+    "eh max"
     out_ehmax           = 0
 
+    "yield stress"
     out_yield           = 0
 
     "relative proportion of diffusion creep strainrate"
@@ -93,20 +99,28 @@ Base.@kwdef mutable struct Output
     "plastic dissipation"
     out_plast_dissip    = 0     
 
+    "total displacement"
     out_tot_displ       = 0
 
+    "momentum residual"
     out_moment_res      = 0
 
+    "continuity residual"
     out_cont_res        = 0
 
+    "energy residual"
     out_energ_res       = 0
 
+    "Melt fraction"
     out_melt_fraction   = 0
 
+    "fluid density"
     out_fluid_density   = 0
 
+    "conductivity"
     out_conductivity    = 0
 
+    "velocity gradient tensor"
     out_vel_gr_tensor   = 0 
 
     "activate surface output"
@@ -200,7 +214,16 @@ function Write_LaMEM_InputFile(io, d::Output)
 
     # Write all fields that are active
     for f in fields
-        if getfield(d,f) == 1
+
+        # write "out_*" always
+        write_always = false
+        if length(String(f))>3
+            if String(f)[1:3]=="out"
+                write_always = true
+            end
+        end
+        
+        if getfield(d,f) == 1 || write_always
             # only print if value differs from reference value
             name = rpad(String(f),15)
             comment = get_doc(Output, f)

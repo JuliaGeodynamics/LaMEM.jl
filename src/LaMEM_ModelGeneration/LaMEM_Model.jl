@@ -17,7 +17,7 @@ function write_vec(data)
     if !isa(data,String)
         str = ""; for d in data; str = str*" $d" end
     else
-        str = data
+        str = " "*data
     end
 
     return str

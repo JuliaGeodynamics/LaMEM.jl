@@ -164,7 +164,13 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
     for f in fields
         if getfield(d,f) != getfield(Reference,f)  ||
             (f == :bg_phase) ||
-            (f == :msetup)
+            (f == :msetup) ||
+            (f == :rand_noise) ||
+            (f == :nmark_lim) ||
+            (f == :mark_ctrl)
+            
+            
+            
 
             if (f != :geom_primitives)
                 # only print if value differs from reference value

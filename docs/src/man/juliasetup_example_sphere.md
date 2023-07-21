@@ -74,7 +74,7 @@ julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 It is often useful to plot the initial model setup. You can do this with the `heatmap` function from the `Plots.jl` package, for which we provide a LaMEM plugin that allows you to specify a cross-section through a 3D LaMEM setup:
 
 ```julia
-julia> heatmap(model, field=:phase, y=0)
+julia> plot_cross_section(model, field=:phase, y=0)
 ```
 
 ![InitialSetupSphere](InitialSetupSphere.png)
@@ -136,7 +136,7 @@ Time stepping parameters:
 Once the simulation is done, you can look at the results using the same `heatmap` function, but by specifying a timestep, which will read that timestep and plot a cross-section though it:
 
 ```julia
-julia> heatmap(model, y=0, timestep=20, field=:phase)	
+julia> plot_cross_section(model, y=0, timestep=20, field=:phase)	
 ```
 
 ![FallingSphere_t20](FallingSphere_t20.png)

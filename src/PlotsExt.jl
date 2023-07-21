@@ -1,18 +1,18 @@
 # Plotting extensions, that are only loaded when GLMakie is available
 println("Adding Plots.jl plotting extensions for LaMEM")
 
-using LaMEM, GeophysicalModelGenerator
+using LaMEM, GeophysicalModelGenerator, Statistics
 using .Plots
 import .Plots: heatmap
-export plot_topo
+export plot_topo, plot_cross_section
  
 """
-    Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:phase,  dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+    plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
    
-This plots a `Plots` heatmap of a cross-section through the LaMEM `model`, of the field  `field`. If that is a vector or tensor field, specify `dim` to indicate which of the fields you want to see.
+This plots a cross-section through the LaMEM `model`, of the field  `field`. If that is a vector or tensor field, specify `dim` to indicate which of the fields you want to see.
 If the keyword `timestep` is specified, it will load a timestep 
 """
-function Plots.heatmap(model::Union{Model,CartData}, args...; field::Symbol=:phase, timestep=nothing, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase, timestep=nothing, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
     
     if !isnothing(timestep)
         # load a particular timestep

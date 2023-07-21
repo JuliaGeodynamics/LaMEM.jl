@@ -103,7 +103,7 @@ julia> AddEllipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngl
 
  We can plot a cross-section through the model:
 ```julia
- julia> heatmap(model, x=0, field=:phase)
+ julia> plot_cross_section(model, x=0, field=:phase)
 ```
  ![LaPalma_CrossSection](LaPalma_CrossSection.png)
 

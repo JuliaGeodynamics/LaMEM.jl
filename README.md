@@ -17,8 +17,59 @@ pkg>test LaMEM
 ```
 which will run the build-in testsuite.
 
-### 2. Starting a simulation
-As usual, you need a LaMEM (`*.dat`) input file, which you can run in parallel (here on 4 cores) with:
+### 2. Create a model setup & run LaMEM
+You can directly create a LaMEM setup in julia with: 
+```Julia
+julia> using LaMEM, GeophysicalModelGenerator
+julia> model  = Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]))
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
+|-- Grid                :  nel=(16, 16, 16); xϵ(-1.0, 1.0), yϵ(-1.0, 1.0), zϵ(-1.0, 1.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=files; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  0 phases; 
+```
+Add materials to the setup:
+```Julia
+julia> matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000);
+julia> sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
+Phase 1 (sphere): 
+  rho    = 3200.0 
+  eta    = 1.0e23 
+julia> add_phase!(model, sphere, matrix)
+```
+
+Create an initial geometry using the [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl/tree/main) interface:
+```Julia
+julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+```
+and run the simulation in parallel:
+```julia
+julia> run_lamem(model,2)
+Saved file: Model3D.vts
+Writing LaMEM marker file -> ./markers/mdb.00000000.dat
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Apr  7 2023 - Time: 22:11:23           
+     Version : 1.2.4 
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : output.dat 
+Finished parsing input file : output.dat 
+--------------------------------------------------------------------------
+...
+```
+Once the simulation is done, you can open it with Paraview, or directly plot it within julia (see the documentation).
+
+
+### 3. Starting a simulation
+If you have an existing LaMEM (`*.dat`) input file, you can run that in parallel (here on 4 cores) with:
 ```julia
 julia> using LaMEM
 julia> ParamFile="input_files/FallingBlock_Multigrid.dat";
@@ -66,7 +117,7 @@ use the Backspace key to return to the julia REPL.
 
 Once you have performed a simulation, you can look at the results by opening the `*.pvd` files with Paraview. In this example, that would be `FB_multigrid.pvd` and `FB_multigrid_phase.pvd`.
 
-### 3. Reading LaMEM output back into julia
+### 4. Reading LaMEM output back into julia
 If you want to quantitatively do something with the results, there is an easy way to read the output of a LaMEM timestep back into julia. All routines related to that are part of the `LaMEM.IO` module.
 
 ```julia
@@ -94,7 +145,7 @@ julia> data, time = Read_LaMEM_timestep(FileName, 1, DirName)
 The output is in a `CartData` structure (as defined in GeophysicalModelGenerator).
 More details are given in the documentation.
 
-### 4. Dependencies
+### 5. Dependencies
 We rely on the following packages:
 - [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.
 - [LaMEM_jll](https://github.com/JuliaRegistries/General/tree/master/L/LaMEM_jll) - this contains the LaMEM binaries, precompiled for most systems. Note that on windows, the MUMPS parallel direct solver is not available.

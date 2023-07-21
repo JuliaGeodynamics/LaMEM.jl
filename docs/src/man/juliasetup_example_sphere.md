@@ -163,10 +163,10 @@ julia> julia> readdir()
  "output.dat"
  "output.pvd"
 ```
-And you can open `output.pvd` with paraview. If your systems recogized that `*.pvd` files can be opened with paraview, you can do that with
+And you can open `output.pvd` with paraview. If your system recogizes that `*.pvd` files should be opened with paraview, you can do that with
 ```julia
 julia> ;
 shell> open output.pvd
 ```
-Otherwise, start paraview and open the file.
+Otherwise, start paraview manually and open the file.
 

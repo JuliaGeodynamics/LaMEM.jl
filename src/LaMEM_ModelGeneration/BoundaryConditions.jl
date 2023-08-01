@@ -33,20 +33,39 @@ Base.@kwdef mutable struct BoundaryConditions
     "strain rates for each interval          "
     exx_strain_rates::Vector{Float64} = [1e-15, 2e-15, 1e-15]   
 
-    eyy_num_periods::Int64  = 2               
+    "eyy_num_periods"
+    eyy_num_periods::Int64  = 2    
+
+    "eyy_time_delims"
     eyy_time_delims::Vector{Float64}  = [1.0]
+    
+    "eyy_strain_rates"
     eyy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
+    "exy_num_periods"
     exy_num_periods::Int64  = 2                 # same for simple shear components in x/y direction
+    "exy_time_delims"
     exy_time_delims::Vector{Float64}  = [1.0]
+    
+    "exy_strain_rates"
     exy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
+    "exz_num_periods"
     exz_num_periods::Int64  = 2                 # same for simple shear components in x/z direction
+    
+    "exz_time_delims"
     exz_time_delims::Vector{Float64}  = [1.0]
+    
+    "exz_strain_rates"
     exz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
+    "eyz_num_periods"
     eyz_num_periods::Int64  = 2                 # same for simple shear components in y/z direction
+
+    "eyz_time_delims"
     eyz_time_delims::Vector{Float64}  = [1.0]
+    
+    "eyz_strain_rates"
     eyz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
     "background strain rate reference point (fixed)"
@@ -74,7 +93,6 @@ function show_short(io::IO, d::BoundaryConditions)
     
     return nothing
 end
-
 
 
 """

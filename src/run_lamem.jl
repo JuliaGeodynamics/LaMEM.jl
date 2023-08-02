@@ -4,7 +4,7 @@
 #       (or the same as the current repository), since we have to manually update the builds.
    
 """
-    deactivate_multithreading!(cmd)
+    deactivate_multithreading(cmd)
 
 This deactivates multithreading
 """
@@ -19,7 +19,7 @@ end
 
 
 """ 
-    run_lamem(ParamFile::String, cores::Int64=1, args:String=""; wait=true; deactivate_multithreads=true)
+    run_lamem(ParamFile::String, cores::Int64=1, args:String=""; wait=true, deactivate_multithreads=true)
 
 This starts a LaMEM simulation, for using the parameter file `ParamFile` on `cores` number of cores. 
 Optional additional command-line parameters can be specified with `args`.
@@ -38,7 +38,7 @@ julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
 """
-function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true; deactivate_multithreads=true)
+function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
         
     if cores==1
         # Run LaMEM on a single core, which does not require a working MPI

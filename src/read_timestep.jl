@@ -202,12 +202,13 @@ function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=not
         # read the data sets specified
         data_fields = NamedTuple();
         for field in fields
-            ind = findall(contains.(field, names))
+            ind = findall(contains.(names,field))
             # check that it exists
             if isempty(ind)
                 error("the field $field does not exist in the data file")
             else
-                dat, isCell = ReadField_3D_pVTR(pvtk, field)
+                field_name = names[ind[1]]
+                dat, isCell = ReadField_3D_pVTR(pvtk, field_name)
             end
             data_fields = merge(data_fields,dat)
         end

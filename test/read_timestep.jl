@@ -23,6 +23,10 @@ using Test
     data, time = Read_LaMEM_timestep("Subduction2D_FreeSlip_direct",1)
     @test data.fields.density[10000] ≈ 3200.0f0
 
+    # single field
+    data, time = Read_LaMEM_timestep("Subduction2D_FreeSlip_direct",1, fields=("phase",))
+    @test data.fields.phase[10000] ≈ 0.0f0
+
     # Read PVD file 
     Timestep, FileNames, Time  = Read_LaMEM_simulation("Subduction2D_FreeSlip_direct")
     @test Time[2] ≈ 0.055

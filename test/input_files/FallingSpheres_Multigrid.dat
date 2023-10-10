@@ -68,11 +68,11 @@
 #===============================================================================
 # Solver options
 #===============================================================================
-	SolverType 			=	multigrid  	# solver [direct or multigrid]
-	MGLevels 			=	4			# number of MG levels [default=3]
-	MGSweeps 			=	10			# number of MG smoothening steps per level [default=10]
-	MGSmoother 			=	chebyshev 	# type of smoothener used [chebyshev or jacobi]
-	MGCoarseSolver 		=	mumps 		# coarse grid solver [direct/mumps/superlu_dist or redundant - more options specifiable through the command-line options -crs_ksp_type & -crs_pc_type]
+	SolverType 			=	multigrid  		# solver [direct or multigrid]
+	MGLevels 			=	4				# number of MG levels [default=3]
+	MGSweeps 			=	10				# number of MG smoothening steps per level [default=10]
+	MGSmoother 			=	chebyshev 		# type of smoothener used [chebyshev or jacobi]
+	MGCoarseSolver 		=	superlu_dist 	# coarse grid solver [direct/mumps/superlu_dist or redundant - more options specifiable through the command-line options -crs_ksp_type & -crs_pc_type]
 	
 	
 #===============================================================================

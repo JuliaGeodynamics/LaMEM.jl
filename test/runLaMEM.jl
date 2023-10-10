@@ -11,14 +11,18 @@ using Test
         println("Falling Block test on 1 core failed")
     end
     
-
-   
     try
         out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
         @test isnothing(out)
     catch 
         println("Falling Block test on 4 cores failed")
     end
+
+    #
+    ParamFile="input_files/FallingSpheres_Multigrid.dat";
+    out = run_lamem(ParamFile, 1,"-nstep_max 1")       # 1 cores
+    @test isnothing(out)
+
 
     # Create a setup using GMG
     include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")

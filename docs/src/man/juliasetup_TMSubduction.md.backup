@@ -91,7 +91,7 @@ Adiabat         = 0.4
 
 ##### Set some background properties, later overwritten
 ```
-model.Grid.Temp     .= Tmantle;             # set mantle temperature (without adiabat at first)
+model.Grid.Temp     .= Tmantle .+ 1.0;      # set mantle temperature (without adiabat at first)
 model.Grid.Phases   .= 0;                   # Set Phases to 0 everywhere (0 is/will be asthenosphere in this setup):
 ```
 
@@ -113,7 +113,7 @@ AddBox!(model;  xlim    = (-2000.0, 0.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=1250 ),
+                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=Tmantle ),
                 T       = SpreadingRateTemp(    Tsurface    = Tair,
                                                 Tmantle     = Tmantle,
                                                 MORside     = "left",
@@ -128,7 +128,7 @@ AddBox!(model;  xlim    = (1500, 2000),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=1250 ),
+                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=Tmantle ),
                 T       = SpreadingRateTemp(    Tsurface    = Tair,
                                                 Tmantle     = Tmantle,
                                                 MORside     = "right",
@@ -144,7 +144,7 @@ AddBox!(model;  xlim    = (0.0, 400.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[25 90], Phases=[3 4 0], Tlab=1250 ),
+                phase   = LithosphericPhases(Layers=[25 90], Phases=[3 4 0], Tlab=Tmantle ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 90      ) )
@@ -156,7 +156,7 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[35 100], Phases=[3 4 0], Tlab=1250 ),
+                phase   = LithosphericPhases(Layers=[35 100], Phases=[3 4 0], Tlab=Tmantle ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 120      ) )
@@ -169,7 +169,7 @@ AddBox!(model;  xlim    = (0.0, 300),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=30,
-                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=1250 ),
+                phase   = LithosphericPhases(Layers=[30 80], Phases=[1 2 0], Tlab=1250 ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 90      ) )
@@ -186,6 +186,8 @@ Cross-sections of the model setup showing the temperature and the phase fields c
 plot_cross_section(model, y=0, field=:temperature)
 plot_cross_section(model, y=0, field=:phase)
 ```
+ ![LaPalma_CrossSection](sub_field.png)
+ ![LaPalma_CrossSection](sub_temp.png)
 
 
 #### 3. Define material parameters
@@ -207,9 +209,9 @@ dryPeridotite = Phase(  Name        = "dryPeridotite",
                         rho         = 3300.0,                                           # density [kg/m3]
                         alpha       = 3e-5,                                             # coeff. of thermal expansion [1/K]
                         disl_prof   = "Dry_Olivine_disl_creep-Hirth_Kohlstedt_2003",
-                        Vn          = 15.0e-6,
+                        Vn          = 14.5e-6,
                         diff_prof   = "Dry_Olivine_diff_creep-Hirth_Kohlstedt_2003",
-                        Vd          = 15.e-6,
+                        Vd          = 14.5e-6,
                         G           = 5e10,                                             # elastic shear module [MPa]
                         k           = 3,                                                # conductivity
                         Cp          = 1000.0,                                           # heat capacity
@@ -221,12 +223,14 @@ dryPeridotite = Phase(  Name        = "dryPeridotite",
                         )
 ```
 Oceanic crust:
+
+For the oceanic crust we use a low cohesion and a frictional angle equal to 0. The goal is to make to oceanic crust weak enough to lubricate the interface with the overriding plate and allow for self-sustain subduction. Moreover, as density is not pressure and temperature dependent, it is set as the mantle to 3300 in order to be neutrally buoyant with respect to the rest of the lithosphere.
 ```
 oceanicCrust = Phase(   Name        = "oceanCrust",                                     
                         ID          = 1,                                                # phase id  [-]
                         rho         = 3300.0,                                           # density [kg/m3]
                         alpha       = 3e-5,                                             # coeff. of thermal expansion [1/K]
-                        disl_prof   = "Maryland_strong_diabase-Mackwell_et_al_1998",
+                        disl_prof   = "Plagioclase_An75-Ranalli_1995",
                         G           = 5e10,                                             # elastic shear module [MPa]
                         k           = 3,                                                # conductivity
                         Cp          = 1000.0,                                           # heat capacity
@@ -299,7 +303,7 @@ add_softening!( model,
 
 
 ##### Set solver options
-
+The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
 ```
  model.Solver = Solver(  SolverType     = "direct",
                          DirectSolver 	= "superlu_dist",

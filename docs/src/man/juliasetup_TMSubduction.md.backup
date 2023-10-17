@@ -299,7 +299,7 @@ add_softening!( model,
 
 
 ##### Set solver options
-The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
+
 ```
  model.Solver = Solver(  SolverType     = "direct",
                          DirectSolver 	= "superlu_dist",

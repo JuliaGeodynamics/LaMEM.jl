@@ -113,13 +113,13 @@ AddBox!(model;  xlim    = (-2000.0, 0.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=Tmantle ),
+                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0] ),
                 T       = SpreadingRateTemp(    Tsurface    = Tair,
                                                 Tmantle     = Tmantle,
                                                 MORside     = "left",
                                                 SpreadingVel= 0.5,
                                                 AgeRidge    = 0.01;
-                                                maxAge      = 90.0      ) )
+                                                maxAge      = 80.0      ) )
 ```
 
 ##### add right oceanic plate
@@ -128,13 +128,13 @@ AddBox!(model;  xlim    = (1500, 2000),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0], Tlab=Tmantle ),
+                phase   = LithosphericPhases(Layers=[20 80], Phases=[1 2 0] ),
                 T       = SpreadingRateTemp(    Tsurface    = Tair,
                                                 Tmantle     = Tmantle,
                                                 MORside     = "right",
                                                 SpreadingVel= 0.5,
                                                 AgeRidge    = 0.01;
-                                                maxAge      = 90.0      ) )
+                                                maxAge      = 80.0      ) )
 ```
 
 ##### Add overriding plate margin
@@ -144,10 +144,10 @@ AddBox!(model;  xlim    = (0.0, 400.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[25 90], Phases=[3 4 0], Tlab=Tmantle ),
+                phase   = LithosphericPhases(Layers=[25 90], Phases=[3 4 0] ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
-                                                    Age         = 90      ) )
+                                                    Age         = 80      ) )
   ```                                                  
 
 ##### Add overriding plate craton
@@ -156,7 +156,7 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
-                phase   = LithosphericPhases(Layers=[35 100], Phases=[3 4 0], Tlab=Tmantle ),
+                phase   = LithosphericPhases(Layers=[35 100], Phases=[3 4 0] ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 120      ) )
@@ -172,7 +172,7 @@ AddBox!(model;  xlim    = (0.0, 300),
                 phase   = LithosphericPhases(Layers=[30 80], Phases=[1 2 0], Tlab=1250 ),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
-                                                    Age         = 90      ) )
+                                                    Age         = 80      ) )
 ```
                                                     
 ##### Impose approximate adiabat
@@ -318,3 +318,5 @@ Here we indicate 4 cores, use 8 if possible!
 ```
 run_lamem(model, 4)
 ```
+
+ ![LaPalma_CrossSection](subduction_ts25.png)

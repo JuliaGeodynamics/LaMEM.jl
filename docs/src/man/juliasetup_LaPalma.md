@@ -33,7 +33,7 @@ julia> Topo_LaMEM = ProjectCartData(Topo_LaMEM, Topo, proj)
 
 We can plot it with:
 ```julia
-julia> plot_topo(topo, clim=(-4,4))
+julia> plot_topo(Topo_LaMEM, clim=(-4,4))
 ```
 
 ![LaPalma_topo](LaPalma_topo.png)

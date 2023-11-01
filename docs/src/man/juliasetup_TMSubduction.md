@@ -6,11 +6,13 @@ In this example, we will show how to create a 2D thermomechanical model of subdu
 Next start julia in the directory where you saved `TM_Subduction_example.jl`, or go to correct directory within julia  
 
 Note that you can do the following steps directy from the julia `REPL` (command prompt), or you can write them in  `TM_Subduction_example.jl` and run that file by typing
+
 ```julia
 julia> include("TM_Subduction_example.jl")
 ``` 
 
 We get started by loading the required packages:
+
 ```
 using LaMEM, GeophysicalModelGenerator, Plots
 ```
@@ -18,6 +20,7 @@ using LaMEM, GeophysicalModelGenerator, Plots
 #### 2. LaMEM model setup
 
 The setup will include 6 different materials with the following ID's:
+
 ```
 # material id's
 # 0: asthenosphere
@@ -43,7 +46,9 @@ model = Model(Grid( x   = [-2000.,2000.],
                                         viscosity       = 1e20Pa*s) ),
                     Time(nstep_max=20) )  
 ```
+
 This initializes the initial LaMEM model setup with a number of default options. On the `REPL` it will show the following info
+
 ```julia
 LaMEM Model setup
 |
@@ -57,14 +62,18 @@ LaMEM Model setup
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  0 phases; 
 ```
+
 In this case we assume that we have dimensions in kilometers and times in million years (the default).
 
 ##### Inspecting/modifying parameters
 Each of the parameters in this model setup can be modified. The easiest way to see what is available is by using the `REPL`. If you type 
+
 ```julia
 julia> model.
 ```
+
 and now use your `TAB` button, you will see all the fields within the `model` structure:
+
 ```julia
 julia> model.
 BoundaryConditions  FreeSurface         Grid                Materials           ModelSetup          Output              Scaling             SolutionParams
@@ -72,6 +81,7 @@ Solver              Time
 ```
 
 If you want to see which timestepping parameters are set, you type:
+
 ```
 julia> model.Time
 LaMEM Timestepping parameters: 
@@ -89,9 +99,11 @@ LaMEM Timestepping parameters:
   nstep_ini       = 1 
   time_tol        = 1.0e-8 
 ```
+
 The parameters that are changed from the default settings are highlighted in blue (not visible on this markdown document, but visible in the REPL). 
 
 If you want to see what each of these parameters mean, you can get some basic help with:
+
 ```julia
 help?> Time
 search: Time time Timer time_ns timedwait mtime ctime @time @timev @timed @time_imports @showtime optimize_ticks optimize_datetime_ticks Read_LaMEM_timestep
@@ -115,14 +127,15 @@ search: Time time Timer time_ns timedwait mtime ctime @time @timev @timed @time_
     •  time_tol::Float64: relative tolerance for time comparisons
 ```
 
-
-
 If you want to change one of the parameters, say the maximum number of timesteps, you can do that with:
+
 ```julia
 julia> model.Time.nstep_max=100
 100
 ```
+
 You can verify that this has been changed with:
+
 ```julia
 julia> model.Time
 LaMEM Timestepping parameters: 
@@ -143,6 +156,7 @@ LaMEM Timestepping parameters:
 
 ##### Set timestepping parameters
 Ok, lets change a few parameters at the same time. Here the maximum time (`time_end`) is set to a large value (2000 Myrs) as we want to limit the simulation using `nstep_max = 400`, which implies that we will perform 400 timesteps
+
 ```julia
 model.Time = Time(  time_end  = 2000.0,
                     dt        = 0.01,
@@ -152,7 +166,9 @@ model.Time = Time(  time_end  = 2000.0,
                     nstep_out = 25
                  )
 ```
+
 Note that you can achieve the same results with:
+
 ```julia
 model.Time.time_end  = 2000.0
 model.Time.dt  = 0.01
@@ -164,6 +180,7 @@ model.Time.nstep_out  = 25
 
 ##### Set solution parameters
 We activate shear heating and adiabatic heating, as well as thermal diffusion, and set the minimum and maximum viscosities of the model as:
+
 ```julia
 model.SolutionParams = SolutionParams(  shear_heat_eff = 1.0,
                                         Adiabatic_Heat = 1.0,
@@ -175,10 +192,10 @@ model.SolutionParams = SolutionParams(  shear_heat_eff = 1.0,
                                     )
 ```
 
-
 ##### Set surface topography
 In our simulation, we want to take a free surface into account. In LaMEM that is done with a sticky air layer (phase 5 here), combined with a mesh that tracks the location of the free surface. You need to activate the free surface, tell LaMEM which phase is the sticky air phase and what the initial free surface level is at the beginning of the simulation (0 km).
 Do that with:
+
 ```julia
 model.FreeSurface = FreeSurface(    surf_use        = 1,                # free surface activation flag
                                     surf_corr_phase = 1,                # air phase ratio correction flag (due to surface position)
@@ -190,6 +207,7 @@ model.FreeSurface = FreeSurface(    surf_use        = 1,                # free s
 
 ##### Set model output
 We update the list of fields saved as output:
+
 ```julia
 model.Output = Output(  out_density         = 1,
                         out_j2_strain_rate  = 1,
@@ -203,6 +221,7 @@ model.Output = Output(  out_density         = 1,
 The model geometry in LaMEM is defined by two arrays: `model.Grid.Temp` and `model.Grid.Phase` which sets the initial temperature and phase at every point. These are 3D arrays that can be modified; in the usual case temperatures are assumed to be in Celcius, and the phases are integers (0-5 here).  
 
 Lets specify a few helpful parameters, such as the adiabatic temperature throughout the model (0.4°C/km) and the mantle potential temperature at the surface 1280°C:
+
 ```julia
 Tair            = 20.0;
 Tmantle         = 1280.0;
@@ -218,10 +237,13 @@ model.Grid.Phases   .= 0;                   # Set Phases to 0 everywhere (0 is/w
 
 ##### Setup temperature of the air to be 20°C
 Next we set all "air" particles to `Tair`: 
+
 ```julia
 model.Grid.Temp[model.Grid.Grid.Z .> 0]    .=  Tair;
 ```
+
 We can quickly verify that this has been done on the `REPL` with:
+
 ```julia
 julia>julia> model.Grid
 LaMEM grid with constant Δ: 
@@ -236,12 +258,14 @@ LaMEM grid with constant Δ:
 
 ##### Setup the air layer (id = 5) if Z > 0.0
 Set the air particles to 5:
+
 ```julia
 model.Grid.Phases[model.Grid.Grid.Z .> 0.0 ] .= 5;
 ```
 
 ##### Add left oceanic plate
 An oceanic plate can be added using the `AddBox!()` function of the `GeophysicalModelGenerator` package (see `?GeophysicalModelGenerator.AddBox!` for more information, or check out the online [help](https://juliageodynamics.github.io/GeophysicalModelGenerator.jl/dev/man/lamem/) of the package). The lithosphere to asthenosphere temperature is set to 1250°C. If temperature of the plate is > 1250°C then the material is turned to asthenosphere. The temperature profile of the plate is set using a half space cooling temperature and a spreading rate velocity of 0.5 cm/yr with the ridge prescribed to be at the "left" of the box.
+
 ```julia
 AddBox!(model;  xlim    = (-2000.0, 0.0), 
                 ylim    = (model.Grid.coord_y...,), 
@@ -258,6 +282,7 @@ AddBox!(model;  xlim    = (-2000.0, 0.0),
 
 ##### Add right oceanic plate
 Same for the plate on the right:
+
 ```julia
 AddBox!(model;  xlim    = (1500, 2000), 
                 ylim    = (model.Grid.coord_y..., ), 
@@ -274,6 +299,7 @@ AddBox!(model;  xlim    = (1500, 2000),
 
 ##### Add overriding plate margin
 For the overriding plate margin the age is fixed to 90 Ma using ```HalfspaceCoolingTemp()```.
+
 ```
 AddBox!(model;  xlim    = (0.0, 400.0), 
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
@@ -286,6 +312,7 @@ AddBox!(model;  xlim    = (0.0, 400.0),
   ```                                                  
 
 ##### Add overriding plate craton
+
 ```
 AddBox!(model;  xlim    = (400.0, 1500.0), 
                 ylim    = (model.Grid.coord_y...,), 
@@ -299,6 +326,7 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
 
 ##### Add pre-subducted slab
 Here we change the dip angle of the box to 30° to initiates subduction:
+
 ```
 AddBox!(model;  xlim    = (0.0, 300), 
                 ylim    = (model.Grid.coord_y...,), 
@@ -312,19 +340,20 @@ AddBox!(model;  xlim    = (0.0, 300),
                                                     
 ##### Impose approximate adiabat
 We can add a mantle adiabatic temperature to the model with
+
 ```julia
 model.Grid.Temp = model.Grid.Temp - model.Grid.Grid.Z.*Adiabat;
 ```
 
 ##### Plot preview of the setup
 Cross-sections of the model setup showing the temperature and the phase fields can be visualized as follows:
+
 ```julia
 plot_cross_section(model, y=0, field=:temperature)
 plot_cross_section(model, y=0, field=:phase)
 ```
- ![LaPalma_CrossSection](sub_field.png)
- ![LaPalma_CrossSection](sub_temp.png)
-
+ ![Subduction_CrossSection](sub_field.png)
+ ![Subduction_CrossSection](sub_temp.png)
 
 #### 3. Define material parameters
 
@@ -332,6 +361,7 @@ At this stage, we defined the geometry and thermal structures of the model, but 
 
 ##### Softening law
 We assume that rocks weaken/soften when they becomes damaged, which can be defined by a softening law. Post-softening strength is defined as 0.05 the initial strength
+
 ```julia
 softening =       Softening(    ID   = 0,   			# softening law ID
                                 APS1 = 0.1, 			# begin of softening APS
@@ -343,6 +373,7 @@ softening =       Softening(    ID   = 0,   			# softening law ID
 ##### Material thermal and rheological properties
 *Mantle*
 For the mantle, we use a dry olivine rheology:
+
 ```julia
 dryPeridotite = Phase(  Name        = "dryPeridotite",                                     
                         ID          = 0,                                                # phase id  [-]
@@ -365,6 +396,7 @@ dryPeridotite = Phase(  Name        = "dryPeridotite",
 
 *Oceanic crust*
 For the oceanic crust we use a low cohesion and a frictional angle equal to 0. The goal is to make the oceanic crust weak enough to lubricate the interface with the overriding plate and allow for self-sustained subduction. Moreover, as density is not pressure and temperature dependent, it is set to be the same as the mantle (3300) in order to be neutrally buoyant with respect to the rest of the lithosphere.
+
 ```julia
 oceanicCrust = Phase(   Name        = "oceanCrust",                                     
                         ID          = 1,                                                # phase id  [-]
@@ -379,8 +411,10 @@ oceanicCrust = Phase(   Name        = "oceanCrust",
                         A           = 2.333e-10,                                        # radiogenic heat production [W/kg]
                      )
 ```
+
 *Oceanic mantle lithosphere*
 The oceanic mantle lithosphere has the same properties as the mantle but a different name and different phase. To simplify your life, you can use the `copy_phase` function for that:
+
 ```julia
 oceanicLithosphere = copy_phase(    dryPeridotite,
                                     Name            = "oceanicLithosphere",
@@ -388,6 +422,7 @@ oceanicLithosphere = copy_phase(    dryPeridotite,
                                 )
 ```
 *Continental crust*
+
 ```
 continentalCrust = copy_phase(      oceanicCrust,
                                     Name            = "continentalCrust",
@@ -402,6 +437,7 @@ continentalCrust = copy_phase(      oceanicCrust,
                              )
 ```
 *Continental lithosphere*
+
 ```
 continentalLithosphere = copy_phase(    dryPeridotite,
                                         Name            = "continentalLithosphere",
@@ -411,6 +447,7 @@ continentalLithosphere = copy_phase(    dryPeridotite,
 
 *Sticky air*
 Finally, the "air" in our model is a layer with low density and low viscosity, such that it essentially gives very low stresses compared to those within the lithosphere. We cannot give it the viscosity of real air, as this results in a too large viscosity jump at the surface (geodynamic codes cannot handle that). We therefore also often call this "sticky air". Note that we also give it a very high thermal conductivity to ensure that the temperature within the air layer remains more or less constant throughout a simulation (and equal to the temperature at the upper boundary of the model):
+
 ```julia
 air         = Phase(    Name        = "air",                                     
                         ID          = 5,                                                # phase id  [-]
@@ -426,6 +463,7 @@ air         = Phase(    Name        = "air",
 
 ##### Add phases to the model
 Finally, we can add all these phases to the model with:
+
 ```julia
 rm_phase!(model)
 add_phase!( model, 
@@ -440,6 +478,7 @@ add_phase!( model,
 
 ##### Add softening law
 Same with the softening law:
+
 ```julia
 add_softening!( model,
                 softening
@@ -448,6 +487,7 @@ add_softening!( model,
 
 ##### Set solver options
 The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
+
 ```
 model.Solver = Solver(  SolverType      = "multigrid",
                         MGLevels        = 3,
@@ -472,6 +512,7 @@ model.Solver = Solver(  SolverType      = "multigrid",
 
 #### 4. Perform the simulation
 Here we indicate 4 cores, use 8 if possible!
+
 ```julia
 julia> run_lamem(model, 8)
 Saved file: Model3D.vts

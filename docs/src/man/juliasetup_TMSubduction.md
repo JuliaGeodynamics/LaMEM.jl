@@ -449,11 +449,25 @@ add_softening!( model,
 ##### Set solver options
 The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
 ```
- model.Solver = Solver(  SolverType     = "direct",
-                         DirectSolver 	= "superlu_dist",
-                         DirectPenalty 	= 1e5,
-                         PETSc_options  = [ "-snes_ksp_ew" ]
-                     )
+model.Solver = Solver(  SolverType      = "multigrid",
+                        MGLevels        = 3,
+                        MGCoarseSolver 	= "superlu_dist",
+                        PETSc_options   = [ "-snes_ksp_ew",
+                                            "-snes_ksp_ew_rtolmax 1e-4",
+                                            "-snes_rtol 1e-2",			
+                                            "-snes_atol 1e-4",
+                                            "-snes_max_it 200",
+                                            "-snes_PicardSwitchToNewton_rtol 1e-2", 
+                                            "-snes_NewtonSwitchToPicard_it 20",
+                                            "-js_ksp_type fgmres",
+                                            "-js_ksp_monitor",
+                                            "-js_ksp_max_it 20",
+                                            "-js_ksp_atol 1e-8",
+                                            "-js_ksp_rtol 1e-4",
+                                            "-snes_linesearch_type l2",
+                                            "-snes_linesearch_maxstep 10",
+                                        ]
+                    )
 ```
 
 #### 4. Perform the simulation

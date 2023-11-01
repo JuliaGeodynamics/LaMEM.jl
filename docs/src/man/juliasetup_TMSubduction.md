@@ -214,6 +214,8 @@ model.Output = Output(  out_density         = 1,
                         out_surf            = 1, 	
                         out_surf_pvd        = 1,
                         out_surf_topography = 1,
+                        out_j2_dev_stress   = 1,
+                        out_pressure        = 1,
                         out_temperature     = 1,  )
 ```
 

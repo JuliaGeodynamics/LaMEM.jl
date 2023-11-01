@@ -29,8 +29,13 @@ model = Model(Grid( x   = [-2000.,2000.],
                     z   = [-660,40] ,
                     nel = (512,1,128)     ),
 
-                    BoundaryConditions(temp_bot=1565, open_top_bound=1),
-                    Scaling(GEO_units(temperature=1000, stress=1e9Pa, length=1km, viscosity=1e20Pa*s)),
+                    BoundaryConditions( temp_bot        = 1565.0,
+                                        temp_top        = 20.0,
+                                        open_top_bound  = 1),
+                    Scaling(GEO_units(  temperature     = 1000,
+                                        stress          = 1e9Pa,
+                                        length          = 1km,
+                                        viscosity       = 1e20Pa*s) ),
                     Time(nstep_max=20) )  
 ```
 
@@ -52,6 +57,8 @@ We activate shear heating and adiabatic heating and set the minimum and maximum 
 ```
 model.SolutionParams = SolutionParams(  shear_heat_eff = 1.0,
                                         Adiabatic_Heat = 1.0,
+                                        act_temp_diff  = 1,
+                                        FSSA           = 1.0,
                                         eta_min   = 5e18,
                                         eta_ref   = 1e21,
                                         eta_max   = 1e25,

@@ -33,7 +33,7 @@ The setup will include 6 different materials with the following ID's:
 
 ```
 model = Model(Grid( x   = [-2000.,2000.],
-                    y   = [-8.,8.],                 # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
+                    y   = [-2.5,2.5],                 # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
                     z   = [-660,40] ,
                     nel = (512,1,128)     ),
 
@@ -159,11 +159,11 @@ Ok, lets change a few parameters at the same time. Here the maximum time (`time_
 
 ```julia
 model.Time = Time(  time_end  = 2000.0,
-                    dt        = 0.01,
+                    dt        = 0.001,
                     dt_min    = 0.000001,
                     dt_max    = 0.1,
                     nstep_max = 400,
-                    nstep_out = 25
+                    nstep_out = 10
                  )
 ```
 
@@ -171,11 +171,11 @@ Note that you can achieve the same results with:
 
 ```julia
 model.Time.time_end  = 2000.0
-model.Time.dt  = 0.01
+model.Time.dt  = 0.001
 model.Time.dt_min  = 0.000001
 model.Time.dt_max  = 0.1
 model.Time.nstep_max  = 400
-model.Time.nstep_out  = 25
+model.Time.nstep_out  = 10
 ```
 
 ##### Set solution parameters
@@ -494,24 +494,24 @@ model.Solver = Solver(  SolverType      = "multigrid",
                         MGCoarseSolver 	= "superlu_dist",
                         PETSc_options   = [ "-snes_ksp_ew",
                                             "-snes_ksp_ew_rtolmax 1e-4",
-                                            "-snes_rtol 1e-2",			
+                                            "-snes_rtol 5e-3",			
                                             "-snes_atol 1e-4",
                                             "-snes_max_it 200",
-                                            "-snes_PicardSwitchToNewton_rtol 1e-2", 
+                                            "-snes_PicardSwitchToNewton_rtol 1e-3", 
                                             "-snes_NewtonSwitchToPicard_it 20",
                                             "-js_ksp_type fgmres",
-                                            "-js_ksp_monitor",
                                             "-js_ksp_max_it 20",
                                             "-js_ksp_atol 1e-8",
                                             "-js_ksp_rtol 1e-4",
                                             "-snes_linesearch_type l2",
                                             "-snes_linesearch_maxstep 10",
+                                            "-da_refine_y 1"
                                         ]
                     )
 ```
 
 #### 4. Perform the simulation
-Here we indicate 4 cores, use 8 if possible!
+Here we riun LaMEM on 8 cores (if you have them; use less otherwise):
 
 ```julia
 julia> run_lamem(model, 8)

@@ -317,7 +317,7 @@ model.Grid.Temp = model.Grid.Temp - model.Grid.Grid.Z.*Adiabat;
 ```
 
 ##### Plot preview of the setup
-Cross-sections of the model setup showing the temperature and the phase fields can be visualize as follows:
+Cross-sections of the model setup showing the temperature and the phase fields can be visualized as follows:
 ```julia
 plot_cross_section(model, y=0, field=:temperature)
 plot_cross_section(model, y=0, field=:phase)
@@ -364,7 +364,7 @@ dryPeridotite = Phase(  Name        = "dryPeridotite",
 ```
 
 *Oceanic crust*
-For the oceanic crust we use a low cohesion and a frictional angle equal to 0. The goal is to make the oceanic crust weak enough to lubricate the interface with the overriding plate and allow for self-sustained subduction. Moreover, as density is not pressure and temperature dependent, it is set to be the same as  the mantle (3300) in order to be neutrally buoyant with respect to the rest of the lithosphere.
+For the oceanic crust we use a low cohesion and a frictional angle equal to 0. The goal is to make the oceanic crust weak enough to lubricate the interface with the overriding plate and allow for self-sustained subduction. Moreover, as density is not pressure and temperature dependent, it is set to be the same as the mantle (3300) in order to be neutrally buoyant with respect to the rest of the lithosphere.
 ```julia
 oceanicCrust = Phase(   Name        = "oceanCrust",                                     
                         ID          = 1,                                                # phase id  [-]
@@ -380,7 +380,7 @@ oceanicCrust = Phase(   Name        = "oceanCrust",
                      )
 ```
 *Oceanic mantle lithosphere*
-The oceanic mantle lithosphere has the same properyies as the manyle but a different name and different phase. To simplify your life, you can use the `copy_phase` function for that:
+The oceanic mantle lithosphere has the same properties as the mantle but a different name and different phase. To simplify your life, you can use the `copy_phase` function for that:
 ```julia
 oceanicLithosphere = copy_phase(    dryPeridotite,
                                     Name            = "oceanicLithosphere",

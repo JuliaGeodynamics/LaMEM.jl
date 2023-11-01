@@ -452,15 +452,39 @@ The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
  model.Solver = Solver(  SolverType     = "direct",
                          DirectSolver 	= "superlu_dist",
                          DirectPenalty 	= 1e5,
-                         PETSc_options  = [ "-snes_ksp_ew",
-                                             "-da_refine_y 1" ]
+                         PETSc_options  = [ "-snes_ksp_ew" ]
                      )
 ```
 
 #### 4. Perform the simulation
 Here we indicate 4 cores, use 8 if possible!
 ```julia
-run_lamem(model, 4)
+julia> run_lamem(model, 8)
+Saved file: Model3D.vts
+(Nprocx, Nprocy, Nprocz, xc, yc, zc, nNodeX, nNodeY, nNodeZ) = (4, 1, 2, [-2000.0, -1000.0, 0.0, 1000.0, 2000.0], [-8.0, 8.0], [-660.0, -310.0, 40.0], 513, 2, 129)
+Writing LaMEM marker file -> ./markers/mdb.00000000.dat
+Writing LaMEM marker file -> ./markers/mdb.00000001.dat
+Writing LaMEM marker file -> ./markers/mdb.00000002.dat
+Writing LaMEM marker file -> ./markers/mdb.00000003.dat
+Writing LaMEM marker file -> ./markers/mdb.00000004.dat
+Writing LaMEM marker file -> ./markers/mdb.00000005.dat
+Writing LaMEM marker file -> ./markers/mdb.00000006.dat
+Writing LaMEM marker file -> ./markers/mdb.00000007.dat
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Apr  7 2023 - Time: 22:11:23           
+     Version : 1.2.4 
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : output.dat 
+Finished parsing input file : output.dat 
+--------------------------------------------------------------------------
+Scaling parameters:
+   Temperature : 1000. [C/K] 
+   Length      : 1000. [m] 
+   Viscosity   : 1e+20 [Pa*s] 
+   Stress      : 1e+09 [Pa] 
 ```
 
 The results will be saved in the directory where you performed the simulation and can be visualized in Paraview by opening the file `output.pvd`:

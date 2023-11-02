@@ -513,7 +513,7 @@ model.Solver = Solver(  SolverType      = "multigrid",
 ```
 
 #### 4. Perform the simulation
-Here we riun LaMEM on 8 cores (if you have them; use less otherwise):
+Here we run LaMEM on 8 cores (if you have them; use less otherwise):
 
 ```julia
 julia> run_lamem(model, 8)
@@ -544,5 +544,12 @@ Scaling parameters:
    Stress      : 1e+09 [Pa] 
 ```
 
+
 The results will be saved in the directory where you performed the simulation and can be visualized in Paraview by opening the file `output.pvd`:
  ![2D thermomechanical subduction](subduction_ts25.png)
+
+
+##### Remark on performing parallel simulations
+Using more processors or cores does not necessarily imply that the simulation will be faster. There is a tradeoff between the number of processors, the resolution, the number of multigrid levels, the machine you use and the speed of the simulation. At some stage it actually becomes slower! 
+
+Unfortunately, it is hard to predict when this happens as this is setup- and machine-dependent. We can thus not automatize this, and our recommendation is therefore that you experiment with this. Run the simulation for a limited number of timesteps (say 5 or so) and check its speed for different number of cores.

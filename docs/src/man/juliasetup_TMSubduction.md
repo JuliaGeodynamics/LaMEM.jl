@@ -297,7 +297,7 @@ AddBox!(model;  xlim    = (1500, 2000),
                                                 SpreadingVel= 0.5,
                                                 AgeRidge    = 0.01;
                                                 maxAge      = 80.0      ) )
-```
+ ```
 
 ##### Add overriding plate margin
 For the overriding plate margin the age is fixed to 90 Ma using ```HalfspaceCoolingTemp()```.

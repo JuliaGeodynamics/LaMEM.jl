@@ -297,12 +297,12 @@ AddBox!(model;  xlim    = (1500, 2000),
                                                 SpreadingVel= 0.5,
                                                 AgeRidge    = 0.01;
                                                 maxAge      = 80.0      ) )
- ```
+```
 
 ##### Add overriding plate margin
-For the overriding plate margin the age is fixed to 90 Ma using ```HalfspaceCoolingTemp()```.
+For the overriding plate margin the age is fixed to 90 Ma using `HalfspaceCoolingTemp()`.
 
-```
+```julia
 AddBox!(model;  xlim    = (0.0, 400.0), 
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
@@ -311,11 +311,11 @@ AddBox!(model;  xlim    = (0.0, 400.0),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 80      ) )
-  ```                                                  
+```                                              
 
 ##### Add overriding plate craton
 
-```
+```julia
 AddBox!(model;  xlim    = (400.0, 1500.0), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
@@ -324,12 +324,12 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
                 T       = HalfspaceCoolingTemp(     Tsurface    = Tair,
                                                     Tmantle     = Tmantle,
                                                     Age         = 120      ) )
-```                                                   
+```                                        
 
 ##### Add pre-subducted slab
 Here we change the dip angle of the box to 30° to initiates subduction:
 
-```
+```julia
 AddBox!(model;  xlim    = (0.0, 300), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
@@ -354,6 +354,7 @@ Cross-sections of the model setup showing the temperature and the phase fields c
 plot_cross_section(model, y=0, field=:temperature)
 plot_cross_section(model, y=0, field=:phase)
 ```
+which gives:
  ![Subduction_CrossSection](sub_field.png)
  ![Subduction_CrossSection](sub_temp.png)
 
@@ -423,9 +424,9 @@ oceanicLithosphere = copy_phase(    dryPeridotite,
                                     ID              = 2
                                 )
 ```
-*Continental crust*
 
-```
+*Continental crust*
+```julia
 continentalCrust = copy_phase(      oceanicCrust,
                                     Name            = "continentalCrust",
                                     ID              = 3,
@@ -440,12 +441,12 @@ continentalCrust = copy_phase(      oceanicCrust,
 ```
 *Continental lithosphere*
 
-```
+```julia
 continentalLithosphere = copy_phase(    dryPeridotite,
                                         Name            = "continentalLithosphere",
                                         ID              = 4
                                 )
-```                                
+```                           
 
 *Sticky air*
 Finally, the "air" in our model is a layer with low density and low viscosity, such that it essentially gives very low stresses compared to those within the lithosphere. We cannot give it the viscosity of real air, as this results in a too large viscosity jump at the surface (geodynamic codes cannot handle that). We therefore also often call this "sticky air". Note that we also give it a very high thermal conductivity to ensure that the temperature within the air layer remains more or less constant throughout a simulation (and equal to the temperature at the upper boundary of the model):
@@ -490,7 +491,7 @@ add_softening!( model,
 ##### Set solver options
 The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
 
-```
+```julia
 model.Solver = Solver(  SolverType      = "multigrid",
                         MGLevels        = 3,
                         MGCoarseSolver 	= "superlu_dist",

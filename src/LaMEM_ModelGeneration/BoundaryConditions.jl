@@ -118,6 +118,10 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
         end
     end
 
+    println(io,"# temperature on the top & bottom boundaries [usually constant]")
+    println(io,"    temp_top   = $(write_vec(d.temp_top))")
+    println(io,"    temp_bot   = $(write_vec(d.temp_bot))")
+
     println(io,"")
     return nothing
 end

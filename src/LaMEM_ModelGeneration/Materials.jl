@@ -297,7 +297,9 @@ Base.@kwdef mutable struct PhaseTransition
     number_phases::Union{Int64, Nothing}        =   1              
 
     "Above the chosen value the phase is 1, below it, the value is PhaseBelow"
-    PhaseAbove::Union{Vector{Int64}, Nothing}   =   nothing              
+    PhaseAbove::Union{Vector{Int64}, Nothing}   =   nothing       
+    
+    "Below the chosen value the phase is PhaseBelow, above it, the value is 1"
     PhaseBelow::Union{Vector{Int64}, Nothing}   =   nothing               
     
     "Phase within the box  [use -1 if you don't want to change the phase inside the box]"

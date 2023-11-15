@@ -3,6 +3,9 @@
 Installing LaMEM on high performance computer (HPC) systems can be complicated, because you will have to compile PETSc with the correct dependencies for that system. 
 The reason is that HPC systems use MPI versions that are specifically tailored/compiled for that system. 
 
+> Warning: the explanation below is still somewhat experimental and may not work on your system
+> The best approach of running LaMEM on large HPC systems remains to install the correct version of PETSc using the locally recommended MPI libraries and install the correct version of LaMEM with that. You can still save the input setup to file, for the correct number or processors using LaMEM.jl. The locally generated `*.dat` file will still work.
+
 Luckily there is a solution thanks to the great work of `@eschnett` and colleagues, who developed [MPITrampoline](https://github.com/eschnett/MPItrampoline) which is an intermediate layer between the HPC-system-specific MPI libraries and the precompiled `LaMEM` binaries. 
 
 It essentially consists of two steps: 

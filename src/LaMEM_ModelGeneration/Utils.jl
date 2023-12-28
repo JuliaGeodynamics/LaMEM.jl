@@ -2,10 +2,51 @@
 import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
+        add_vbox!, rm_last_vbox!, rm_vbox!,
         add_softening!, add_phasetransition!, 
         add_dike!, add_geom! , cross_section,
         set_air, copy_phase
 
+
+"""
+add_vbox!(model::Model, vbox::VelocityBox)
+This adds a `vbox` (with its properties) to `model`
+"""
+function add_vbox!(model::Model, vbox::VelocityBox) 
+    push!(model.BoundaryConditions.VelocityBoxes, vbox);
+    return nothing
+end
+
+"""
+    add_vbox!(model::Model, vboxes...)
+Add several phases @ once.
+"""
+function add_vbox!(model::Model, vboxes...) 
+    for vbox in vboxes
+        push!(model.BoundaryConditions.VelocityBoxes, vbox);
+    end
+end
+
+
+"""
+rm_last_vbox!(model::Model)
+This removes the last added `vbox` from `model`
+"""
+function rm_last_vbox!(model::Model) 
+    if length(model.BoundaryConditions.VelocityBoxes)>0
+        model.BoundaryConditions.VelocityBoxes = model.BoundaryConditions.VelocityBoxes[1:end-1]
+    end
+    return nothing
+end
+
+"""
+    rm_vbox!(model::Model)
+This removes all existing velocity boxes from `model`
+"""
+function rm_vbox!(model::Model) 
+    model.BoundaryConditions.VelocityBoxes = []
+    return nothing
+end
 
 """
     add_phase!(model::Model, phase::Phase)

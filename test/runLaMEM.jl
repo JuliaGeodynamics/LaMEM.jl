@@ -35,13 +35,11 @@ using Test
         @test isnothing(out)
     end
 
-    if !Sys.isapple()  # broken on mac for LaMEM_jll 1.2.3 (should be fixed in next release)
-        # Try free surface 
-        ParamFile="input_files/Subduction2D_FreeSurface_DirectSolver.dat";
-        out = run_lamem(ParamFile, 1, "-nstep_max 5")    # 4 core
-        @test isnothing(out)
-    end
-
+    # Try free surface 
+    ParamFile="input_files/Subduction2D_FreeSurface_DirectSolver.dat";
+    out = run_lamem(ParamFile, 1, "-nstep_max 5")    # 4 core
+    @test isnothing(out)
+    
     if !Sys.isapple() && 1==0
         # Note: superlu_dist uses a combination of openMP parallelization on a node and MPI between nodes.
         # If you have a server with a lot of cores AND run this with >1 core, this may clash

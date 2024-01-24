@@ -1,4 +1,4 @@
-using Test
+using Test, Base.Sys
 
 @testset "run LaMEM" begin
  

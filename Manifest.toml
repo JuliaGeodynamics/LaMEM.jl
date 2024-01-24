@@ -2,7 +2,7 @@
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "82bd6a68221a3882c1e36e4d6f63ae57b99c22da"
+project_hash = "86a113950aa8e148be34ef82cf7f5035f1f1ddec"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -70,6 +70,12 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 git-tree-sha1 = "e16505bdc7c0177d0a1709022d4ac41d51c5181d"
 uuid = "7b0aa2c9-049f-5cec-894a-2b6b781bb25e"
 version = "0.1.0"
+
+[[deps.Bzip2_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "9e2a6b69137e6969bab0152632dcb3bc108c8bdd"
+uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
+version = "1.0.8+1"
 
 [[deps.CEnum]]
 git-tree-sha1 = "389ad5c84de1ae7cf0e28e381131c98ea87d54fc"
@@ -463,7 +469,7 @@ version = "15.0.7+0"
 
 [[deps.LaMEM_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "PETSc_jll", "TOML"]
-git-tree-sha1 = "6a430218f4f0ebeec69fc2173f87b377be2f7620"
+git-tree-sha1 = "0da6fc84c3972f582b1be97354c2d516e95b185e"
 repo-rev = "main"
 repo-url = "https://github.com/boriskaus/LaMEM_jll.jl"
 uuid = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
@@ -571,10 +577,10 @@ uuid = "f1f71cc9-e9ae-5b93-9b94-4fe0e1ad3748"
 version = "5.3.1+1"
 
 [[deps.MUMPS_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "METIS_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenBLAS32_jll", "OpenMPI_jll", "PARMETIS_jll", "Pkg", "SCALAPACK32_jll", "SCOTCH_jll", "TOML"]
-git-tree-sha1 = "99f5791b81e59aad952d0629b066cde87a1e81f9"
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "METIS_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenBLAS32_jll", "OpenMPI_jll", "PARMETIS_jll", "PTSCOTCH_jll", "SCALAPACK32_jll", "SCOTCH_jll", "TOML"]
+git-tree-sha1 = "c479875dc63a4488dd150c8c9bbfb4d16f4305fc"
 uuid = "ca64183c-ec4f-5579-95d5-17e128c21291"
-version = "5.5.1+1"
+version = "5.6.2+0"
 
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
@@ -710,16 +716,22 @@ uuid = "b247a4be-ddc1-5759-8008-7e02fe3dbdaa"
 version = "4.0.6+1"
 
 [[deps.PETSc_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "METIS_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MUMPS_jll", "MicrosoftMPI_jll", "OpenBLAS32_jll", "OpenMPI_jll", "PARMETIS_jll", "SCALAPACK32_jll", "SCOTCH_jll", "SuiteSparse_jll", "SuperLU_DIST_jll", "TOML"]
-git-tree-sha1 = "44b000a7d95a143926d1d8b13b30dae681c44a8a"
+deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "METIS_jll", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MUMPS_jll", "MicrosoftMPI_jll", "OpenBLAS32_jll", "OpenMPI_jll", "PARMETIS_jll", "SCALAPACK32_jll", "SCOTCH_jll", "SuperLU_DIST_jll", "TOML"]
+git-tree-sha1 = "d043d691c91e81ffc6a9d0405159a417f27f9764"
 uuid = "8fa3689e-f0b9-5420-9873-adf6ccf46f2d"
-version = "3.18.6+1"
+version = "3.18.8+0"
 
 [[deps.PNGFiles]]
 deps = ["Base64", "CEnum", "ImageCore", "IndirectArrays", "OffsetArrays", "libpng_jll"]
 git-tree-sha1 = "67186a2bc9a90f9f85ff3cc8277868961fb57cbd"
 uuid = "f57f5aa1-a3ce-4bc8-8ab9-96f992907883"
 version = "0.4.3"
+
+[[deps.PTSCOTCH_jll]]
+deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "MPICH_jll", "MPIPreferences", "MPItrampoline_jll", "MicrosoftMPI_jll", "OpenMPI_jll", "SCOTCH_jll", "TOML", "XZ_jll", "Zlib_jll"]
+git-tree-sha1 = "4b28fd2a3a28152a679a2770ad74446103f9ed57"
+uuid = "b3ec0f5a-9838-5c9b-9e77-5f2c6a4b089f"
+version = "7.0.4+0"
 
 [[deps.PaddedViews]]
 deps = ["OffsetArrays"]
@@ -837,10 +849,10 @@ uuid = "aabda75e-bfe4-5a37-92e3-ffe54af3c273"
 version = "2.2.1+1"
 
 [[deps.SCOTCH_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Zlib_jll"]
-git-tree-sha1 = "7110b749766853054ce8a2afaa73325d72d32129"
+deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "XZ_jll", "Zlib_jll"]
+git-tree-sha1 = "2d52884dd8400ef0fd2c43e25d3fd55b66d964da"
 uuid = "a8d0f55d-b80e-548d-aff6-1a04c175f0f9"
-version = "6.1.3+0"
+version = "7.0.4+3"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -1051,6 +1063,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
 git-tree-sha1 = "801cbe47eae69adc50f36c3caec4758d2650741b"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
 version = "2.12.2+0"
+
+[[deps.XZ_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl"]
+git-tree-sha1 = "522b8414d40c4cbbab8dee346ac3a09f9768f25d"
+uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
+version = "5.4.5+0"
 
 [[deps.Zlib_jll]]
 deps = ["Libdl"]

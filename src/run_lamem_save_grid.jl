@@ -3,10 +3,14 @@
 #
 # Note: This downloads the BinaryBuilder version of LaMEM, which is not necessarily the latest version of LaMEM 
 #       (or the same as the current repository), since we have to manually update the builds.
-   
+using Base.Sys   
 
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="")
-        
+    if iswindows() & cores>1
+		println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+		cores = 1; 	
+	end
+
 	currdir = pwd()
 	cd(dirname(abspath(ParamFile)))
 	ParamFile = splitdir(ParamFile)[2]
@@ -57,7 +61,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
-
+	
 	ParamFile    = abspath(ParamFile)
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	arr          = JuliaStringToArray(logoutput)

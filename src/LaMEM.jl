@@ -25,11 +25,12 @@ include("DocUtils.jl")
 include("LaMEM_ModelGeneration/LaMEM_Model.jl")
 using .LaMEM_Model
 export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
-        Scaling, Grid, Time, FreeSurface, BoundaryConditions, SolutionParams,
+        Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, SolutionParams,
         Solver, ModelSetup, 
         geom_Sphere,
         Output,
         Materials, Phase, Softening, PhaseTransition, Dike, 
+        add_vbox!, rm_vbox!, rm_last_vbox!, 
         add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!,
         add_phasetransition!, add_dike!, add_geom!, set_air, copy_phase,
         add_topography!, AboveSurface!, BelowSurface!    

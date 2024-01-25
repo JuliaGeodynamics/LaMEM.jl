@@ -252,19 +252,19 @@ function Write_LaMEM_InputFile(io, d::Grid)
     println(io,"")
     println(io,"# Coordinates of all segments (including start and end points)")
     println(io,"    coord_x = $(write_vec(d.coord_x))")
-    if length(d.nel_x)>2
+    if length(d.nel_x)>=2
         println(io,"    nseg_x  = $(write_vec(d.nseg_x))")
         println(io,"    bias_x  = $(write_vec(d.bias_x))")
     end
 
     println(io,"    coord_y = $(write_vec(d.coord_y))")
-    if length(d.nel_y)>2
+    if length(d.nel_y)>=2
         println(io,"    nseg_y  = $(write_vec(d.nseg_y))")
         println(io,"    bias_y  = $(write_vec(d.bias_y))")
     end
 
     println(io,"    coord_z = $(write_vec(d.coord_z))")
-    if length(d.nel_z)>2
+    if length(d.nel_z)>=2
         println(io,"    nseg_z  = $(write_vec(d.nseg_z))")
         println(io,"    bias_z  = $(write_vec(d.bias_z))")
     end

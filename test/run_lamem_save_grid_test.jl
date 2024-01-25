@@ -1,4 +1,4 @@
-using Test
+using Test, Base.Sys
 
 @testset "run lamem mode save grid test" begin
 
@@ -8,8 +8,10 @@ using Test
 	out = run_lamem_save_grid(ParamFile, 1)       # 1 core
 	@test isnothing(out)
 	
-	out = run_lamem_save_grid(ParamFile, 8)       # 8 cores
-	@test out == "ProcessorPartitioning_8cpu_2.2.2.bin"
+	if !iswindows() # current vers
+		out = run_lamem_save_grid(ParamFile, 8)       # 8 cores
+		@test out == "ProcessorPartitioning_8cpu_2.2.2.bin"
+	end
 
 
 end

@@ -1,4 +1,4 @@
-using Test
+using Test, Base.Sys
 
 @testset "run LaMEM" begin
  
@@ -11,13 +11,13 @@ using Test
         println("Falling Block test on 1 core failed")
     end
     
-
-   
-    try
-        out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
-        @test isnothing(out)
-    catch 
-        println("Falling Block test on 4 cores failed")
+    if !iswindows()
+        try
+            out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
+            @test isnothing(out)
+        catch 
+            println("Falling Block test on 4 cores failed")
+        end
     end
 
     # Create a setup using GMG

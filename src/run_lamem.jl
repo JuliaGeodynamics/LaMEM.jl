@@ -3,6 +3,8 @@
 # Note: This downloads the BinaryBuilder version of LaMEM, which is not necessarily the latest version of LaMEM 
 #       (or the same as the current repository), since we have to manually update the builds.
    
+using Base.Sys
+
 """
     deactivate_multithreading(cmd)
 
@@ -39,7 +41,10 @@ julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
 """
 function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
-        
+    if iswindows() & cores>1
+        cores=1;
+        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    end
     if cores==1
         # Run LaMEM on a single core, which does not require a working MPI
         cmd = `$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`

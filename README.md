@@ -3,10 +3,6 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliageodynamics.github.io/LaMEM.jl/dev/)
 [![DOI](https://zenodo.org/badge/531427568.svg)](https://zenodo.org/doi/10.5281/zenodo.10211627)
 
->[!CAUTION]
->`LaMEM` does currently not work with julia 1.10 or higher.
->Please use julia 1.9 instead while we are working on fixing the issue.
-
 This is the Julia interface to [LaMEM](https://github.com/UniMainzGeo/LaMEM/)) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system. It allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing.
 
 ### 1. Installation
@@ -53,9 +49,9 @@ Create an initial geometry using the [GeophysicalModelGenerator](https://github.
 ```Julia
 julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 ```
-and run the simulation in parallel:
+and run the simulation with:
 ```julia
-julia> run_lamem(model,2)
+julia> run_lamem(model,1)
 Saved file: Model3D.vts
 Writing LaMEM marker file -> ./markers/mdb.00000000.dat
 -------------------------------------------------------------------------- 
@@ -70,6 +66,7 @@ Finished parsing input file : output.dat
 --------------------------------------------------------------------------
 ...
 ```
+Note that if you have a linux/mac machine you can run it in parallel (change 1 to 2 or 4, for example). On windows you would have to install Linux for Windows first, using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
 Once the simulation is done, you can open it with Paraview, or directly plot it within julia (see the documentation).
 
 

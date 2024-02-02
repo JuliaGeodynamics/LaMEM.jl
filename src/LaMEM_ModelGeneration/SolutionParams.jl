@@ -128,6 +128,9 @@ Base.@kwdef mutable struct SolutionParams
     "compute the velocity gradient tensor 1: active, 0: not active. If active, it automatically activates the output in the .pvd file"
     Compute_velocity_gradient::Int64 = 1     
     
+    "Activate Phase Transitions on Particles or not, 0: not. "
+    Phasetrans::Int64 = 0     
+    
 end
 
 # Print info about the structure

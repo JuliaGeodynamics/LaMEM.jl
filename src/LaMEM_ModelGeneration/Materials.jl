@@ -562,26 +562,6 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     
-    # Define PhaseTransitions laws
-    println(io, "   # Define Phase Transition laws (maximum 10)")
-    for PT in d.PhaseTransitions
-      
-        println(io, "   <PhaseTransitionStart>")
-        
-        pt_fields    = fieldnames(typeof(PT))
-        for pt in pt_fields
-            if !isnothing(getfield(PT,pt))
-                name = rpad(String(pt),15)
-                comment = get_doc(PhaseTransition, pt)
-                data = getfield(PT,pt) 
-                println(io,"        $name  = $(write_vec(data))     # $(comment)")
-            end
-        end
-
-        println(io,"   <PhaseTransitionEnd>")
-        println(io,"")
-    end
-    
     # Define Dikes parameters
     if length(d.Dikes)>0
         println(io, "   # Define properties for the dike (additional source term/RHS in the continuity equation):   ")
@@ -626,6 +606,32 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     println(io,"")
+
+    # Define PhaseTransitions laws
+    println(io, "#===============================================================================")
+    println(io, "# Define phase transitions")
+    println(io, "#===============================================================================")
+    println(io,"")
+
+    println(io, "   # Define Phase Transition laws (maximum 10)")
+    for PT in d.PhaseTransitions
+      
+        println(io, "   <PhaseTransitionStart>")
+        
+        pt_fields    = fieldnames(typeof(PT))
+        for pt in pt_fields
+            if !isnothing(getfield(PT,pt))
+                name = rpad(String(pt),15)
+                comment = get_doc(PhaseTransition, pt)
+                data = getfield(PT,pt) 
+                println(io,"        $name  = $(write_vec(data))     # $(comment)")
+            end
+        end
+
+        println(io,"   <PhaseTransitionEnd>")
+        println(io,"")
+    end
+
 
     return nothing
 end

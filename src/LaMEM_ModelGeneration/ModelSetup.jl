@@ -36,7 +36,7 @@ Base.@kwdef mutable struct ModelSetup
     temp_file::String   = "./input/temp.dat"  
 
     "advection scheme; options=`none` (no advection); `basic` (Euler classical implementation [default]); `Euler` (Euler explicit in time); `rk2` (Runge-Kutta 2nd order in space)"
-    advect::String      = "basic"             
+    advect::String      = "rk2"             
 
     "velocity interpolation scheme; options = `stag` (trilinear interpolation from FDSTAG points), `minmod` ( MINMOD interpolation to nodes, trilinear interpolation to markers + correction), `stagp` ( STAG_P empirical approach by T. Gerya) "
     interp::String      = "stag"              
@@ -162,11 +162,15 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
     println(io,"")
 
     for f in fields
+
+    
         if getfield(d,f) != getfield(Reference,f)  ||
-            (f == :bg_phase) ||
-            (f == :msetup) ||
-            (f == :rand_noise) ||
-            (f == :nmark_lim) ||
+            (f == :bg_phase)    ||
+            (f == :msetup)      ||
+            (f == :rand_noise)  ||
+            (f == :nmark_lim)   ||
+            (f == :advect)      ||
+            (f == :interp)      ||
             (f == :mark_ctrl)
             
             

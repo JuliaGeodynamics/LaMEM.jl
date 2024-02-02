@@ -20,6 +20,11 @@ Base.@kwdef mutable struct SolutionParams
     """
     FSSA::Float64            = 1.0         
 
+    """
+    free surface stabilization parameter applied to all velocity components?  Default is yes; if not it is only applied to the z-component
+    """
+    FSSA_allVel::Int64       = 1 
+
     "shear heating efficiency parameter   [0 - 1]"   
     shear_heat_eff::Float64  = 1.0             
     
@@ -123,13 +128,19 @@ Base.@kwdef mutable struct SolutionParams
     useTk::Int64            = 1              
     
     "switch to use Behn & Ito heat source in the dike "
-    dikeHeat::Int64         = 1		        
+    dikeHeat::Int64         = 1		  
+    
+    "Adiabatic gradient in combination with Behn & Ito dike "
+    adiabatic_gradient::Float64 = 1.0
 
     "compute the velocity gradient tensor 1: active, 0: not active. If active, it automatically activates the output in the .pvd file"
     Compute_velocity_gradient::Int64 = 1     
     
     "Activate Phase Transitions on Particles or not, 0: not. "
     Phasetrans::Int64 = 0     
+
+    "Activate Passive Tracers or not?"
+    Passive_Tracer::Int64 = 0 
     
 end
 

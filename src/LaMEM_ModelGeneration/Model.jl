@@ -148,7 +148,10 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
         # If we want to write an input file 
         Write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
-
+    if !isempty(d.Materials.PhaseTransitions)
+        # If PhaseTransitions are defined, we generally want this to be activated in computations
+        d.SolutionParams.Phasetrans = 1
+    end
         
     io = open(fname,"w")
 

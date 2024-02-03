@@ -279,7 +279,7 @@ Base.@kwdef mutable struct PhaseTransition
     Type::String                    =   "Constant"      
     
     "Type of predefined Clapeyron slope, such as Mantle_Transition_660km"
-    Name_Clapeyron::Union{Int64, Nothing}          =  nothing
+    Name_Clapeyron::Union{String, Nothing}          =  nothing
 
     "box bound coordinates: [left, right, front, back, bottom, top]"
     PTBox_Bounds::Union{Vector{Float64}, Nothing} =   nothing   
@@ -336,7 +336,17 @@ Base.@kwdef mutable struct PhaseTransition
     t0_box::Union{Float64, Nothing}   =   nothing                    
 
     "[optional] end time of movement in Myr"
-    t1_box::Union{Float64, Nothing}   =   nothing                         
+    t1_box::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] clapeyron slope of phase transition [in K/MPa]; P=(T-T0_clapeyron)*clapeyron_slope + P0_clapeyron "
+    clapeyron_slope::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] P0_clapeyron [Pa]"
+    P0_clapeyron::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] T0_clapeyron [C]"
+    T0_clapeyron::Union{Float64, Nothing}   =   nothing   
+    
 end
 
 function show(io::IO, d::PhaseTransition)

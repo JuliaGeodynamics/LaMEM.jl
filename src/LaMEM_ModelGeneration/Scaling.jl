@@ -44,10 +44,10 @@ function Write_LaMEM_InputFile(io, d::Scaling)
         char_L = uconvert(u"m",d.Scaling.length);
         char_η = uconvert(u"Pa*s",d.Scaling.viscosity);
         char_τ = uconvert(u"Pa",d.Scaling.stress);
-        println(io,"    unit_temperature = $char_T")
-        println(io,"    unit_length      = $char_L")
-        println(io,"    unit_viscosity   = $char_η")
-        println(io,"    unit_stress      = $char_τ")
+        println(io,"    unit_temperature = $(ustrip.(char_T))")
+        println(io,"    unit_length      = $(ustrip(char_L))")
+        println(io,"    unit_viscosity   = $(ustrip(char_η))")
+        println(io,"    unit_stress      = $(ustrip(char_τ))")
 
     elseif isa(d,Scaling{GeoUnits{NONE}}) 
         println(io,"    units = none")

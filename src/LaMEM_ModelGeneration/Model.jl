@@ -40,6 +40,9 @@ mutable struct Model
     "Output options"
     Output
 
+    "Passive tracers"
+    PassiveTracers
+
     "Material parameters for each of the phases"
     Materials
 
@@ -57,6 +60,7 @@ end
         Solver=Solver(),
         ModelSetup=ModelSetup(),
         Output=Output(),
+        PassiveTracers=PassiveTracers(),
         Materials=Materials()
         )
 
@@ -75,11 +79,12 @@ function Model(;
     Solver=Solver(),
     ModelSetup=ModelSetup(),
     Output=Output(),
+    PassiveTracers=PassiveTracers(),
     Materials=Materials()
     )
 
     return Model(Scaling, Grid, Time, FreeSurface, BoundaryConditions, 
-                SolutionParams, Solver, ModelSetup, Output, Materials)
+                SolutionParams, Solver, ModelSetup, Output, PassiveTracers, Materials)
 end
 
 """
@@ -133,6 +138,7 @@ function show(io::IO, d::Model)
     show_short(io, d.Solver)   
     show_short(io, d.ModelSetup)   
     show_short(io, d.Output)   
+    show_short(io, d.PassiveTracers)   
     show_short(io, d.Materials)
 end
 
@@ -164,6 +170,7 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Write_LaMEM_InputFile(io, d.Solver)
     Write_LaMEM_InputFile(io, d.ModelSetup)
     Write_LaMEM_InputFile(io, d.Output)
+    Write_LaMEM_InputFile(io, d.PassiveTracers)
     Write_LaMEM_InputFile(io, d.Materials)
     
     Write_LaMEM_InputFile_PETSc(io, d.Solver)   # add PETSc options last

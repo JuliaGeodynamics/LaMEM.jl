@@ -12,13 +12,15 @@ export PassiveTracers, Write_LaMEM_InputFile
 
 """
 Base.@kwdef mutable struct PassiveTracers
-    "activate passive tracers?"
+    """
+    activate passive tracers?"
+    """
     Passive_Tracer::Int64 = 0
 
     """
-    Dimensions of box in which we distribute passive tracers  
+    Dimensions of box in which we distribute passive tracers   [Left, Right, Front, Back, Bottom, Top]
     """
-    PassiveTracer_Box::Union{Nothing,Vector{Float64}}     = nothing       
+    PassiveTracer_Box::Union{Nothing,Vector{Float64}}     = [-600.0, 600, -1, 1, -300, -50]     
 
     """
     The number of passive tracers in every direction
@@ -31,16 +33,20 @@ Base.@kwdef mutable struct PassiveTracers
     PassiveTracer_ActiveType::Union{Nothing,String}     = "Always"       
 
     """
-    Under which condition are they activated? ["Always"],  "Melt_Fraction", "Temperature", "Pressure", "Time"  
+    The value to activate them
     """
-    PassiveTracer_ActiveValue::Union{Nothing,Float64}   = nothing       
+    PassiveTracer_ActiveValue::Union{Nothing,Float64}   = 0.1       
 
 end
 
 # Print info about the structure
 function show(io::IO, d::PassiveTracers)
     Reference = PassiveTracers();    # reference values
-    println(io, "LaMEM Passive Tracers : ")
+    if d.Passive_Tracer==1
+        println(io, "LaMEM passive tracers (active): ")
+    else
+        println(io, "LaMEM passive tracers (inactive): ")
+    end
     fields    = fieldnames(typeof(d))
 
     # print fields
@@ -53,7 +59,17 @@ function show(io::IO, d::PassiveTracers)
 end
 
 function show_short(io::IO, d::PassiveTracers)
-    println(io,"|-- Passive Tracers :  Passive_Tracer=$(d.Passive_Tracer); PassiveTracer_Box=$(d.PassiveTracer_Box); PassiveTracer_Resolution=$(d.PassiveTracer_Resolution); PassiveTracer_ActiveType=$(d.PassiveTracer_ActiveType); PassiveTracer_ActiveValue=$(d.PassiveTracer_ActiveValue)")
+    if d.Passive_Tracer==1
+        N = d.PassiveTracer_Resolution;
+        c = d.PassiveTracer_Box;
+        val = d.PassiveTracer_ActiveValue
+        if d.PassiveTracer_ActiveType=="Always"
+            value = ""
+        else
+            value = "Value=$val; "
+        end 
+        println(io,"|-- Passive Tracers     :  Type=$(d.PassiveTracer_ActiveType); $(value)Res=[$(N[1]),$(N[2]),$(N[3])], Box=[$(c[1]):$(c[2]),$(c[3]):$(c[4]),$(c[5]):$(c[6])]")
+    end
     return nothing
 end
 
@@ -68,23 +84,20 @@ function Write_LaMEM_InputFile(io, d::PassiveTracers)
     fields    = fieldnames(typeof(d))
     
     println(io, "#===============================================================================")
-    println(io, "# Passive Tracers")
+    println(io, "# Passive tracers ")
     println(io, "#===============================================================================")
-    println(io,"")
-
-    for f in fields
-        if getfield(d,f) != getfield(Reference,f) ||
-            (f == :eta_ref) ||
-            (f == :gravity)
-
+    #println(io,"")
+    if d.Passive_Tracer==1
+    
+        for f in fields
             # only print if value differs from reference value
             name = rpad(String(f),15)
             data = getfield(d,f) 
             help_string  = get_doc(PassiveTracers, f)
-            println(io,"    $name  = $(write_vec(data))     # $(help_string)")
+            print(io,"   $name  = $(write_vec(data))     # $(help_string)")
         end
-    end
 
-    println(io,"")
+        println(io,"")
+        end
     return nothing
 end

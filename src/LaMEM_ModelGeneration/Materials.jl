@@ -279,19 +279,19 @@ Base.@kwdef mutable struct PhaseTransition
     Type::String                    =   "Constant"      
     
     "Type of predefined Clapeyron slope, such as Mantle_Transition_660km"
-    Name_Clapeyron::Union{Int64, Nothing}          =  nothing
+    Name_Clapeyron::Union{String, Nothing}          =  nothing
 
     "box bound coordinates: [left, right, front, back, bottom, top]"
     PTBox_Bounds::Union{Vector{Float64}, Nothing} =   nothing   
     
     "1: only check particles in the vicinity of the box boundaries (2: in all directions)"
-    BoxVicinity::Union{Int64, Nothing} 	        =	1								
+    BoxVicinity::Union{Int64, Nothing} 	        =	nothing								
 
     "[T = Temperature, P = Pressure, Depth = z-coord, X=x-coord, Y=y-coord, APS = accumulated plastic strain, MeltFraction, t = time] parameter that triggers the phase transition"
-    Parameter_transition::String                =   "T"     
+    Parameter_transition::Union{String, Nothing}   =   nothing   
 
     "Value of the parameter [unit of T,P,z, APS] "        
-    ConstantValue::Union{Float64, Nothing}      =   1200          
+    ConstantValue::Union{Float64, Nothing}      =   nothing          
 
     "The number of involved phases [default=1]"
     number_phases::Union{Int64, Nothing}        =   1              
@@ -309,13 +309,13 @@ Base.@kwdef mutable struct PhaseTransition
     PhaseOutside::Union{Vector{Int64}, Nothing} =   nothing       
 
     "[BothWays=default; BelowToAbove; AboveToBelow] Direction in which transition works"
-    PhaseDirection::String                      =   "BothWays"      
+    PhaseDirection::Union{String, Nothing}      =   nothing 
 
     "[APS] Parameter to reset on particles below PT or within box"
-    ResetParam::String                          =   "APS"        
+    ResetParam::Union{String, Nothing}          =  nothing  
     
     "# Temperature condition witin the box [none, constant, linear, halfspace]"
-    PTBox_TempType::String                      =   "linear"          
+    PTBox_TempType::Union{String, Nothing}      =   nothing         
     
     "Temp @ top of box [for linear & halfspace] "               
     PTBox_topTemp::Union{Float64, Nothing}      =   nothing                        
@@ -336,7 +336,17 @@ Base.@kwdef mutable struct PhaseTransition
     t0_box::Union{Float64, Nothing}   =   nothing                    
 
     "[optional] end time of movement in Myr"
-    t1_box::Union{Float64, Nothing}   =   nothing                         
+    t1_box::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] clapeyron slope of phase transition [in K/MPa]; P=(T-T0_clapeyron)*clapeyron_slope + P0_clapeyron "
+    clapeyron_slope::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] P0_clapeyron [Pa]"
+    P0_clapeyron::Union{Float64, Nothing}   =   nothing   
+    
+    "[optional] T0_clapeyron [C]"
+    T0_clapeyron::Union{Float64, Nothing}   =   nothing   
+    
 end
 
 function show(io::IO, d::PhaseTransition)
@@ -562,26 +572,6 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     
-    # Define PhaseTransitions laws
-    println(io, "   # Define Phase Transition laws (maximum 10)")
-    for PT in d.PhaseTransitions
-      
-        println(io, "   <PhaseTransitionStart>")
-        
-        pt_fields    = fieldnames(typeof(PT))
-        for pt in pt_fields
-            if !isnothing(getfield(PT,pt))
-                name = rpad(String(pt),15)
-                comment = get_doc(PhaseTransition, pt)
-                data = getfield(PT,pt) 
-                println(io,"        $name  = $(write_vec(data))     # $(comment)")
-            end
-        end
-
-        println(io,"   <PhaseTransitionEnd>")
-        println(io,"")
-    end
-    
     # Define Dikes parameters
     if length(d.Dikes)>0
         println(io, "   # Define properties for the dike (additional source term/RHS in the continuity equation):   ")
@@ -626,6 +616,32 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     println(io,"")
+
+    # Define PhaseTransitions laws
+    println(io, "#===============================================================================")
+    println(io, "# Define phase transitions")
+    println(io, "#===============================================================================")
+    println(io,"")
+
+    println(io, "   # Define Phase Transition laws (maximum 10)")
+    for PT in d.PhaseTransitions
+      
+        println(io, "   <PhaseTransitionStart>")
+        
+        pt_fields    = fieldnames(typeof(PT))
+        for pt in pt_fields
+            if !isnothing(getfield(PT,pt))
+                name = rpad(String(pt),15)
+                comment = get_doc(PhaseTransition, pt)
+                data = getfield(PT,pt) 
+                println(io,"        $name  = $(write_vec(data))     # $(comment)")
+            end
+        end
+
+        println(io,"   <PhaseTransitionEnd>")
+        println(io,"")
+    end
+
 
     return nothing
 end

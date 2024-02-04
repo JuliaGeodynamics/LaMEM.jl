@@ -285,13 +285,13 @@ Base.@kwdef mutable struct PhaseTransition
     PTBox_Bounds::Union{Vector{Float64}, Nothing} =   nothing   
     
     "1: only check particles in the vicinity of the box boundaries (2: in all directions)"
-    BoxVicinity::Union{Int64, Nothing} 	        =	1								
+    BoxVicinity::Union{Int64, Nothing} 	        =	nothing								
 
     "[T = Temperature, P = Pressure, Depth = z-coord, X=x-coord, Y=y-coord, APS = accumulated plastic strain, MeltFraction, t = time] parameter that triggers the phase transition"
-    Parameter_transition::String                =   "T"     
+    Parameter_transition::Union{String, Nothing}   =   nothing   
 
     "Value of the parameter [unit of T,P,z, APS] "        
-    ConstantValue::Union{Float64, Nothing}      =   1200          
+    ConstantValue::Union{Float64, Nothing}      =   nothing          
 
     "The number of involved phases [default=1]"
     number_phases::Union{Int64, Nothing}        =   1              
@@ -309,13 +309,13 @@ Base.@kwdef mutable struct PhaseTransition
     PhaseOutside::Union{Vector{Int64}, Nothing} =   nothing       
 
     "[BothWays=default; BelowToAbove; AboveToBelow] Direction in which transition works"
-    PhaseDirection::String                      =   "BothWays"      
+    PhaseDirection::Union{String, Nothing}      =   nothing 
 
     "[APS] Parameter to reset on particles below PT or within box"
-    ResetParam::String                          =   "APS"        
+    ResetParam::Union{String, Nothing}          =  nothing  
     
     "# Temperature condition witin the box [none, constant, linear, halfspace]"
-    PTBox_TempType::String                      =   "linear"          
+    PTBox_TempType::Union{String, Nothing}      =   nothing         
     
     "Temp @ top of box [for linear & halfspace] "               
     PTBox_topTemp::Union{Float64, Nothing}      =   nothing                        

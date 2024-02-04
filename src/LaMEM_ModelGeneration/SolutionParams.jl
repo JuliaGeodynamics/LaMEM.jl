@@ -50,7 +50,7 @@ Base.@kwdef mutable struct SolutionParams
     act_heat_rech::Int64   = 1               
 
     "sets initial pressure to be the lithostatic pressure (stabilizes compressible setups in the first steps)"
-    init_lith_pres::Int64  = 1       
+    init_lith_pres::Int64  = 0       
     
     "create an initial guess step (using constant viscosity `eta_ref` before starting the simulation"
     init_guess::Int64      = 1              

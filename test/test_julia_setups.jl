@@ -96,8 +96,10 @@ using GeophysicalModelGenerator
     # Main model setup
     model  = Model(Grid(nel=(64,1,64), x=[-500,500], coord_y=[-10,10], coord_z=[-1000,50]),
                     Time(nstep_max=30, nstep_out=5, dt=0.01, dt_max=1, dt_min=1e-5), 
+                    Scaling(GEO_units(length = 100km) ),
                     BoundaryConditions(temp_bot=1300, noslip=[0,0,0,0,1,0], open_top_bound=1),
-                    Output(out_velocity=1, out_dir="example_2", out_file_name="Plume_PhaseTransitions", out_temperature=1))
+                    SolutionParams(init_lith_pres=1),
+                    Output(out_velocity=1, out_file_name="Plume_PhaseTransitions_new", out_temperature=1))
 
     # Specify material properties
     air     = Phase(ID=0,Name="Air",     eta=1e22, rho=3300, alpha=3e-5,  k=100, Cp=1e6)
@@ -142,12 +144,10 @@ using GeophysicalModelGenerator
     # run the simulation on 1 core
     run_lamem(model, 1);
 
-
-    # # read last timestep
     # read last timestep
     data,time = Read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.phase) ≈ 29495.215f0
+    @test  sum(data.fields.phase) ≈ 29160.412f0
     
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)

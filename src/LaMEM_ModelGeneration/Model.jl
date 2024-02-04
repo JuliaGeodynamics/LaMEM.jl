@@ -158,7 +158,15 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
         # If PhaseTransitions are defined, we generally want this to be activated in computations
         d.SolutionParams.Phasetrans = 1
     end
-        
+    if d.PassiveTracers.Passive_Tracer==1
+        # If PassiveTracers are defined, we generally want this to be visualized as well:
+        d.Output.out_ptr=1
+        d.Output.out_ptr_ID=1
+        d.Output.out_ptr_phase=1
+        d.Output.out_ptr_Pressure=1
+        d.Output.out_ptr_Temperature=1
+    end
+
     io = open(fname,"w")
 
     Write_LaMEM_InputFile(io, d.Scaling)

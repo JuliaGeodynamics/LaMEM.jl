@@ -51,6 +51,9 @@ export ModelSetup, geom_Sphere, set_geom!
 include("Output.jl")                # output options
 export Output
 
+include("PassiveTracers.jl")        # passive tracers
+export PassiveTracers
+
 include("Materials.jl")             # main LaMEM_Model
 export Materials, Phase, Softening, PhaseTransition, Dike
 

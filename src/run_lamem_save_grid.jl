@@ -5,7 +5,7 @@
 #       (or the same as the current repository), since we have to manually update the builds.
 using Base.Sys   
 
-function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="")
+function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="", directory="")
     if iswindows() & cores>1
 		println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
 		cores = 1; 	
@@ -47,7 +47,7 @@ function get_line_containing(stringarray::Vector{SubString{String}}, lookfor::St
 end
 
 """ 
-	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
+	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, directory=pwd())
 This calls LaMEM simulation, for using the parameter file `ParamFile` 
 and creates processor partitioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
 # Example:
@@ -57,10 +57,12 @@ julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> ProcessorPartFile = run_lamem_save_grid(ParamFile, 2)
 ```
 """
-function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
+function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, directory=pwd())
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
+	cur_dir = pwd();
+	cd(directory)
 	
 	ParamFile    = abspath(ParamFile)
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
@@ -72,9 +74,9 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true)
 	separatecoma = split(sprtrghtbrkt[1],",")
 	procnumbers  = parse.(Int, separatecoma)
 	Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
-	if isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
-		return Procpartname
-	else
-	return Nothing
+	if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
+		Procpartname = nothing
 	end
+	cd(cur_dir)
+	return Procpartname
 end

@@ -1,5 +1,7 @@
 using Test
 
+pkg_dir = pkgdir(LaMEM)
+
 @testset "read LaMEM output" begin
 
     # Read a timestep

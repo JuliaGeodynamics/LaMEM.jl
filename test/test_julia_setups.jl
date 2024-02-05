@@ -85,7 +85,11 @@ using GeophysicalModelGenerator
     rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
+end
 
+
+
+@testset "phase transitions" begin
 
 # ===============================
 # constant model with phase transitions
@@ -99,7 +103,7 @@ using GeophysicalModelGenerator
                     Scaling(GEO_units(length = 100km) ),
                     BoundaryConditions(temp_bot=1300, noslip=[0,0,0,0,1,0], open_top_bound=1),
                     SolutionParams(init_lith_pres=1),
-                    Output(out_velocity=1, out_file_name="Plume_PhaseTransitions_new", out_temperature=1))
+                    Output(out_velocity=1, out_file_name="Plume_PhaseTransitions_new", out_dir="example_phase", out_temperature=1))
 
     # Specify material properties
     air     = Phase(ID=0,Name="Air",     eta=1e22, rho=3300, alpha=3e-5,  k=100, Cp=1e6)

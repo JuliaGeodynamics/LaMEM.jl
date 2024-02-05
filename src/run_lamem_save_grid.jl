@@ -5,28 +5,43 @@
 #       (or the same as the current repository), since we have to manually update the builds.
 using Base.Sys   
 
-function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String="", directory="")
-    if iswindows() & cores>1
-		println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
-		cores = 1; 	
-	end
 
-	currdir = pwd()
-	cd(dirname(abspath(ParamFile)))
-	ParamFile = splitdir(ParamFile)[2]
-	# set correct environment
-	mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
-	# Call LaMEM to generate Processor Partitioning file and output
+function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
+    if iswindows() & cores>1
+        cores=1;
+        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    end
 	out = Pipe()
-	err = Pipe()
-	run(pipeline(ignorestatus(`$(mpirun) -n $cores $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args`),stdout=out));
-	close(out.in)
-	(
+    if cores==1
+        # Run LaMEM on a single core, which does not require a working MPI
+        cmd = `$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`
+        if deactivate_multithreads
+            cmd = deactivate_multithreading(cmd)
+        end
+		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
+		run(cmd1, wait=wait);
+		close(out.in)
+	else
+	
+        # set correct environment
+        mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
+
+        # create command-line object
+        cmd = `$(mpirun) -n $cores $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args`
+        if deactivate_multithreads
+            cmd = deactivate_multithreading(cmd)
+        end
+
+        # Run LaMEM in parallel
+		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
+        run(cmd1, wait=wait);
+		close(out.in)
+    end
 	stdout = String(read(out))
-	 )
-	 cd(currdir)
-	 return stdout
+
+    return stdout
 end
+
 
 function JuliaStringToArray(input)
 

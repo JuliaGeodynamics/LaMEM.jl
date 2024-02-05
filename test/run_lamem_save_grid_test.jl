@@ -7,6 +7,7 @@ using Test, Base.Sys
 	@test isnothing(out)
 	
 	if !iswindows() # current vers
+		ParamFile=joinpath(pkgdir(LaMEM), "test",ParamFile)
 		out = run_lamem_save_grid(ParamFile, 8, directory=joinpath(pkgdir(LaMEM), "test"))       # 8 cores
 		@test out == "ProcessorPartitioning_8cpu_2.2.2.bin"
 	end

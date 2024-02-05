@@ -40,7 +40,11 @@ z_num =   data.z.val[1,1,:]
 T_num =   data.fields.temperature[1,1,:]
 P_num =   data.fields.pressure[1,1,:]
 
-PD = read_phase_diagram("input_files/Rhyolite.in");
+
+ParamFile = "Rhyolite.in";
+
+
+PD = read_phase_diagram(joinpath(pkg_dir,"test","input_files",ParamFile));
 
 @test sum(ϕ_num) ≈ 2.5262098f0
 

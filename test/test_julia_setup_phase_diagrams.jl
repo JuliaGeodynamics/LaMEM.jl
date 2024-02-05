@@ -43,7 +43,7 @@ P_num =   data.fields.pressure[1,1,:]
 
 ParamFile = "Rhyolite.in";
 
-
+pkg_dir = pkgdir(LaMEM)
 PD = read_phase_diagram(joinpath(pkg_dir,"test","input_files",ParamFile));
 
 @test sum(ϕ_num) ≈ 2.5262098f0

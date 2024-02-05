@@ -6,7 +6,7 @@ using Test, Base.Sys
     ParamFile="input_files/FallingBlock_Multigrid.dat"
 
 	ParamFile = joinpath(pkgdir(LaMEM), "test", ParamFile)
-	out = run_lamem_save_grid(ParamFile, 1, directory=dir)       # 1 core
+	out = run_lamem_save_grid(ParamFile, 1)       # 1 core
 	@test isnothing(out)
 	
 	if !iswindows() # current vers

@@ -162,6 +162,5 @@ end
 
 
 @testset "various julia setups" begin
-  #  include("test_julia_setup_phase_diagrams.jl")
-
+    include("test_julia_setup_phase_diagrams.jl")
 end

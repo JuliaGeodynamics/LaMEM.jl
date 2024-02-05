@@ -21,8 +21,12 @@ ind = findall(Z.<=-50 .&& Z.>=-60 .&& abs.(model.Grid.Grid.X).<10)
 model.Grid.Temp[ind] .+= 2
 
 
-matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph="./input_files/Rhyolite");
-heter  = Phase(ID=1,Name="heter", eta=1e23,rho_ph="./input_files/Rhyolite")
+pkg_dir = pkgdir(LaMEM)
+
+pd_path = joinpath(pkg_dir,"test","input_files","Rhyolite")
+
+matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path);
+heter  = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path)
 rm_phase!(model)    
 add_phase!(model, heter, matrix)
 

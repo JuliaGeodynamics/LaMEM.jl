@@ -122,7 +122,10 @@ function Model(args...)
     end 
     args_tuple = NamedTuple{Symbol.(names_strip)}(args)
 
-    return Model(; args_tuple...)
+    model = Model(; args_tuple...)
+    model = UpdateDefaultParameters(model)
+
+    return model
 end
 
 # Show brief overview of Model
@@ -154,19 +157,7 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
         # If we want to write an input file 
         Write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
-    if !isempty(d.Materials.PhaseTransitions)
-        # If PhaseTransitions are defined, we generally want this to be activated in computations
-        d.SolutionParams.Phasetrans = 1
-    end
-    if d.PassiveTracers.Passive_Tracer==1
-        # If PassiveTracers are defined, we generally want this to be visualized as well:
-        d.Output.out_ptr=1
-        d.Output.out_ptr_ID=1
-        d.Output.out_ptr_phase=1
-        d.Output.out_ptr_Pressure=1
-        d.Output.out_ptr_Temperature=1
-    end
-
+ 
     io = open(fname,"w")
 
     Write_LaMEM_InputFile(io, d.Scaling)

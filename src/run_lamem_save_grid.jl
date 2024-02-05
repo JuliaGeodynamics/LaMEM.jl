@@ -79,10 +79,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	cur_dir = pwd();
 	cd(directory)
 
-	
-	#ParamFile    = abspath(ParamFile)
-	@show ParamFile, cur_dir
-
+	ParamFile    = abspath(ParamFile)
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	arr          = JuliaStringToArray(logoutput)
 	foundline    = get_line_containing(arr,"Processor grid  [nx, ny, nz]         : ")

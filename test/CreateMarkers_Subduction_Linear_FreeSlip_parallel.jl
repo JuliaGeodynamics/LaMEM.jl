@@ -44,5 +44,6 @@ Model3D     =   CartData(Grid_LaMEM, (Phases=Phases,Temp=Temp))   # Create LaMEM
 Write_Paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
 
 # Save LaMEM markers
-Save_LaMEMMarkersParallel(Model3D)                          # Create LaMEM marker input on 1 core
+dir =   joinpath(pkg_dir,"input_files", "test");
+Save_LaMEMMarkersParallel(Model3D, directory=dir)                          # Create LaMEM marker input on 1 core
 

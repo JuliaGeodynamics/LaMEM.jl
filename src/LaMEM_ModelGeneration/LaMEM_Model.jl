@@ -57,9 +57,6 @@ export PassiveTracers
 include("Materials.jl")             # main LaMEM_Model
 export Materials, Phase, Softening, PhaseTransition, Dike
 
-include("DefaultParams.jl")             # main LaMEM_Model
-export UpdateDefaultParameters
-
 include("Model.jl")                 # main LaMEM_Model
 export Model
 

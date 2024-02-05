@@ -87,6 +87,8 @@ function Model(;
                 SolutionParams, Solver, ModelSetup, Output, PassiveTracers, Materials)
 end
 
+include("DefaultParams.jl")             # main LaMEM_Model
+
 """
     Model(args...)
 

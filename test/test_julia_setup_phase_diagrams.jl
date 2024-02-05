@@ -21,14 +21,14 @@ ind = findall(Z.<=-50 .&& Z.>=-60 .&& abs.(model.Grid.Grid.X).<10)
 model.Grid.Temp[ind] .+= 2
 
 
-pkg_dir = pkgdir(LaMEM)
+pkg_dir = joinpath(pkgdir(LaMEM),"test")
 
-pd_path = joinpath(pkg_dir,"test","input_files","Rhyolite")
+pd_path = joinpath("input_files","Rhyolite")
 
-matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path);
-heter  = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path)
+matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path, rho_ph_dir=pkg_dir);
+inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path, rho_ph_dir=pkg_dir)
 rm_phase!(model)    
-add_phase!(model, heter, matrix)
+add_phase!(model, inclus, matrix)
 
 # run
 run_lamem(model)

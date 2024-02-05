@@ -23,10 +23,10 @@ model.Grid.Temp[ind] .+= 2
 
 pkg_dir = joinpath(pkgdir(LaMEM),"test")
 
-pd_path = joinpath(pkg_dir,"input_files","Rhyolite")
+pd_path = joinpath("input_files","Rhyolite")
 
-matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path, rho_ph_dir=pkg_dir);
-inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path, rho_ph_dir=pkg_dir)
+matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path);
+inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path)
 rm_phase!(model)    
 add_phase!(model, inclus, matrix)
 

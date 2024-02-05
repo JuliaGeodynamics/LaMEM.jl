@@ -27,7 +27,8 @@ pkg_dir = pkgdir(LaMEM)
     @test isnothing(out)
 
     # Try direct solvers 
-    ParamFile="input_files/FallingBlock_DirectSolver.dat";
+    ParamFile = "input_files/FallingBlock_DirectSolver.dat";
+    ParamFile = joinpath(pkg_dir,"test", ParamFile);
     out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
     @test isnothing(out)
 
@@ -37,7 +38,8 @@ pkg_dir = pkgdir(LaMEM)
     end
 
     # Try free surface 
-    ParamFile="input_files/Subduction2D_FreeSurface_DirectSolver.dat";
+    ParamFile = "input_files/Subduction2D_FreeSurface_DirectSolver.dat";
+    ParamFile = joinpath(pkg_dir,"test", ParamFile);
     out = run_lamem(ParamFile, 1, "-nstep_max 5")    # 4 core
     @test isnothing(out)
     
@@ -54,7 +56,9 @@ pkg_dir = pkgdir(LaMEM)
     end
 
     # run test with passive tracers
-    out = run_lamem("input_files/Passive_tracer_ex2D.dat", 1, "-nstep_max 10")    # 1 core
+    ParamFile = "input_files/Passive_tracer_ex2D.dat";
+    ParamFile = joinpath(pkg_dir,"test", ParamFile);
+    out = run_lamem(ParamFile, 1, "-nstep_max 10")    # 1 core
     @test isnothing(out)
 
 end

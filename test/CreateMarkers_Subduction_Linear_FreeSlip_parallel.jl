@@ -5,6 +5,7 @@ using GeophysicalModelGenerator
 
 # Load LaMEM particles grid
 ParamFile_2 =   "input_files/Subduction2D_FreeSlip_Particles_Linear_DirectSolver.dat"
+ParamFile_2 =   joinpath(pkg_dir,"test", ParamFile_2);
 Grid_LaMEM  =   ReadLaMEM_InputFile(ParamFile_2)
 
 # Specify slab parameters

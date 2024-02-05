@@ -5,7 +5,7 @@ using LaMEM.Run.LaMEM_jll
 
 export Model, Write_LaMEM_InputFile, create_initialsetup, run_lamem
 
-""";
+"""
     Model
 
 Structure that holds all the information to create a LaMEM input file

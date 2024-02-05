@@ -13,7 +13,6 @@ using GeophysicalModelGenerator
     model  = Model(Grid(coord_x=[-1.0, 0, 1.0], bias_x=[1.0, 1.0], nel_x=[8, 16],
                         coord_y=[-1.0, 0, 1.0], bias_y=[1.0, 1.0], nel_y=[8, 16],
                         coord_z=[-1.0, 0, 1.0], bias_z=[1.0, 1.0], nel_z=[8, 16]),
-
                    Time(nstep_max=2, dt=1, dt_max=10), 
                    Solver(SolverType="multigrid", MGLevels=2),
                    Output(out_dir="test_folder"))

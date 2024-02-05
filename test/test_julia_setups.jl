@@ -85,7 +85,11 @@ using GeophysicalModelGenerator
     rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
+end
 
+
+
+@testset "phase transitions" begin
 
 # ===============================
 # constant model with phase transitions

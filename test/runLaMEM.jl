@@ -1,9 +1,10 @@
 using Test, Base.Sys
 
+pkg_dir = pkgdir(LaMEM)
 @testset "run LaMEM" begin
  
     # first test - run a simulation
-    ParamFile="input_files/FallingBlock_Multigrid.dat";
+    ParamFile=joinpath(pkg_dir,"test","input_files/FallingBlock_Multigrid.dat");
     try
         out = run_lamem(ParamFile, 1,"-nstep_max 1")       # 1 core
         @test isnothing(out)

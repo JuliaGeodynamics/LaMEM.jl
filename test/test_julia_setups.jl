@@ -151,11 +151,17 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = Read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.phase) ≈ 29160.412f0
+    @test  sum(data.fields.phase) ≈ 29047.736f0
     
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
 
+end
+
+
+@testset "various julia setups" begin
+    # This tests requires an update of LaMEM, to allow phase diagram names that are longer
+    #include("test_julia_setup_phase_diagrams.jl")
 end

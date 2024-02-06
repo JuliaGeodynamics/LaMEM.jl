@@ -1,10 +1,10 @@
 # Plotting extensions, that are only loaded when GLMakie is available
 println("Adding Plots.jl plotting extensions for LaMEM")
 
-using LaMEM, GeophysicalModelGenerator, Statistics
+using LaMEM, GeophysicalModelGenerator, Statistics, DelimitedFiles
 using .Plots
 import .Plots: heatmap
-export plot_topo, plot_cross_section
+export plot_topo, plot_cross_section, plot_phasediagram
  
 """
     plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
@@ -66,5 +66,38 @@ function plot_topo(topo::CartData; kwargs...)
                 colormap=:oleron,
                 kwargs...)
                 
+    return hm
+end
+
+
+
+
+""" 
+    hm = plot_phasediagram(name::String="Rhyolite", field=:ρ;  colormap=:batlow, kwargs...)
+
+This creates a plot of a LaMEM phase diagram (computed by MAGEMin or Perple_X).
+Typical available `fields`:
+- `:ρ_solid` (solid density)
+- `:ρ_melt` (melt density)
+- `:ρ` (average density)
+- `:ϕ` (melt fraction)
+
+"""
+function plot_phasediagram(name::String="Rhyolite", field=:ρ;  colormap=:batlow, kwargs...)
+    # read phase diagram
+    PD = read_phase_diagram(name)
+
+    T_C     = PD.T_K[:,1] .- 273.15   
+    P_kbar  = PD.P_bar[1,:] ./ 1e3
+    val     = PD[field]     # field
+
+    # plot
+    hm = heatmap(T_C, P_kbar, val'; 
+                xlabel="T [Celcius]",
+                ylabel="Pressure [kbar]",
+                title="Phase diagram [$field]",
+                colormap=colormap,
+                kwargs...)
+
     return hm
 end

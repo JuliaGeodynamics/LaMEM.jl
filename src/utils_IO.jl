@@ -1,6 +1,6 @@
-using Glob
+using Glob, DelimitedFiles
 
-export clean_directory, changefolder
+export clean_directory, changefolder, read_phase_diagram
 
 """ 
     clean_directory(DirName)
@@ -78,3 +78,37 @@ function changefolder()
         error("This only works on windows and mac")
     end
 end
+
+"""
+    out = read_phase_diagram(name::String)
+
+Reads a phase diagram from a file `name` and returns a NamedTuple with temperature `T`, pressure `P`, melt density `ρ_melt`, solid density `ρ_solid`, density `ρ` and melt fraction `ϕ`
+"""
+function read_phase_diagram(name::String)
+
+    f = open(name)
+
+    # Read dimensions
+    for i = 1:49; readline(f); end
+    minT = parse(Float64,   readline(f))
+    ΔT   = parse(Float64,   readline(f))
+    nT   = parse(Int64,     readline(f))
+    minP = parse(Float64,   readline(f))
+    ΔP   = parse(Float64,   readline(f))
+    nP   = parse(Int64,     readline(f))
+    close(f)
+    
+    data = readdlm(name, skipstart=55);     # read numerical data
+
+    # reshape
+    ρ_melt  = reshape(data[:,1],(nT,nP));
+    ϕ       = reshape(data[:,2],(nT,nP));
+    ρ_solid = reshape(data[:,3],(nT,nP));
+    T_K     = reshape(data[:,4],(nT,nP));
+    P_bar   = reshape(data[:,5],(nT,nP));
+    ρ       = ρ_melt.*ϕ .+ ρ_solid.*(1.0 .- ϕ);
+
+    
+    return (;T_K,P_bar,ρ_melt,ρ_solid,ϕ, ρ)
+end
+

@@ -89,7 +89,7 @@ mutable struct Grid
     function Grid(;
         nmark_x=3, nmark_y=3, nmark_z=3,
         nel_x=[16], nel_y=16, nel_z=16,
-        coord_x=[-10.0, 10.0], coord_y=[-10.0,0.0], coord_z=[-10.0,0.0],
+        coord_x=[-10.0, 10.0], coord_y=[-5.0,5.0], coord_z=[-10.0,0.0],
         x=nothing, y=nothing, z=nothing,
         bias_x=1.0, bias_y=1.0, bias_z=0.0,
         nel=nothing, nmark=nothing
@@ -100,6 +100,15 @@ mutable struct Grid
             nel_x,nel_y,nel_z = nel[1], 1, nel[end];
             if length(nel)==3
                 nel_y = nel[2]
+            end
+
+            if nel_y==1 && isnothing(y)
+                # 2D case and we did not specify y-coordinates, set y such that the aspect ratio is close to 1
+                dx = (x[end]-x[1])/nel_x
+                dz = (z[end]-z[1])/nel_z
+                dy = (dx+dz)/2
+                y = [-dy/2, dy/2]
+                
             end
         end
 
@@ -145,7 +154,7 @@ function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, c
     coord_y  = Float64.(coord_y)
     coord_z  = Float64.(coord_z)
     
-    # compute infromation from file
+    # compute information from file
     W         = coord_x[end]-coord_x[1];
     L         = coord_y[end]-coord_y[1];
     H         = coord_z[end]-coord_z[1];

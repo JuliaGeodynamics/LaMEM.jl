@@ -1,5 +1,5 @@
 # Specify Material properties
-export Materials, Phase, Softening, PhaseTransition, Dike, Write_LaMEM_InputFile
+export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, Write_LaMEM_InputFile
 
 
 
@@ -264,6 +264,52 @@ function show_short(d::Softening)
     return str
 end
 
+"""
+    Defines phase aggregates, which can be useful for visualization purposes
+
+    $(TYPEDFIELDS)
+"""
+Base.@kwdef mutable struct PhaseAggregate
+    "Name of the phase aggregate"
+    name::String    =   "Crust"    
+
+    "Phases to be combined"
+    phaseID::Union{Nothing, Vector{Int64}} =   nothing
+    
+    "number of aggregated phases"
+    numPhase::Union{Nothing,Int64} =   nothing 
+    
+end
+
+function show(io::IO, d::PhaseAggregate)
+    println(io, "PhaseAggregate $(d.name): ")
+    fields    = fieldnames(typeof(d))
+
+    # print fields
+    for f in fields
+        if !isnothing(getfield(d,f)) & (f != :numPhase) & (f != :name)
+            printstyled(io,"  $(rpad(String(f),6)) = $(getfield(d,f)) \n")        
+        end
+    end
+
+    return nothing
+end
+
+function show_short(d::PhaseAggregate)
+    fields    = fieldnames(typeof(d))
+    str = "PhaseAggregate("
+    for (i,f) in enumerate(fields)
+        if !isnothing(getfield(d,f))
+            str=str*"$(String(f))=$(getfield(d,f))"        
+            if i<length(fields)
+                str=str*","
+            end
+        end
+    end
+    if str[end]==','; str = str[1:end-1] end
+    str=str*")"
+    return str
+end
 
 
 """
@@ -456,6 +502,8 @@ Base.@kwdef mutable struct Materials
     "Dikes implemented (mostly for MOR simulations)"
     Dikes::Vector{Dike}             =	[]
 
+    "Phase aggregates (combines different phases such as upper_lower crust into one for visualization purposes)"
+    PhaseAggregates::Vector{PhaseAggregate} = []
 end
 
 # Print info about the structure
@@ -491,6 +539,21 @@ function show(io::IO, d::Materials)
         printstyled(io,"  $(rpad("Softening",15)) = \n", color=:default)        
     end
 
+    # print phase aggregates fields
+    phaseaggregates = d.PhaseAggregates;
+    col = gettext_color(d,Reference, :PhaseAggregates)
+    for (i,phaseaggregate) in enumerate(phaseaggregates)
+        str = show_short(phaseaggregate)
+        if i==1
+            printstyled(io,"  $(rpad("PhaseAggregate",15)) = $(str) \n", color=col)        
+        else
+            printstyled(io,"  $(rpad(" ",15)) = $(str) \n", color=col)        
+        end
+    end
+    if length(phaseaggregates)==0
+        printstyled(io,"  $(rpad("PhaseAggregate",15)) = \n", color=:default)        
+    end
+
     # print Phase Transitions laws fields
     phasetransitions = d.PhaseTransitions;
     col = gettext_color(d,Reference, :PhaseTransitions)
@@ -506,7 +569,7 @@ function show(io::IO, d::Materials)
         printstyled(io,"  $(rpad("PhaseTransition",15)) = \n", color=:default)        
     end
 
-    # print Phase Transitions laws fields
+    # print Dike fields
     dikes = d.Dikes;
     col = gettext_color(d,Reference, :Dikes)
     for (i,dike) in enumerate(dikes)
@@ -535,10 +598,16 @@ function show_short(io::IO, d::Materials)
     if length(d.Dikes)>0
         str = str*"$(length(d.Dikes)) dikes; "
     end
+    if length(d.PhaseAggregates)>0
+        str = str*"$(length(d.PhaseAggregates)) phase aggregates "
+    end
+    
     println(io,str)
 
     return nothing
 end
+
+
 
 
 """
@@ -572,6 +641,28 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io,"")
     end
     
+    # Define phase aggregates
+    println(io, "   # Define phase aggregates (for visualization purposes)")
+    for PhaseAgg in d.PhaseAggregates
+        if isnothing(PhaseAgg.numPhase)
+            PhaseAgg.numPhase = length(PhaseAgg.phaseID)
+        end
+        println(io, "   <PhaseAggStart>")
+        
+        phaseaggregate_fields    = fieldnames(typeof(PhaseAgg))
+        for phaseaggregate in phaseaggregate_fields
+            if !isnothing(getfield(PhaseAgg,phaseaggregate))
+                name = rpad(String(phaseaggregate),15)
+                comment = get_doc(PhaseAggregate, phaseaggregate)
+                data = getfield(PhaseAgg,phaseaggregate) 
+                println(io,"        $name  = $(write_vec(data))     # $(comment)")
+            end
+        end
+
+        println(io,"   <PhaseAggEnd>")
+        println(io,"")
+    end
+
     # Define Dikes parameters
     if length(d.Dikes)>0
         println(io, "   # Define properties for the dike (additional source term/RHS in the continuity equation):   ")

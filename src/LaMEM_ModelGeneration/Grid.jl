@@ -102,8 +102,9 @@ mutable struct Grid
                 nel_y = nel[2]
             end
 
-            if nel_y==1 && isnothing(y)
+            if nel_y==1 && isnothing(y) && !isnothing(x) && !isnothing(z)
                 # 2D case and we did not specify y-coordinates, set y such that the aspect ratio is close to 1
+                @show x, z 
                 dx = (x[end]-x[1])/nel_x
                 dz = (z[end]-z[1])/nel_z
                 dy = (dx+dz)/2

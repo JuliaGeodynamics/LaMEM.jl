@@ -7,7 +7,7 @@ using LaMEM, Test
 model  = Model(Grid(nel=(16,1,16), x=[-100,100], y=[-1,1], z=[-100,0]),
                Time( nstep_max=4),
                Output(out_pressure=1, out_temperature=1, out_j2_dev_stress=1, 
-                        out_dir="example_2", out_file_name="test_phase_transitions", out_fluid_density=1, out_melt_fraction=1),
+                        out_dir="example_2", out_fluid_density=1, out_melt_fraction=1),
                SolutionParams(act_p_shift=1, mfmax=1.0) )
 
 # Add thermal structure               
@@ -24,10 +24,10 @@ model.Grid.Temp[ind] .+= 2
 
 pkg_dir = joinpath(pkgdir(LaMEM),"test")
 
-pd_path = joinpath("./input_files","Rhyolite")
+pd_path = joinpath(pkg_dir,"input_files","Rhyolite")
 
-matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph="Rhyolite");
-inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph="Rhyolite")
+matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path);
+inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path)
 rm_phase!(model)    
 add_phase!(model, inclus, matrix)
 

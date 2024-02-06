@@ -162,5 +162,6 @@ end
 
 
 @testset "various julia setups" begin
-    include("test_julia_setup_phase_diagrams.jl")
+    # This tests requires an update of LaMEM, to allow phase diagram names that are longer
+    #include("test_julia_setup_phase_diagrams.jl")
 end

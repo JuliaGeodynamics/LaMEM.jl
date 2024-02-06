@@ -1,6 +1,7 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
 import LaMEM.Run: run_lamem, run_lamem_save_grid
+import LaMEM: PassiveTracer_Time
 using LaMEM.Run.LaMEM_jll
 
 export Model, Write_LaMEM_InputFile, create_initialsetup, run_lamem
@@ -199,6 +200,23 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
     cd(cur_dir)
 
     return nothing
+end
+
+"""
+"""
+function  PassiveTracer_Time(model::Model, cores::Int64=1, args::String=""; wait=true)
+
+end
+
+"""
+    PT = PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
+
+This reads passive tracers with `ID` from a LaMEM simulation, and returns a named tuple with the temporal 
+evolution of these passive tracers. We return `x`,`y`,`z` coordinates and all fields specified in `FileName` for particles number `ID`.
+
+"""
+function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
+    return PassiveTracer_Time(ID, model.Output.out_file_name, model.Output.out_dir)
 end
 
 """

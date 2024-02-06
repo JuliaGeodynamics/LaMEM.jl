@@ -8,6 +8,7 @@ using Glob, ReadVTK
 
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
 export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
+export PassiveTracer_Time
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -474,4 +475,62 @@ function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=
     end
 
     return names
+end
+
+
+"""
+    PT = PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
+
+This reads passive tracers with `ID` from a LaMEM simulation, and returns a named tuple with the temporal 
+evolution of these passive tracers. We return `x`,`y`,`z` coordinates and all fields specified in the `FileName` for particles number `ID`.
+
+"""
+function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
+    Timestep, _, Time_Myrs  = Read_LaMEM_simulation(FileName, DirName,passive_tracers=true)
+
+    # read first timestep
+    data0, _ = Read_LaMEM_timestep(FileName, Timestep[1], DirName,  passive_tracers=true)
+    
+    nt = extract_passive_tracers_CartData(data0, ID );
+
+    for timestep in Timestep
+        data, t = Read_LaMEM_timestep(FileName, timestep, DirName,  passive_tracers=true);
+
+        nt1 = extract_passive_tracers_CartData(data, ID );
+        
+        nt  = combine_named_tuples(nt,nt1)
+    end
+    nt = merge(nt, (; Time_Myrs) )
+
+    return nt
+end
+
+
+# This extracts one timestep and returns a NamedTuple
+function extract_passive_tracers_CartData(data0::CartData, ID )
+    flds = keys(data0.fields)
+    flds = flds[ findall(flds .!= :ID)]; # remove ID field 
+
+    x = Float64.(data0.x.val[ID.+1])
+    y = Float64.(data0.y.val[ID.+1])
+    z = Float64.(data0.z.val[ID.+1])
+    nt = (; x,y,z)
+    for f in flds
+        nt_temp = NamedTuple{(f,)}( (Float64.(data0.fields[f][ID.+1]),) ) 
+        nt = merge(nt, nt_temp)
+    end
+
+    return nt
+end
+
+# Ctreaye
+function combine_named_tuples(nt,nt1)
+    flds = keys(nt);
+
+    for f in flds
+        nt_temp = NamedTuple{(f,)}( (hcat(nt[f],nt1[f]),) ) 
+        nt = merge(nt, nt_temp)
+    end
+
+    return nt
 end

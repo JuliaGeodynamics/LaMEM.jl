@@ -211,7 +211,7 @@ end
 """
     PT = PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
 
-This reads passive tracers with `ID` from a LaMEM simulation, and returns a named tuple with the temporal 
+This reads passive tracers with `ID` from a LaMEM simulation specified by `model`, and returns a named tuple with the temporal 
 evolution of these passive tracers. We return `x`,`y`,`z` coordinates and all fields specified in `FileName` for particles number `ID`.
 
 """

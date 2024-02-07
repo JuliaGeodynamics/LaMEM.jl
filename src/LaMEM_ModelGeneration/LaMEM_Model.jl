@@ -48,6 +48,9 @@ export Solver
 include("ModelSetup.jl")            # model setup options
 export ModelSetup, geom_Sphere, set_geom!
 
+include("Multigrid.jl")             # Multigrid options
+export Multigrid
+
 include("Output.jl")                # output options
 export Output
 
@@ -70,6 +73,7 @@ export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
 
 include("ErrorChecking.jl")
 export Check_LaMEM_Model
+
 
 # optional dependency
 #if !isdefined(Base, :get_extension)

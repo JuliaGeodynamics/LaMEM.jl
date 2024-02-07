@@ -20,14 +20,20 @@ Base.@kwdef mutable struct Multigrid
     levels::Int64    = 3
      
     """
-    smoothening steps per level 
+    number of smoothening steps per level 
     """
     smooth::Int64    = 5
+
+    """
+    factor for jacbi smoothener oer level
+    """
+    smooth_jacobi_factor::Float64    = 0.5
 
     """
     smoother used at every level
     """
     smoother::String    = "chebyshev"
+
 
     """
     coarse grid ksp type preonly or fgmres
@@ -59,8 +65,40 @@ Base.@kwdef mutable struct Multigrid
     """
     cores_coarse::Int64    = 16
 
+    """
+    GAMG threshold
+    """
+    gamg_threshold::Float64    = 0.05
+
+
+    """
+    GAMG coarse grid equation limit 
+    """
+    gamg_coarse_eq_limit::Int64    = 1000
+
+    """
+    GAMG repartition coarse grids? (default=false)
+    """
+    gamg_repartition::Bool    = false
+
+    """
+    GAMG parallel coarse grid solver? (default=false)
+    """
+    gamg_parallel_coarse::Bool    = false
+    
+
 end
 
+#=
+-crs_telescope_pc_gamg_type <now agg : formerly agg>: Type of AMG method (one of) geo agg classical (PCGAMGSetType)
+-crs_telescope_pc_gamg_repartition: <FALSE : FALSE> Repartion coarse grids (PCGAMGSetRepartition)
+-crs_telescope_pc_gamg_use_sa_esteig: <TRUE : TRUE> Use eigen estimate from smoothed aggregation for smoother (PCGAMGSetUseSAEstEig)
+-crs_telescope_pc_gamg_reuse_interpolation: <TRUE : TRUE> Reuse prolongation operator (PCGAMGReuseInterpolation)
+-crs_telescope_pc_gamg_asm_use_agg: <FALSE : FALSE> Use aggregation aggregates for ASM smoother (PCGAMGASMSetUseAggs)
+-crs_telescope_pc_gamg_use_parallel_coarse_grid_solver: <FALSE : FALSE> Use parallel coarse grid solver (otherwise put last grid on one process) (PCGAMGSetUseParallelCoarseGridSolve)
+-crs_telescope_pc_gamg_cpu_pin_coarse_grids: <FALSE : FALSE> Pin coarse grids to the CPU (PCGAMGSetCpuPinCoarseGrids)
+-crs_telescope_pc_gamg_coarse_grid_layout_type <now spread : formerly spread> compact: place reduced grids on processes in natural order; spread: distribute to whole machine for more memory bandwidth (choose one of) compact spread (PCGAMGSetCoarseGridLayoutType)
+=#
 
 """
 Returns the total degrees of freedom for a LaMEM simulation
@@ -99,8 +137,8 @@ function digitsep(value::Integer; seperator=",", per_separator=3)
     return (isnegative ? "-" : "") * join(groups, seperator)
 end
 
-function print_mg_level(nel::NTuple; pad=(4,4,4), pad_start="")
-    println("$pad_start # | $(lpad(nel[1],pad[1]))×$(lpad(nel[2],pad[2]))×$(lpad(nel[3],pad[3])) |")
+function print_mg_level(nel::NTuple; pad=(4,4,4), pad_start="", pad_end="")
+    println("$(pad_start)# | $(lpad(nel[1],pad[1]))×$(lpad(nel[2],pad[2]))×$(lpad(nel[3],pad[3])) | $(pad_end)")
 end
 
 function max_pad(nel)
@@ -116,12 +154,18 @@ function show(io::IO, d::Multigrid)
 
     dof = compute_dof(nel);   # compute degrees of freedom
     println("# total dof: $(digitsep(dof,seperator="'"))")
+    println("# using $(d.cores) cores")
     
     #
     println(io,"# --- $(d.levels) MG levels ---- ")
     for l=1:d.levels
-        print_mg_level(nel, pad=pad)
-        
+        if l>1
+            pad_end=""
+        else
+            pad_end=" - $(d.cores) cores"
+        end
+        print_mg_level(nel, pad=pad, pad_end=pad_end)
+
         if all(mod.(nel,2) .== 0) && l<d.levels
             nel = nel./2
             nel = Int64.(nel)
@@ -129,35 +173,74 @@ function show(io::IO, d::Multigrid)
             println("Cannot create multigrid for level $(l+1)")
         end
     end
-    println("-gmg_mg_levels $(d.levels)")
+    println("-gmg_pc_mg_levels $(d.levels)")
 
+    # Setup main multigrid
     println("-gmg_pc_type mg")
     println("-gmg_pc_mg_galerkin")
     println("-gmg_pc_mg_type multiplicative")
     println("-gmg_pc_mg_cycle_type v")
     
+    # Setup smoothener per level
+    if d.smoother=="jacobi"
+        println("-gmg_mg_levels_ksp_type richardson")
+        println("-gmg_mg_levels_ksp_richardson_scale 0.5")
+        println("-gmg_mg_levels_pc_type jacobi")
+	elseif d.smoother=="chebyshev"
+        println("-gmg_mg_levels_ksp_type chebyshev")
+    else
+        println("-gmg_mg_levels_pc_type $(d.smoother)")
+    end
+    println("-gmg_mg_levels_ksp_max_it $(d.smooth)")
+    println(" ")
+
     min_cores_coarse = prod(nel)
     if d.cores>min_cores_coarse
         println("Warning: Coarse grid solver can only be done on $(min_cores_coarse) cores")
     end
 
-    #println("#  coarse solver: $(d.coarse_solver)")
-    #println("#  coarse solver requires <$(prod(nel)) cores")
-    
-    reduction_factor  = Int64(d.cores/d.cores_coarse)
     println("    # ---- Coarse Grid: $( d.coarse_pc) ")
-    print_mg_level(nel, pad=pad, pad_start="   ")
-    println("    -crs_ksp_type $(d.coarse_ksp)")
 
+    num_cores_coarse = d.cores_coarse
+    if  d.coarse_pc=="superlu_dist" ||  d.coarse_pc=="mumps"
+        num_cores_coarse = d.cores
+    end
+
+    print_mg_level(nel, pad=pad, pad_start="    ", pad_end = " - $num_cores_coarse cores")
+    reduction_factor  = Int64(d.cores/d.cores_coarse)
     if d.coarse_pc=="telescope"
+        println("    -crs_ksp_type $(d.coarse_ksp)")
         println("    -crs_pc_type telescope")
         println("    -crs_pc_telescope_reduction_factor $(Int64(reduction_factor))")
 
+        if (d.coarse_coarse_pc=="superlu_dist") || (d.coarse_coarse_pc=="mumps")
+            println("    -crs_telescope_ksp_type preonly")
+            println("    -crs_telescope_pc_type lu")
+            println("    -crs_telescope_pc_factor_mat_solver_type $(d.coarse_coarse_pc)")
+
+        elseif (d.coarse_coarse_pc=="gamg") 
+                println("    -crs_telescope_ksp_type $(d.coarse_coarse_ksp)")
+                println("    -crs_telescope_pc_type gamg")
+                println("        # ---- GAMG coarse grid solver")
+                println("        -crs_telescope_pc_gamg_coarse_eq_limit $(d.gamg_coarse_eq_limit)")
+                println("        -crs_telescope_pc_gamg_threshold $(d.gamg_threshold)")
+                println("        -crs_telescope_pc_gamg_repartition $(Int64(d.gamg_repartition))")
+                println("        -crs_telescope_pc_gamg_use_parallel_coarse_grid_solver $(Int64(d.gamg_parallel_coarse))")
+            
+        else
+            println("    -crs_telescope_ksp_type $(d.coarse_coarse_ksp)")
+            println("    -crs_telescope_pc_type $(d.coarse_coarse_pc)")
+        end
+
     elseif d.coarse_pc=="superlu_dist"
+        println("    -crs_ksp_type $(d.coarse_ksp)")
         println("    -crs_pc_type lu")
         println("    -crs_pc_factor_mat_solver_type $(d.coarse_pc)")
+
     elseif d.coarse_pc=="redundant"
+      
         # use a redundant solver
+        println("    -crs_ksp_type $(d.coarse_ksp)")
         println("    -crs_pc_type redundant")
         println("    -crs_pc_redundant_number $reduction_factor")
         println("    -crs_pc_redundant_ksp_type $(d.coarse_coarse_ksp)")
@@ -171,14 +254,7 @@ function show(io::IO, d::Multigrid)
     else
         println("    -crs_pc_type $(d.coarse_pc)")
     end
-    
-    
 
-    # print fields
- #   for f in fields
- #       col = gettext_color(d,Reference, f)
- #       printstyled(io,"  $(rpad(String(f),15)) = $(getfield(d,f)) \n", color=col)        
- #   end
     
     return nothing
 end

@@ -11,6 +11,7 @@ include("IO_functions.jl")
 using .IO_functions
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
 export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
+export PassiveTracer_Time
 export clean_directory, changefolder, read_phase_diagram
 
 # Functions 
@@ -30,9 +31,9 @@ export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
         geom_Sphere,
         Output,
         Multigrid,
-        Materials, Phase, Softening, PhaseTransition, Dike, PassiveTracers,
+        Materials, Phase, Softening, PhaseTransition, PhaseAggregate, Dike, PassiveTracers,
         add_vbox!, rm_vbox!, rm_last_vbox!, 
-        add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!,
+        add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!, add_phaseaggregate!,
         add_phasetransition!, add_dike!, add_geom!, set_air, copy_phase,
         add_topography!, AboveSurface!, BelowSurface!    
 

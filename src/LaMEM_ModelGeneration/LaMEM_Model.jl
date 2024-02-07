@@ -67,7 +67,7 @@ include("GMG_interface.jl")
 export AboveSurface!, BelowSurface!
 
 include("Utils.jl")
-export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!,
+export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!, add_phaseaggregate!, 
         add_phasetransition!, add_dike!, add_geom!, cross_section, add_topography!
 
 

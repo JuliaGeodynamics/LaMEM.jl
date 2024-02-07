@@ -3,7 +3,7 @@ import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
-        add_softening!, add_phasetransition!, 
+        add_softening!, add_phasetransition!, add_phaseaggregate!,
         add_dike!, add_geom! , cross_section,
         set_air, copy_phase
 
@@ -153,6 +153,15 @@ This adds a plastic softening law `soft` to `model`
 """
 function add_softening!(model::Model, soft::Softening) 
     push!(model.Materials.SofteningLaws, soft);
+    return nothing
+end
+
+"""
+    add_phaseaggregate!(model::Model, phaseagg::PhaseAggregate)
+This adds a phase aggregate law `phaseagg` to `model`
+"""
+function add_phaseaggregate!(model::Model, phaseagg::PhaseAggregate) 
+    push!(model.Materials.PhaseAggregates, phaseagg);
     return nothing
 end
 

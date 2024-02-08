@@ -4,7 +4,7 @@ import LaMEM.Run: run_lamem, run_lamem_save_grid
 import LaMEM: PassiveTracer_Time
 using LaMEM.Run.LaMEM_jll
 
-export Model, Write_LaMEM_InputFile, create_initialsetup, run_lamem
+export Model, Write_LaMEM_InputFile, create_initialsetup, run_lamem, prepare_lamem
 
 """
     Model
@@ -203,6 +203,41 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 end
 
 """
+    prepare_lamem(model::Model, cores::Int64=1, args:String=""; verbose=false)
+
+Prepares a LaMEM run for the parameters that are specified in `model`, without running the simulation
+
+    1) Create the `*.dat` file
+    2) Write markers to disk
+
+This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster)
+
+Set `model.Output.write_VTK_setup` to `true` if you want to write a VTK file of the model setup
+
+"""
+function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false)
+
+    println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
+    cur_dir = pwd(); 
+    if !isempty(model.Output.out_dir)
+        cd(model.Output.out_dir)
+    end
+    create_initialsetup(model, cores, args,  verbose=verbose);    
+    
+    cd(cur_dir)
+
+    println("Generated output generated for $cores cores:")
+    println("   Base directory       : $(pwd())")
+    println("   LaMEM parameter file : $(model.Output.out_dir)/$(model.Output.param_file_name)")
+    println("   Marker files         : $(model.Output.out_dir)/markers/")
+    println("Copy these files over to the computer where you want to run your simulation")
+
+    return nothing
+end
+
+
+
+"""
 """
 function  PassiveTracer_Time(model::Model, cores::Int64=1, args::String=""; wait=true)
 
@@ -220,7 +255,7 @@ function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
 end
 
 """
-    create_initialsetup(model::Model, cores::Int64=1, args::String="")
+    create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=verbose)
 
 Creates the initial model setup of LaMEM from `model`, which includes:
 - Writing the LaMEM (*.dat) input file
@@ -228,7 +263,7 @@ Creates the initial model setup of LaMEM from `model`, which includes:
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
 
 """
-function create_initialsetup(model::Model, cores::Int64=1, args::String="")
+function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true)
     
     # Move to the working directory
     cur_dir = pwd()
@@ -250,9 +285,9 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String="")
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
-            Save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile)
+            Save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
         else
-            Save_LaMEMMarkersParallel(Model3D)
+            Save_LaMEMMarkersParallel(Model3D, verbose=verbose)
         end
     end
 

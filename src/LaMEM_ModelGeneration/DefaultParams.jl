@@ -64,10 +64,10 @@ function UpdateDefaultParameters(model::Model)
     end
         
     # exx_strain_rates: no need to specify exx_num_periods
-    if length(model.BoundaryConditions.exx_strain_rates)==1 & model.BoundaryConditions.exx_num_periods>1
+    if length(model.BoundaryConditions.exx_strain_rates)==1 && model.BoundaryConditions.exx_num_periods>1
         # we only specified a single strainrate so it'll be constant with time
         model.BoundaryConditions.exx_num_periods = 1
-        model.BoundaryConditions.exx_time_delims = 1e20;
+        model.BoundaryConditions.exx_time_delims = [1e20];
     end
 
     if  model.FreeSurface.surf_use==1

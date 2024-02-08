@@ -145,7 +145,65 @@ Base.@kwdef mutable struct BoundaryConditions
     "List of added velocity boxes"
     VelocityBoxes::Vector{VelocityBox} = []
 
+    "Face identifier  (Left; Right; Front; Back; CompensatingInflow)"
+    bvel_face::Union{Nothing,String}    =         nothing
+
+    "Velocity on opposite side: -1 for inverted velocity; 0 for no velocity; 1 for the same direction of velocity"
+    bvel_face_out::Union{Nothing,Int64}  =         nothing
+
+    "Bottom coordinate of inflow window"
+    bvel_bot::Union{Nothing,Float64}    =        nothing
+
+    "Top coordinate of inflow window"
+    bvel_top::Union{Nothing,Float64}        =        nothing
+
+    "Number of periods when velocity changes (Optional)"
+    velin_num_periods::Union{Nothing,Int64}    =         nothing
+ 
+    "Change velocity at 2 and 5 Myrs (one less than number of intervals, not required for one interval) (Optional)"
+    velin_time_delims::Union{Nothing,Vector}    =        nothing
+    
+    "inflow velocity for each time interval(Multiple values required if  velin_num_periods>1)"
+    bvel_velin::Union{Nothing,Vector}       =   nothing
+    
+    "outflow velocity (if not specified, computed from mass balance)"
+    bvel_velout::Union{Nothing,Float64}     =   nothing      
+
+    "vert.distance from bvel_bot and bvel_top over which velocity is reduced linearly"
+    bvel_relax_d::Union{Nothing,Float64}    =   nothing                    
+
+    "bottom inflow velocity for use with bvel_face=CompensatingInflow"
+    bvel_velbot::Union{Nothing,Int64}       =   nothing   	                     
+
+    "top inflow velocity for use with bvel_face=CompensatingInflow"
+    bvel_veltop::Union{Nothing,Int64}       =   nothing                
+
+    "bvel_temperature_inflow: Thermal age of the plate, which can be constant if set to Fixed_thermal_age or Constant_T_inflow (Temperature of the inflow material is constant everywhere)"
+    bvel_temperature_inflow::Union{Nothing,String}   =     nothing
+
+    "In dimensional unit. If the user specify this value, he needs to specify the temperature of the mantle and top as well"
+    bvel_thermal_age::Union{Nothing,Float64}         =   nothing                    
+
+    "In dimensional unit. Temperature of the mantle"
+    bvel_temperature_mantle::Union{Nothing,Float64}  =   nothing                    
+
+    "In dimensional unit. temperature of the top"        
+    bvel_temperature_top::Union{Nothing,Float64}     =   nothing                    
+
+    "Constant temperature inflow. "      
+    bvel_temperature_constant::Union{Nothing,Float64}    =   nothing                    
+      
+    "Imposes a stratigraphy of phase injected in the inflow boundary [if undefined, it uses the phase close to the boundary]"
+    bvel_num_phase::Union{Nothing,Int64}       =   nothing                      
+
+    "phase number of inflow material [if undefined, it uses the phase close to the boundary] from bottom to top"
+    bvel_phase::Union{Nothing,Vector{Int64}}       =   nothing                 
+
+    "Depth interval of injection of the phase (the interval is defined by num_phase+1 coordinates). e.g. [-120 -100 -10 0    ]"
+    bvel_phase_interval::Union{Nothing,Vector{Float64}}       =   nothing              
+
 end
+
 
 # Print info about the structure
 function show(io::IO, d::BoundaryConditions)

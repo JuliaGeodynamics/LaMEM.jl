@@ -5,7 +5,9 @@ export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
         add_softening!, add_phasetransition!, add_phaseaggregate!,
         add_dike!, add_geom! , cross_section,
-        set_air, copy_phase
+        set_air, copy_phase,
+        isdefault
+
 
 
 """
@@ -370,4 +372,22 @@ function add_topography!(model::Model, topography::CartData; surf_air_phase=0, s
     model.BoundaryConditions.open_top_bound=open_top_bound
 
     return nothing
+end
+
+
+"""
+    isdefault(s1::S, s_default::S) 
+
+Checks whether a struct `s1` has default parameters `s_default`
+"""
+function isdefault(s1, s_default)
+
+    default = true
+    for f in fieldnames(typeof(s1))
+        if getfield(s1,f) !=   getfield(s_default,f)
+            default = false
+        end
+    end
+
+    return default
 end

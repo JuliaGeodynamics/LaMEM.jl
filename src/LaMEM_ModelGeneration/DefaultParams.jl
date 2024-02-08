@@ -35,6 +35,29 @@ function UpdateDefaultParameters(model::Model)
         model.SolutionParams.act_p_shift = 1
     end
 
+    # output additional fields at all times; stress, strainrate, density, pressure, velocity, temperature
+
+    # is using MG and 2D , set da_refine_y to 1 
+
+    # if we have a free surface, you'll generally want output  
+    if  model.FreeSurface.surf_use==1
+        model.Output.out_surf=1
+        model.Output.out_surf_pvd         = 1 
+        model.Output.out_surf_velocity    = 1 
+        model.Output.out_surf_topography  = 1 
+        model.Output.out_surf_amplitude   = 1  
+    end
+
+    # Scaling: if we use default values, employ smarter default values based on the model setup
+    if isdefault(model.Scaling,Scaling())
+        le = abs(diff(model.Grid.coord_z)[1])*km    # length
+        η  = model.SolutionParams.eta_ref*Pas       # viscosity
+        model.Scaling = Scaling(GEO_units(length=le, viscosity = η))
+    end
+        
+    # exx_strain_rates: no need to specify exx_num_periods
+
+    # if surf_use=1 and surf_level==nothing, set it to zero
 
     return model
 end

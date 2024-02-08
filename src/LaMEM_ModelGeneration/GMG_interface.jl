@@ -2,7 +2,7 @@
 #
 # Some wrappers around GMG routines
 
-import GeophysicalModelGenerator: AddBox!, AddSphere!, AddEllipsoid!, AddCylinder!, AboveSurface, BelowSurface
+import GeophysicalModelGenerator: AddBox!, AddLayer!, AddSphere!, AddEllipsoid!, AddCylinder!, AboveSurface, BelowSurface
 export AboveSurface!, BelowSurface!
 
 """
@@ -12,10 +12,21 @@ export AboveSurface!, BelowSurface!
             T=nothing )
 
 Adds a box with phase & temperature structure to a 3D model setup. This simplifies creating model geometries in geodynamic models
-See the documentation of the GMG routine
+See the documentation of the GMG routine for the full options.
 
 """
 AddBox!(model::Model; kwargs...) = AddBox!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
+
+"""
+    AddLayer!(model::Model; xlim, ylim, zlim=Tuple{2},
+            phase = ConstantPhase(1),
+            T=nothing )
+
+Adds a layer with phase & temperature structure to a 3D model setup. This simplifies creating model geometries in geodynamic models
+See the documentation of the GMG routine for the full options.
+
+"""
+AddLayer!(model::Model; kwargs...) = AddLayer!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
 
 
 """

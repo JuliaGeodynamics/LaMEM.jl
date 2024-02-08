@@ -35,9 +35,17 @@ function UpdateDefaultParameters(model::Model)
         model.SolutionParams.act_p_shift = 1
     end
 
-    # output additional fields at all times; stress, strainrate, density, pressure, velocity, temperature
+    # Output some fields @ all times
+    model.Output.out_density          = 1
+    model.Output.out_j2_dev_stress    = 1 
+    model.Output.out_j2_strain_rate   = 1 
+    model.Output.out_pressure         = 1 
+    model.Output.out_temperature      = 1  
 
-    # is using MG and 2D , set da_refine_y to 1 
+    # if using multigrid in a 2D setup
+    if model.Solver.SolverType=="multigrid" &&  model.Grid.nel_y[1]==1
+        push!(model.Solver.PETSc_options,"-da_refine_y 1") 
+    end
 
     # if we have a free surface, you'll generally want output  
     if  model.FreeSurface.surf_use==1
@@ -56,8 +64,23 @@ function UpdateDefaultParameters(model::Model)
     end
         
     # exx_strain_rates: no need to specify exx_num_periods
+    if length(model.BoundaryConditions.exx_strain_rates)==1 & model.BoundaryConditions.exx_num_periods>1
+        # we only specified a single strainrate so it'll be constant with time
+        model.BoundaryConditions.exx_num_periods = 1
+        model.BoundaryConditions.exx_time_delims = 1e20;
+    end
 
-    # if surf_use=1 and surf_level==nothing, set it to zero
+    if  model.FreeSurface.surf_use==1
+        # if we use a free surface & surf_level==nothing, set it to zero
+        if isnothing(model.FreeSurface.surf_level)
+            model.FreeSurface.surf_level = 0.0;
+        end
+        if isnothing(model.FreeSurface.surf_air_phase)
+            model.FreeSurface.surf_air_phase = 0
+        end
+
+        
+    end
 
     return model
 end

@@ -492,13 +492,14 @@ function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, FileName::String, Di
     data0, _ = Read_LaMEM_timestep(FileName, Timestep[1], DirName,  passive_tracers=true)
     
     nt = extract_passive_tracers_CartData(data0, ID );
-
     for timestep in Timestep
         data, t = Read_LaMEM_timestep(FileName, timestep, DirName,  passive_tracers=true);
 
         nt1 = extract_passive_tracers_CartData(data, ID );
-        
-        nt  = combine_named_tuples(nt,nt1)
+        if timestep>Timestep[1]
+            # We already added the first one above
+            nt  = combine_named_tuples(nt,nt1)
+        end
     end
     nt = merge(nt, (; Time_Myrs) )
 

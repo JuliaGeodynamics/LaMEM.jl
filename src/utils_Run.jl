@@ -1,4 +1,6 @@
 export remove_popup_messages_mac, show_paths_LaMEM, read_LaMEM_logfile
+using MarkdownTables
+
 
 """
     remove_popup_messages_mac()
@@ -76,28 +78,43 @@ end
 This reads a LaMEM logfile (provided it was run with "-log_view") and collects key results from it; 
 mostly for scalability tests on HPC machines. It returns a markdown summary
 """
-function read_LaMEM_logfile(name::String)
+function read_LaMEM_logfile(Filename::String; ID=nothing)
     
     # Read file as vector of strings
-    f = open(name)
+    f = open(Filename)
     lines = readlines(f)
     close(f)
 
     # Extract information from logfile
-    cores       = extract_info_logfile(lines, "Total number of cpu                  :")
+    Cores       = extract_info_logfile(lines, "Total number of cpu                  :")
     FineGrid    = extract_info_logfile(lines, "Fine grid cells [nx, ny, nz]         :")
     CoarseGrid  = extract_info_logfile(lines, "Global coarse grid [nx,ny,nz] :")
-    levels      = parse(Int64,extract_info_logfile(lines, "Number of multigrid levels    :"))
+    Levels      = parse(Int64,extract_info_logfile(lines, "Number of multigrid levels    :"))
 
-    total_time  = extract_info_logfile(lines, "Time (sec):", LaMEM=false)
-    coarse_time = extract_info_logfile(lines, "MGSmooth Level 0", LaMEM=false, entry=3)
+    TotalTime_s  = extract_info_logfile(lines, "Time (sec):", LaMEM=false)
+    CoarseTime_s = extract_info_logfile(lines, "MGSmooth Level 0", LaMEM=false, entry=3)
+    Iter         = Int64(extract_info_logfile(lines, "SNESSolve", LaMEM=false, entry=1))
+
 
     # Retrieve memory usage if we have system with slurm (use seff)
+    if isnothing(ID)
+        ID = split(split(Filename,".")[1],"_")[end]
+    end
+    lines_mem = execute_command("seff $ID"); # run code
+    if !isnothing(lines_mem)
+        Memory  = extract_info_logfile(lines, "Memory Utilized:", LaMEM=false, entry=1)
+    else
+        Memory = "-"
+    end
 
-
+    # print as Markdown table
+    table = (; FineGrid, Cores, CoarseGrid, Levels, Iter, TotalTime_s, CoarseTime_s, Memory, Filename) 
+    println(markdown_table([table], String))
 
     return lines
 end
+
+add_str(str, keyword, pad) = str*"| $(rpad(keyword,pad))"
 
 """
 

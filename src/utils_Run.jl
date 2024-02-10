@@ -1,4 +1,4 @@
-export remove_popup_messages_mac, show_paths_LaMEM
+export remove_popup_messages_mac, show_paths_LaMEM, read_LaMEM_logfile
 
 """
     remove_popup_messages_mac()
@@ -70,3 +70,100 @@ function show_paths_LaMEM()
 
     return nothing
 end
+
+
+"""
+This reads a LaMEM logfile (provided it was run with "-log_view") and collects key results from it; 
+mostly for scalability tests on HPC machines. It returns a markdown summary
+"""
+function read_LaMEM_logfile(name::String)
+    
+    # Read file as vector of strings
+    f = open(name)
+    lines = readlines(f)
+    close(f)
+
+    # Extract information from logfile
+    cores       = extract_info_logfile(lines, "Total number of cpu                  :")
+    FineGrid    = extract_info_logfile(lines, "Fine grid cells [nx, ny, nz]         :")
+    CoarseGrid  = extract_info_logfile(lines, "Global coarse grid [nx,ny,nz] :")
+    levels      = parse(Int64,extract_info_logfile(lines, "Number of multigrid levels    :"))
+
+    total_time  = extract_info_logfile(lines, "Time (sec):", LaMEM=false)
+    coarse_time = extract_info_logfile(lines, "MGSmooth Level 0", LaMEM=false, entry=3)
+
+    # Retrieve memory usage if we have system with slurm (use seff)
+
+
+
+    return lines
+end
+
+"""
+
+    value = extract_info_logfile(lines, keyword::String; entry=1, LaMEM=true)
+
+Internal function to extract information from the logfile
+
+Note that the LaMEM keywords should contain ":" at the end, while the PETSc keywords should not, but we have to indicate the entry number for the PETSc keywords.
+Example LaMEM keyword:
+```julia
+julia> val = extract_info_logfile(lines, "Fine grid cells [nx, ny, nz]         :")
+"[512, 256, 256]"
+```
+
+Example PETSc keyword:
+```julia
+julia> coarse_grid_solve = extract_info_logfile(lines, "MGSmooth Level 0", LaMEM=false, entry=3)
+9.9174
+```
+"""
+function extract_info_logfile(lines, keyword::String; entry=1, LaMEM=true)
+    # find the line with the keyword
+    idx = findfirst(x->occursin(keyword,x), lines)
+    if idx==nothing
+        return "-"
+    end
+
+    # extract the value
+    line_no_keyword = strip(split(lines[idx],keyword)[end])
+    if LaMEM
+        # LaMEM output is simply everything after the keyword
+        value = line_no_keyword
+    else
+        # PETSc output usually is a table; transfer this to a Float64
+        values_vec = split(line_no_keyword," ")
+        value = values_vec[entry]
+        value = parse(Float64,value)
+    end
+    
+    return value
+end
+
+
+"""
+    str = execute_command(command="ls")    
+
+Executes a command-line code and returns the output as a string
+"""
+function execute_command(command="ls")
+    
+    # execute command 
+    io = IOBuffer();
+    cmd = pipeline(`$command`; stdout=io, stderr=devnull);
+
+    str = nothing
+    try 
+        run(cmd);
+        str = String(take!(io))
+        str = split(str,"\n")
+    catch
+        str = nothing
+    end
+
+    return str
+end
+
+
+
+

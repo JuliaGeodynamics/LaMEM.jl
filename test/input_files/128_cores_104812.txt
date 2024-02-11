@@ -1,0 +1,566 @@
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Feb  9 2024 - Time: 14:06:48 	    
+     Version : 2.1.3 
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : volcano_test_v2.dat 
+   Adding PETSc option: -snes_ksp_ew
+   Adding PETSc option: -snes_ksp_ew_version 3
+   Adding PETSc option: -snes_ksp_ew_rtol0 1e-3
+   Adding PETSc option: -snes_ksp_ew_rtolmax 1e-2
+   Adding PETSc option: -snes_ksp_ew_gamma 0.9
+   Adding PETSc option: -snes_ksp_ew_alpha 2.0
+   Adding PETSc option: -snes_npicard 5
+   Adding PETSc option: -snes_max_it 1
+   Adding PETSc option: -snes_rtol 1e-5
+   Adding PETSc option: -snes_atol 1e-6
+   Adding PETSc option: -snes_PicardSwitchToNewton_rtol 1e-3
+   Adding PETSc option: -snes_linesearch_monitor
+   Adding PETSc option: -gmg_pc_type mg
+   Adding PETSc option: -gmg_pc_mg_galerkin
+   Adding PETSc option: -gmg_pc_mg_type multiplicative
+   Adding PETSc option: -gmg_pc_mg_cycle_type v
+   Adding PETSc option: -gmg_mg_levels_ksp_type richardson
+   Adding PETSc option: -gmg_mg_levels_ksp_richardson_scale 0.5
+   Adding PETSc option: -gmg_mg_levels_ksp_max_it 5
+   Adding PETSc option: -gmg_mg_levels_pc_type jacobi
+   Adding PETSc option: -gmg_pc_mg_levels 4
+   Adding PETSc option: -crs_ksp_type preonly
+   Adding PETSc option: -crs_pc_type telescope
+   Adding PETSc option: -crs_pc_telescope_reduction_factor 1
+   Adding PETSc option: -crs_telescope_ksp_type gmres
+   Adding PETSc option: -crs_telescope_ksp_rtol 1e-5
+   Adding PETSc option: -crs_telescope_pc_type gamg
+   Adding PETSc option: -crs_telescope_pc_gamg_threshold 0.05
+   Adding PETSc option: -crs_telescope_pc_gamg_coarse_eq_limit 1000
+Finished parsing input file 
+--------------------------------------------------------------------------
+Scaling parameters:
+   Temperature : 1000. [C/K] 
+   Length      : 1000. [m] 
+   Viscosity   : 1e+20 [Pa*s] 
+   Stress      : 1e+09 [Pa] 
+--------------------------------------------------------------------------
+Time stepping parameters:
+   Simulation end time          : 0.001 [Myr] 
+   Maximum number of steps      : 1 
+   Time step                    : 1e-07 [Myr] 
+   Minimum time step            : 1e-09 [Myr] 
+   Maximum time step            : 0.001 [Myr] 
+   Time step increase factor    : 0.5 
+   CFL criterion                : 0.5 
+   CFLMAX (fixed time steps)    : 0.8 
+   Output every [n] steps       : -1 
+--------------------------------------------------------------------------
+Grid parameters:
+   Total number of cpu                  : 512 
+   Processor grid  [nx, ny, nz]         : [16, 4, 8]
+   Fine grid cells [nx, ny, nz]         : [512, 256, 256]
+   Number of cells                      :  33554432
+   Number of faces                      :  100990976
+   Maximum cell aspect ratio            :  1.50000
+   Lower coordinate bounds [bx, by, bz] : [-5., -10., -5.]
+   Upper coordinate bounds [ex, ey, ez] : [15., 5., 5.]
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+Material parameters: 
+--------------------------------------------------------------------------
+- Melt factor mfc = 0.000000   Phase ID : 0     --   air 
+   (dens)   : rho = 1. [kg/m^3]  
+   (elast)  : G = 1e+10 [Pa]  Kb = 1.33333e+10 [Pa]  E = 2.4e+10 [Pa]  nu = 0.2 [ ]  Vp = 163299. [m/s]  Vs = 100000. [m/s]  
+   (diff)   : eta = 1e+17 [Pa*s]  Bd = 5e-18 [1/Pa/s]  
+   (plast)  : ch = 2e+07 [Pa]  fr = 30. [deg]  
+   (temp)   : alpha = 3e-05 [1/K]  Cp = 1000. [J/kg/K]  k = 30. [W/m/k]  
+
+- Melt factor mfc = 0.000000   Phase ID : 1     --   Volcano 
+   (dens)   : rho = 2900. [kg/m^3]  
+   (elast)  : G = 3e+10 [Pa]  Kb = 6.5e+10 [Pa]  E = 7.8e+10 [Pa]  nu = 0.3 [ ]  Vp = 6017.22 [m/s]  Vs = 3216.34 [m/s]  
+   (diff)   : eta = 1e+23 [Pa*s]  Bd = 5e-24 [1/Pa/s]  
+   (plast)  : ch = 5e+06 [Pa]  fr = 10. [deg]  eta_st = 5e+20 [Pa*s]  
+   (temp)   : alpha = 3e-05 [1/K]  Cp = 1000. [J/kg/K]  k = 3. [W/m/k]  
+
+- Melt factor mfc = 0.000000   Phase ID : 2     --   WeakZone 
+   (dens)   : rho = 2900. [kg/m^3]  
+   (elast)  : G = 3e+10 [Pa]  Kb = 6.5e+10 [Pa]  E = 7.8e+10 [Pa]  nu = 0.3 [ ]  Vp = 6017.22 [m/s]  Vs = 3216.34 [m/s]  
+   (diff)   : eta = 1e+23 [Pa*s]  Bd = 5e-24 [1/Pa/s]  
+   (plast)  : ch = 1e+06 [Pa]  fr = 5. [deg]  eta_st = 5e+20 [Pa*s]  
+   (temp)   : alpha = 3e-05 [1/K]  Cp = 1000. [J/kg/K]  k = 3. [W/m/k]  
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+Free surface parameters: 
+   Sticky air phase ID       : 0 
+   Initial surface level     : 5. [km] 
+   Erosion model             : none
+   Sedimentation model       : none
+   Correct marker phases     @ 
+   Maximum surface slope     : 45. [deg]
+--------------------------------------------------------------------------
+Loading topography redundantly from file(s) <VolcanoTopography.topo> ... done (0.16653 sec)
+--------------------------------------------------------------------------
+Boundary condition parameters: 
+   No-slip boundary mask [lt rt ft bk bm tp]  : 0 0 0 0 0 0 
+   Open top boundary                          @ 
+   Top boundary temperature                   : 0. [C] 
+   Bottom boundary temperature                : 800. [C] 
+--------------------------------------------------------------------------
+Solution parameters & controls:
+   Gravity [gx, gy, gz]                    : [0., 0., -9.81] [m/s^2] 
+   Surface stabilization (FSSA)            :  1. 
+   Steady state initial temperature step   : 0.1 [Myr] 
+   Compute initial guess                   @ 
+   Use lithostatic pressure for creep      @ 
+   Limit pressure at first iteration       @ 
+   Minimum viscosity                       : 1e+17 [Pa*s] 
+   Maximum viscosity                       : 1e+23 [Pa*s] 
+   Reference viscosity (initial guess)     : 1e+22 [Pa*s] 
+   Reference temperature                   : 20. [C] 
+   Minimum cohesion                        : 1e+06 [Pa] 
+   Minimum friction                        : 1. [deg] 
+   Ultimate yield stress                   : 1e+09 [Pa] 
+   Max. melt fraction (viscosity, density) : 0.15    
+   Rheology iteration number               : 25  
+   Rheology iteration tolerance            : 1e-06    
+   Ground water level type                 : none 
+--------------------------------------------------------------------------
+Advection parameters:
+   Advection scheme              : Runge-Kutta 2-nd order
+   Periodic marker advection     : 0 0 0 
+   Marker setup scheme           : geometric primitives
+   Velocity interpolation scheme : MINMOD (correction + MINMOD)
+   Marker control type           : AVD for cells + corner insertion
+   Markers per cell [nx, ny, nz] : [3, 3, 3] 
+   Marker distribution type      : random noise
+   Background phase ID           : 1 
+--------------------------------------------------------------------------
+Reading geometric primitives ... done (0.187174 sec)
+--------------------------------------------------------------------------
+Output parameters:
+   Output file name                        : Volcano_test 
+   Write .pvd file                         : no 
+   Phase                                   @ 
+   Total effective viscosity               @ 
+   Creep effective viscosity               @ 
+   Velocity                                @ 
+   Pressure                                @ 
+--------------------------------------------------------------------------
+Preconditioner parameters: 
+   Matrix type                   : monolithic
+   Preconditioner type           : coupled Galerkin geometric multigrid
+   Global coarse grid [nx,ny,nz] : [32, 16, 16]
+   Local coarse grid  [nx,ny,nz] : [2, 4, 2]
+   Number of multigrid levels    :  5
+--------------------------------------------------------------------------
+Solver parameters specified: 
+   Outermost Krylov solver       : gmres 
+   Solver type                   : multigrid 
+   Multigrid smoother levels KSP : richardson 
+   Multigrid dampening parameter : 0.500000 
+   Multigrid smoother levels PC  : jacobi 
+   Number of smoothening steps   : 5 
+   Coarse level KSP              : preonly 
+   Coarse level PC               : telescope 
+--------------------------------------------------------------------------
+Initializing pressure with lithostatic pressure ... done (0.158216 sec)
+--------------------------------------------------------------------------
+============================== INITIAL GUESS =============================
+--------------------------------------------------------------------------
+  0 SNES Function norm 2.439994737035e+05 
+  0 PICARD ||F||/||F0||=1.000000e+00 
+  Linear js_ solve converged due to CONVERGED_RTOL iterations 2
+  1 SNES Function norm 8.917793696726e+02 
+--------------------------------------------------------------------------
+**************   NONLINEAR SOLVER FAILED TO CONVERGE!   ****************** 
+--------------------------------------------------------------------------
+SNES Divergence Reason  : maximum iterations reached
+Number of iterations    : 1
+SNES solution time      : 13.5128 (sec)
+--------------------------------------------------------------------------
+Residual summary: 
+   Continuity: 
+      |Div|_inf = 2.945763145045e-04 
+      |Div|_2   = 3.533429627079e-01 
+   Momentum: 
+      |mRes|_2  = 8.917792996714e+02 
+--------------------------------------------------------------------------
+================================= STEP 1 =================================
+--------------------------------------------------------------------------
+Current time        : 0.00000000 [Myr] 
+Tentative time step : 0.00000010 [Myr] 
+--------------------------------------------------------------------------
+  0 SNES Function norm 3.416633131850e+01 
+  0 PICARD ||F||/||F0||=1.000000e+00 
+  Linear js_ solve converged due to CONVERGED_RTOL iterations 4
+  1 SNES Function norm 8.456179432173e+01 
+--------------------------------------------------------------------------
+**************   NONLINEAR SOLVER FAILED TO CONVERGE!   ****************** 
+--------------------------------------------------------------------------
+SNES Divergence Reason  : maximum iterations reached
+Number of iterations    : 1
+SNES solution time      : 4.80733 (sec)
+--------------------------------------------------------------------------
+Residual summary: 
+   Continuity: 
+      |Div|_inf = 5.402547385526e-01 
+      |Div|_2   = 6.181846089557e+01 
+   Momentum: 
+      |mRes|_2  = 5.769900303657e+01 
+--------------------------------------------------------------------------
+Actual time step : 0.00000 [Myr] 
+--------------------------------------------------------------------------
+Performing marker control (standard algorithm)
+Marker control [0]: (Corners ) injected 171 markers in 2.2890e-01 s 
+--------------------------------------------------------------------------
+=========================== SOLUTION IS DONE! ============================
+--------------------------------------------------------------------------
+Total solution time : 26.217 (sec) 
+--------------------------------------------------------------------------
+****************************************************************************************************************************************************************
+***                                WIDEN YOUR WINDOW TO 160 CHARACTERS.  Use 'enscript -r -fCourier9' to print this document                                 ***
+****************************************************************************************************************************************************************
+
+------------------------------------------------------------------ PETSc Performance Summary: ------------------------------------------------------------------
+
+/lustre/project/nhr-nmlcdgt/Boris/ScalingTest_Feb24/./LaMEM on a  named cpu0069 with 512 processors, by kaus Fri Feb  9 21:42:58 2024
+Using Petsc Release Version 3.18.6, Mar 30, 2023 
+
+                         Max       Max/Min     Avg       Total
+Time (sec):           2.626e+01     1.001   2.624e+01
+Objects:              7.010e+02     1.000   7.010e+02
+Flops:                1.436e+09     1.033   1.430e+09  7.320e+11
+Flops/sec:            5.475e+07     1.034   5.449e+07  2.790e+10
+MPI Msg Count:        1.749e+04     3.701   1.274e+04  6.521e+06
+MPI Msg Len (bytes):  7.263e+07     2.072   4.955e+03  3.231e+10
+MPI Reductions:       7.190e+02     1.000
+
+Flop counting convention: 1 flop = 1 real number operation of type (multiply/divide/add/subtract)
+                            e.g., VecAXPY() for real vectors of length N --> 2N flops
+                            and VecAXPY() for complex vectors of length N --> 8N flops
+
+Summary of Stages:   ----- Time ------  ----- Flop ------  --- Messages ---  -- Message Lengths --  -- Reductions --
+                        Avg     %Total     Avg     %Total    Count   %Total     Avg         %Total    Count   %Total
+ 0:      Main Stage: 4.2834e+00  16.3%  6.8241e+08   0.1%  1.028e+06  15.8%  1.806e+03        5.7%  3.700e+02  51.5%
+ 1:   Initial guess: 3.3236e+00  12.7%  6.8121e+10   9.3%  1.230e+06  18.9%  7.039e+03       26.8%  2.150e+02  29.9%
+ 2:      SNES solve: 1.3942e+00   5.3%  8.2966e+10  11.3%  8.524e+05  13.1%  6.099e+03       16.1%  7.300e+01  10.2%
+ 3:  Advect markers: 3.4375e+00  13.1%  0.0000e+00   0.0%  2.732e+05   4.2%  2.990e+03        2.5%  8.000e+00   1.1%
+ 4:             I/O: 6.3322e-07   0.0%  0.0000e+00   0.0%  0.000e+00   0.0%  0.000e+00        0.0%  0.000e+00   0.0%
+ 6:        MG Apply: 1.3799e+01  52.6%  5.8026e+11  79.3%  3.137e+06  48.1%  5.030e+03       48.8%  3.500e+01   4.9%
+
+------------------------------------------------------------------------------------------------------------------------
+See the 'Profiling' chapter of the users' manual for details on interpreting output.
+Phase summary info:
+   Count: number of times phase was executed
+   Time and Flop: Max - maximum over all processors
+                  Ratio - ratio of maximum to minimum over all processors
+   Mess: number of messages sent
+   AvgLen: average message length (bytes)
+   Reduct: number of global reductions
+   Global: entire computation
+   Stage: stages of a computation. Set stages with PetscLogStagePush() and PetscLogStagePop().
+      %T - percent time in this phase         %F - percent flop in this phase
+      %M - percent messages in this phase     %L - percent message lengths in this phase
+      %R - percent reductions in this phase
+   Total Mflop/s: 10e-6 * (sum of flop over all processors)/(max time over all processors)
+------------------------------------------------------------------------------------------------------------------------
+Event                Count      Time (sec)     Flop                              --- Global ---  --- Stage ----  Total
+                   Max Ratio  Max     Ratio   Max  Ratio  Mess   AvgLen  Reduct  %T %F %M %L %R  %T %F %M %L %R Mflop/s
+------------------------------------------------------------------------------------------------------------------------
+
+--- Event Stage 0: Main Stage
+
+BuildTwoSided         26 1.0 2.8596e-01 2.8 0.00e+00 0.0 2.3e+05 4.0e+00 2.6e+01  1  0  4  0  4   5  0 22  0  7     0
+BuildTwoSidedF         2 1.0 1.6163e-02 3.8 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+SFSetGraph            47 1.0 2.3736e-02 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFSetUp               24 1.0 2.9872e-01 2.0 0.00e+00 0.0 4.6e+05 3.7e+02 2.4e+01  1  0  7  1  3   6  0 45  9  6     0
+SFPack                59 1.0 7.8190e-03 3.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFUnpack              59 1.0 4.6212e-03 4.3 3.23e+05 2.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0 21  0  0  0 31210
+VecNorm                9 1.0 5.7986e-03 2.4 1.07e+06 1.0 0.0e+00 0.0e+00 9.0e+00  0  0  0  0  1   0 79  0  0  2 92812
+VecSet                95 1.0 2.2218e-02 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecScatterBegin       59 1.0 2.6237e-01 2.1 0.00e+00 0.0 6.4e+05 2.7e+03 4.0e+00  1  0 10  5  1   5  0 63 94  1     0
+VecScatterEnd         59 1.0 7.6996e-01 2.8 3.23e+05 2.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0  11 21  0  0  0   187
+MatAssemblyBegin       2 1.0 1.6218e-02 3.8 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+MatAssemblyEnd         2 1.0 1.7563e-02 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 5.0e+00  0  0  0  0  1   0  0  0  0  1     0
+
+--- Event Stage 1: Initial guess
+
+BuildTwoSided         52 1.0 3.1792e-01 3.7 0.00e+00 0.0 1.1e+05 4.0e+00 5.2e+01  1  0  2  0  7   6  0  9  0 24     0
+BuildTwoSidedF        36 1.0 3.0930e-01 4.4 0.00e+00 0.0 5.2e+03 1.1e+05 3.6e+01  1  0  0  2  5   6  0  0  6 17     0
+SFSetGraph            20 1.0 3.2506e-03 2.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFSetUp               16 1.0 5.2487e-02 1.6 0.00e+00 0.0 2.1e+05 1.1e+03 1.6e+01  0  0  3  1  2   1  0 17  3  7     0
+SFPack                92 1.0 9.3980e-03 2.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFUnpack              92 1.0 4.5523e-03 3.2 6.46e+04 2.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  6323
+VecMDot                2 1.0 3.4491e-02 31.2 1.60e+06 1.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  1  0  0  1 23405
+VecNorm               13 1.0 1.8470e-02 3.9 3.21e+06 1.0 0.0e+00 0.0e+00 1.3e+01  0  0  0  0  2   0  2  0  0  6 87416
+VecScale               3 1.0 1.6876e-03 2.7 8.02e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  1  0  0  0 239173
+VecCopy                2 1.0 7.0458e-03 3.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet                68 1.0 1.6127e-02 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAXPY                3 1.0 8.0152e-03 1.9 1.60e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  1  0  0  0 100717
+VecWAXPY               1 1.0 4.7951e-03 5.1 2.67e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0 28059
+VecMAXPY               3 1.0 8.3430e-03 5.7 2.67e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  2  0  0  0 161268
+VecScatterBegin       92 1.0 5.4540e-02 1.6 0.00e+00 0.0 9.3e+05 2.8e+03 5.0e+00  0  0 14  8  1   1  0 76 30  2     0
+VecScatterEnd         92 1.0 6.5540e-02 2.6 6.46e+04 2.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  0  0  0  0   439
+VecReduceArith         3 1.0 3.0056e-03 7.0 1.60e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  1  0  0  0 268593
+VecReduceComm          1 1.0 4.9580e-03 202.8 0.00e+00 0.0 0.0e+00 0.0e+00 1.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecNormalize           3 1.0 1.5267e-02 8.0 2.41e+06 1.0 0.0e+00 0.0e+00 3.0e+00  0  0  0  0  0   0  2  0  0  1 79316
+MatMult                5 1.0 1.0478e+01 1.0 4.44e+08 1.0 1.2e+06 5.0e+03 3.5e+01 40 31 19 19  5 Multiple stages 21562
+MatAssemblyBegin      54 1.0 3.1315e-01 4.2 0.00e+00 0.0 5.2e+03 1.1e+05 3.6e+01  1  0  0  2  5   6  0  0  6 17     0
+MatAssemblyEnd        54 1.0 2.6177e-01 1.2 5.61e+04 2.2 0.0e+00 0.0e+00 7.9e+01  1  0  0  0 11   7  0  0  0 37    96
+MatZeroEntries        14 1.0 1.7050e-01 1.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   5  0  0  0  0     0
+MatMatMatMultSym       4 1.0 1.5648e+00 1.0 0.00e+00 0.0 1.9e+05 1.7e+04 8.0e+01  6  0  3 10 11  47  0 16 39 37     0
+MatMatMatMultNum       4 1.0 4.7664e-01 1.0 1.05e+08 1.1 3.9e+04 5.4e+04 8.0e+00  2  7  1  6  1  14 78  3 24  4 111355
+MatGetLocalMat        16 1.0 4.6410e-01 1.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0  13  0  0  0  0     0
+MatGetBrAoCol         16 1.0 1.9386e-01 1.9 0.00e+00 0.0 2.3e+05 2.3e+04 8.0e+00  1  0  4 17  1   5  0 19 63  4     0
+PCSetUp                2 1.0 2.0652e+00 1.0 1.05e+08 1.1 2.3e+05 2.3e+04 1.1e+02  8  7  4 17 15  62 78 19 63 51 25700
+PCApply                3 1.0 1.0414e+01 1.0 4.28e+08 1.0 1.2e+06 4.8e+03 3.4e+01 40 30 19 18  5 Multiple stages 20894
+KSPSetUp               6 1.0 2.7921e-02 2.4 0.00e+00 0.0 0.0e+00 0.0e+00 8.0e+00  0  0  0  0  1   1  0  0  0  4     0
+KSPSolve               1 1.0 1.0501e+01 1.0 4.52e+08 1.0 1.2e+06 5.0e+03 4.0e+01 40 31 19 19  6 Multiple stages 21860
+KSPGMRESOrthog         2 1.0 3.8602e-02 9.8 3.21e+06 1.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   1  2  0  0  1 41825
+MGSetup Level 0        1 1.0 4.4160e-05 25.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MGSetup Level 1        1 1.0 6.2960e-03 4.5 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+MGSetup Level 2        1 1.0 2.2784e-03 17.6 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+MGSetup Level 3        1 1.0 6.4102e-04 5.3 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+MGSetup Level 4        1 1.0 7.6159e-03 3.7 0.00e+00 0.0 0.0e+00 0.0e+00 2.0e+00  0  0  0  0  0   0  0  0  0  1     0
+SNESSolve              1 1.0 1.3514e+01 1.0 5.59e+08 1.0 2.4e+06 6.0e+03 2.4e+02 51 39 37 44 33 Multiple stages 21102
+SNESSetUp              1 1.0 1.2326e-04 3.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SNESFunctionEval       2 1.0 2.8263e-01 1.0 6.46e+04 2.0 5.8e+05 3.3e+03 7.0e+00  1  0  9  6  1   8  0 47 22  3   102
+SNESJacobianEval       1 1.0 2.7212e+00 1.0 1.07e+08 1.1 5.8e+05 1.1e+04 1.9e+02 10  7  9 19 26  82 80 48 72 87 19986
+SNESLineSearch         1 1.0 1.3823e-01 1.1 1.89e+06 1.0 2.2e+05 4.0e+03 1.0e+00  1  0  3  3  0   4  1 18 10  0  6917
+
+--- Event Stage 2: SNES solve
+
+BuildTwoSided         28 1.0 1.7562e-01 3.6 0.00e+00 0.0 2.6e+03 4.0e+00 2.8e+01  0  0  0  0  4   6  0  0  0 38     0
+BuildTwoSidedF        28 1.0 1.7783e-01 3.4 0.00e+00 0.0 5.2e+03 1.1e+05 2.8e+01  0  0  0  2  4   7  0  1 11 38     0
+SFPack                90 1.0 9.7602e-03 3.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  0  0  0  0     0
+SFUnpack              90 1.0 3.0775e-03 2.5 6.46e+04 2.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0  9353
+VecMDot                4 1.0 7.8925e-02 9.4 5.35e+06 1.0 0.0e+00 0.0e+00 4.0e+00  0  0  0  0  1   3  3  0  0  5 34094
+VecNorm                6 1.0 2.3184e-02 3.7 3.21e+06 1.0 0.0e+00 0.0e+00 6.0e+00  0  0  0  0  1   1  2  0  0  8 69641
+VecScale               5 1.0 2.8391e-03 2.5 1.34e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  1  0  0  0 236947
+VecCopy                2 1.0 6.9744e-03 4.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet                58 1.0 1.1538e-02 2.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  0  0  0  0     0
+VecAXPY                5 1.0 1.3605e-02 2.2 2.67e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  2  0  0  0 98895
+VecWAXPY               1 1.0 5.1502e-03 2.5 2.67e+05 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0 26125
+VecMAXPY               5 1.0 2.0212e-02 3.1 7.48e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  1  0  0  0   1  5  0  0  0 186392
+VecScatterBegin       90 1.0 3.1125e-02 2.6 0.00e+00 0.0 8.1e+05 3.2e+03 0.0e+00  0  0 12  8  0   2  0 95 49  0     0
+VecScatterEnd         90 1.0 1.1232e-01 3.4 6.46e+04 2.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   6  0  0  0  0   256
+VecReduceArith         3 1.0 1.5299e-03 6.2 1.60e+06 1.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  1  0  0  0 527656
+VecReduceComm          1 1.0 5.1389e-02 2653.0 0.00e+00 0.0 0.0e+00 0.0e+00 1.0e+00  0  0  0  0  0   1  0  0  0  1     0
+VecNormalize           5 1.0 2.2540e-02 3.1 4.01e+06 1.0 0.0e+00 0.0e+00 5.0e+00  0  0  0  0  1   1  2  0  0  7 89537
+MatMult                9 1.0 3.5683e+00 1.0 7.46e+08 1.0 1.9e+06 5.4e+03 1.0e+00 13 52 30 32  0 Multiple stages 106299
+MatAssemblyBegin      30 1.0 1.8099e-01 3.3 0.00e+00 0.0 5.2e+03 1.1e+05 2.8e+01  0  0  0  2  4   7  0  1 11 38     0
+MatAssemblyEnd        30 1.0 2.6018e-02 3.3 7.68e+04 2.1 0.0e+00 0.0e+00 2.0e+01  0  0  0  0  3   1  0  0  0 27  1324
+MatZeroEntries        10 1.0 3.9823e-02 1.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   3  0  0  0  0     0
+MatMatMatMultNum       4 1.0 4.6725e-01 1.0 1.05e+08 1.1 3.9e+04 5.4e+04 8.0e+00  2  7  1  6  1  33 64  5 40 11 113593
+MatGetLocalMat         8 1.0 1.3785e-01 1.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   9  0  0  0  0     0
+MatGetBrAoCol          8 1.0 4.3676e-02 2.1 0.00e+00 0.0 3.9e+04 5.4e+04 0.0e+00  0  0  1  6  0   3  0  5 40  0     0
+PCSetUp                2 1.0 4.9369e-01 1.0 1.05e+08 1.1 3.9e+04 5.4e+04 1.2e+01  2  7  1  6  2  35 64  5 40 16 107510
+PCApply                5 1.0 3.4415e+00 1.0 7.13e+08 1.0 1.9e+06 5.2e+03 1.0e+00 13 50 29 30  0 Multiple stages 105377
+KSPSetUp               2 1.0 8.9600e-06 34.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+KSPSolve               1 1.0 3.6374e+00 1.0 7.64e+08 1.0 1.9e+06 5.4e+03 1.0e+01 14 53 30 32  1 Multiple stages 106686
+KSPGMRESOrthog         4 1.0 9.1238e-02 5.9 1.07e+07 1.0 0.0e+00 0.0e+00 4.0e+00  0  1  0  0  1   3  6  0  0  5 58987
+MGSetup Level 0        1 1.0 1.4900e-05 55.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MGSetup Level 1        1 1.0 2.2610e-05 47.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MGSetup Level 2        1 1.0 2.5900e-06 19.9 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MGSetup Level 3        1 1.0 3.2600e-06 25.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MGSetup Level 4        1 1.0 2.4329e-02 1.8 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  0  0  0  0     0
+SNESSolve              1 1.0 4.8073e+00 1.0 8.75e+08 1.0 2.8e+06 5.4e+03 7.4e+01 18 61 42 47 10 Multiple stages 92699
+SNESFunctionEval       2 1.0 3.4855e-01 1.2 6.46e+04 2.0 4.4e+05 4.0e+03 0.0e+00  1  0  7  6  0  24  0 52 34  0    83
+SNESJacobianEval       1 1.0 8.3073e-01 1.0 1.11e+08 1.1 3.9e+05 7.4e+03 6.2e+01  3  8  6  9  9  59 68 46 56 85 67811
+SNESLineSearch         1 1.0 2.0487e-01 1.0 1.89e+06 1.0 2.2e+05 4.0e+03 1.0e+00  1  0  3  3  0  14  1 26 17  1  4667
+
+--- Event Stage 3: Advect markers
+
+BuildTwoSided          2 1.0 1.4883e-03 5.4 0.00e+00 0.0 1.9e+04 4.0e+00 2.0e+00  0  0  0  0  0   0  0  7  0 25     0
+SFSetGraph             2 1.0 9.0936e-04 2.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFSetUp                2 1.0 3.8208e-03 1.4 0.00e+00 0.0 3.8e+04 7.2e+02 2.0e+00  0  0  1  0  0   0  0 14  3 25     0
+SFPack                21 1.0 3.1321e-03 3.6 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFUnpack              21 1.0 1.4306e-03 4.4 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet                 4 1.0 1.2478e-04 25.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecScatterBegin       21 1.0 9.1115e-03 2.6 0.00e+00 0.0 2.0e+05 3.4e+03 0.0e+00  0  0  3  2  0   0  0 74 83  0     0
+VecScatterEnd         21 1.0 4.1697e-02 7.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   1  0  0  0  0     0
+
+--- Event Stage 4: I/O
+
+
+--- Event Stage 5: Unknown
+
+
+--- Event Stage 6: MG Apply
+
+BuildTwoSided          5 1.0 1.3436e-02 4.8 0.00e+00 0.0 3.8e+04 4.0e+00 5.0e+00  0  0  1  0  1   0  0  1  0 14     0
+SFSetGraph             2 1.0 1.4370e-05 3.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFSetUp                5 1.0 1.5468e-02 3.8 0.00e+00 0.0 7.6e+04 2.3e+02 5.0e+00  0  0  1  0  1   0  0  2  0 14     0
+SFPack               400 1.0 9.6377e-02 5.1 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+SFUnpack             400 1.0 3.6803e-04 2.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecCopy               40 1.0 2.4455e-02 1.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecSet                56 1.0 1.4998e-02 1.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+VecAXPY              320 1.0 1.6503e-01 2.4 4.90e+07 1.0 0.0e+00 0.0e+00 0.0e+00  0  3  0  0  0   1  4  0  0  0 149098
+VecAYPX              320 1.0 1.7548e-01 2.6 2.45e+07 1.0 0.0e+00 0.0e+00 0.0e+00  0  2  0  0  0   1  2  0  0  0 70111
+VecPointwiseMult     320 1.0 2.7576e-01 2.0 2.45e+07 1.0 0.0e+00 0.0e+00 0.0e+00  1  2  0  0  0   2  2  0  0  0 44616
+VecScatterBegin      400 1.0 1.3640e-01 3.4 0.00e+00 0.0 3.1e+06 5.0e+03 5.0e+00  0  0 48 49  1   1  0 100 100 14     0
+VecScatterEnd        400 1.0 1.1337e+00 6.7 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  2  0  0  0  0   4  0  0  0  0     0
+MatMult              352 1.0 3.3823e+00 1.1 1.02e+09 1.0 2.7e+06 5.6e+03 0.0e+00 12 71 42 48  0  23 90 87 98  0 153578
+MatMultAdd            32 1.0 1.0947e-01 1.6 2.28e+07 1.0 3.7e+05 7.7e+02 4.0e+00  0  2  6  1  1   1  2 12  2 11 105954
+MatSolve               8 1.0 1.4921e-01 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  1  0  0  0  0   1  0  0  0  0     0
+MatLUFactor            2 1.0 9.7444e+00 1.0 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00 37  0  0  0  0  71  0  0  0  0     0
+MatResidual           32 1.0 3.5356e-01 1.3 1.04e+08 1.0 2.7e+05 5.7e+03 0.0e+00  1  7  4  5  0   2  9  9 10  0 149488
+MatAssemblyBegin       6 1.0 7.4400e-06 9.5 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatAssemblyEnd         6 1.0 7.1209e-04 2.3 0.00e+00 0.0 0.0e+00 0.0e+00 4.0e+00  0  0  0  0  1   0  0  0  0 11     0
+MatGetRowIJ            2 1.0 1.1100e-06 4.3 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+MatCreateSubMats       2 1.0 1.2900e-02 9.3 0.00e+00 0.0 9.8e+03 5.3e+03 2.0e+00  0  0  0  0  0   0  0  0  0  6     0
+MatMPIConcateSeq       2 1.0 1.1814e-02 6.1 0.00e+00 0.0 0.0e+00 0.0e+00 9.0e+00  0  0  0  0  1   0  0  0  0 26     0
+MatGetLocalMat         2 1.0 2.0483e-04 4.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+PCSetUp                7 1.0 9.7781e+00 1.0 0.00e+00 0.0 1.1e+04 4.6e+03 2.2e+01 37  0  0  0  3  71  0  0  0 63     0
+PCApply              328 1.0 1.0202e+01 1.0 2.45e+07 1.0 1.8e+04 2.5e+02 9.0e+00 39  2  0  0  1  74  2  1  0 26  1206
+KSPSetUp               2 1.0 3.9800e-06 14.2 0.00e+00 0.0 0.0e+00 0.0e+00 0.0e+00  0  0  0  0  0   0  0  0  0  0     0
+KSPSolve              72 1.0 1.3406e+01 1.0 1.01e+09 1.0 2.5e+06 5.6e+03 3.1e+01 51 70 38 43  4  97 88 78 87 89 38236
+MGSmooth Level 0       8 1.0 9.9174e+00 1.0 0.00e+00 0.0 2.9e+04 2.0e+03 2.3e+01 38  0  0  0  3  72  0  1  0 66     0
+MGSmooth Level 1      16 1.0 2.9104e-02 2.6 5.39e+06 1.2 6.9e+05 3.8e+02 2.0e+00  0  0 11  1  0   0  0 22  2  6 92246
+MGResid Level 1        8 1.0 5.6838e-03 8.4 5.86e+05 1.2 7.7e+04 3.8e+02 0.0e+00  0  0  1  0  0   0  0  2  0  0 51230
+MGInterp Level 1      16 1.0 3.7932e-03 2.8 4.97e+04 1.2 1.0e+05 7.2e+01 1.0e+00  0  0  2  0  0   0  0  3  0  3  6549
+MGSmooth Level 2      16 1.0 1.2254e-01 2.0 4.32e+07 1.1 6.9e+05 1.3e+03 2.0e+00  0  3 11  3  0   1  4 22  6  6 177788
+MGResid Level 2        8 1.0 1.2547e-02 3.7 4.69e+06 1.1 7.7e+04 1.3e+03 0.0e+00  0  0  1  0  0   0  0  2  1  0 188424
+MGInterp Level 2      16 1.0 9.1884e-03 5.5 3.97e+05 1.1 1.0e+05 2.4e+02 1.0e+00  0  0  2  0  0   0  0  3  0  3 21884
+MGSmooth Level 3      16 1.0 9.6841e-01 1.2 3.45e+08 1.1 6.9e+05 4.7e+03 2.0e+00  3 24 11 10  0   7 30 22 21  6 181249
+MGResid Level 3        8 1.0 1.0591e-01 2.0 3.75e+07 1.1 7.7e+04 4.7e+03 0.0e+00  0  3  1  1  0   1  3  2  2  0 179896
+MGInterp Level 3      16 1.0 5.6337e-02 5.3 3.18e+06 1.0 1.0e+05 9.0e+02 1.0e+00  0  0  2  0  0   0  0  3  1  3 28720
+MGSmooth Level 4      16 1.0 2.4688e+00 1.1 6.18e+08 1.0 3.5e+05 2.7e+04 2.0e+00  9 43  5 29  0  17 54 11 59  6 126616
+MGResid Level 4        8 1.0 2.5347e-01 1.3 6.16e+07 1.0 3.9e+04 2.7e+04 0.0e+00  1  4  1  3  0   2  5  1  7  0 122870
+MGInterp Level 4      16 1.0 1.6179e-01 2.1 2.54e+07 1.0 1.0e+05 3.4e+03 1.0e+00  0  2  2  1  0   1  2  3  2  3 80236
+------------------------------------------------------------------------------------------------------------------------
+
+Object Type          Creations   Destructions. Reports information only for process 0.
+
+--- Event Stage 0: Main Stage
+
+           Container     3              5
+    Distributed Mesh    27             28
+           Index Set    54             55
+   IS L to G Mapping    26             26
+   Star Forest Graph   101            127
+     Discrete System    27             28
+           Weak Form    27             28
+              Vector   164            229
+              Viewer     3              2
+         PetscRandom     2              2
+             MatMFFD     1              1
+              Matrix    33             77
+      Preconditioner     7              8
+       Krylov Solver     6              7
+     DMKSP interface     0              1
+                SNES     1              1
+              DMSNES     1              1
+      SNESLineSearch     1              1
+
+--- Event Stage 1: Initial guess
+
+           Container     2              0
+    Distributed Mesh     1              0
+           Index Set    34             34
+   Star Forest Graph    22              0
+     Discrete System     1              0
+           Weak Form     1              0
+              Vector    72             26
+              Matrix    40              0
+     DMKSP interface     1              0
+
+--- Event Stage 2: SNES solve
+
+           Container     2              2
+              Vector    10              0
+
+--- Event Stage 3: Advect markers
+
+   Star Forest Graph     2              0
+              Vector     1              0
+
+--- Event Stage 4: I/O
+
+
+--- Event Stage 5: Unknown
+
+
+--- Event Stage 6: MG Apply
+
+           Index Set     6              5
+   Star Forest Graph     2              0
+              Vector    10              2
+              Matrix     8              4
+      Preconditioner     1              0
+       Krylov Solver     1              0
+========================================================================================================================
+Average time to get PetscTime(): 4.2e-08
+Average time for MPI_Barrier(): 3.474e-05
+Average time for zero size MPI_Send(): 3.99231e-06
+#PETSc Option Table entries:
+-crs_ksp_type preonly
+-crs_pc_telescope_reduction_factor 1
+-crs_pc_type telescope
+-crs_telescope_ksp_rtol 1e-5
+-crs_telescope_ksp_type preonly
+-crs_telescope_pc_factor_mat_solver_type superlu_dist
+-crs_telescope_pc_gamg_coarse_eq_limit 1000
+-crs_telescope_pc_gamg_threshold 0.05
+-crs_telescope_pc_type lu
+-gmg_mg_levels_ksp_max_it 5
+-gmg_mg_levels_ksp_richardson_scale 0.5
+-gmg_mg_levels_ksp_type richardson
+-gmg_mg_levels_pc_type jacobi
+-gmg_pc_mg_cycle_type v
+-gmg_pc_mg_galerkin
+-gmg_pc_mg_levels 5
+-gmg_pc_mg_log
+-gmg_pc_mg_type multiplicative
+-gmg_pc_type mg
+-jp_type mg
+-js_ksp_converged_reason
+-js_ksp_min_it 1
+-log_view
+-nel_x 512
+-nel_y 256
+-nel_z 256
+-ParamFile volcano_test_v2.dat
+-pcmat_type mono
+-snes_atol 1e-6
+-snes_ksp_ew
+-snes_ksp_ew_alpha 2.0
+-snes_ksp_ew_gamma 0.9
+-snes_ksp_ew_rtol0 1e-3
+-snes_ksp_ew_rtolmax 1e-2
+-snes_ksp_ew_version 3
+-snes_linesearch_maxstep 1.0
+-snes_linesearch_monitor
+-snes_linesearch_type basic
+-snes_max_funcs 500000
+-snes_max_it 1
+-snes_max_linear_solve_fail 10000
+-snes_monitor
+-snes_npicard 5
+-snes_PicardSwitchToNewton_rtol 1e-3
+-snes_rtol 1e-5
+-snes_stol 1e-16
+#End of PETSc Option Table entries
+Compiled without FORTRAN kernels
+Compiled with full precision matrices (default)
+sizeof(short) 2 sizeof(int) 4 sizeof(long) 8 sizeof(void*) 8 sizeof(PetscScalar) 8 sizeof(PetscInt) 4
+Configure options: --prefix=/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt --with-debugging=0 --download-superlu_dist=1 --CFLAGS=-O3 --CXXFLAGS=-O3 --FFLAGS=-O3
+-----------------------------------------
+Libraries compiled on 2023-12-20 19:03:59 on mogon-nhr02.mogon3 
+Machine characteristics: Linux-4.18.0-425.19.2.el8_7.x86_64-x86_64-with-almalinux-8.7-Stone_Smilodon
+Using PETSc directory: /home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt
+Using PETSc arch: 
+-----------------------------------------
+
+Using C compiler: mpicc -O3 -fPIC   
+Using Fortran compiler: mpif90 -O3 -fPIC     
+-----------------------------------------
+
+Using include paths: -I/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt/include
+-----------------------------------------
+
+Using C linker: mpicc
+Using Fortran linker: mpif90
+Using libraries: -Wl,-rpath,/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt/lib -L/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt/lib -lpetsc -Wl,-rpath,/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt/lib -L/home/kaus/Software/PETSC_INSTALLED/PETSc-3.18.6-opt/lib -Wl,-rpath,/apps/easybuild/core/software/OpenMPI/4.1.4-GCC-12.2.0/lib -L/apps/easybuild/core/software/OpenMPI/4.1.4-GCC-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/hwloc/2.8.0-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/hwloc/2.8.0-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/libevent/2.1.12-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/libevent/2.1.12-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/ScaLAPACK/2.2.0-gompi-2022b-fb/lib64 -L/apps/easybuild/core/software/ScaLAPACK/2.2.0-gompi-2022b-fb/lib64 -Wl,-rpath,/apps/easybuild/core/software/FlexiBLAS/3.2.1-GCC-12.2.0/lib64 -L/apps/easybuild/core/software/FlexiBLAS/3.2.1-GCC-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/OpenBLAS/0.3.21-GCC-12.2.0/lib64 -L/apps/easybuild/core/software/OpenBLAS/0.3.21-GCC-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/OpenMPI/4.1.4-GCC-12.2.0/lib64 -L/apps/easybuild/core/software/OpenMPI/4.1.4-GCC-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/UCC/1.1.0-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/UCC/1.1.0-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/PMIx/4.2.2-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/PMIx/4.2.2-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/libfabric/1.16.1-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/libfabric/1.16.1-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/UCX/1.13.1-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/UCX/1.13.1-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/libevent/2.1.12-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/libevent/2.1.12-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/hwloc/2.8.0-GCCcore-12.2.0/lib64 -L/apps/easybuild/core/software/hwloc/2.8.0-GCCcore-12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/GCCcore/12.2.0/lib/gcc/x86_64-pc-linux-gnu/12.2.0 -L/apps/easybuild/core/software/GCCcore/12.2.0/lib/gcc/x86_64-pc-linux-gnu/12.2.0 -Wl,-rpath,/apps/easybuild/core/software/GCCcore/12.2.0/lib64 -L/apps/easybuild/core/software/GCCcore/12.2.0/lib64 -Wl,-rpath,/apps/easybuild/core/software/ScaLAPACK/2.2.0-gompi-2022b-fb/lib -L/apps/easybuild/core/software/ScaLAPACK/2.2.0-gompi-2022b-fb/lib -Wl,-rpath,/apps/easybuild/core/software/FlexiBLAS/3.2.1-GCC-12.2.0/lib -L/apps/easybuild/core/software/FlexiBLAS/3.2.1-GCC-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/OpenBLAS/0.3.21-GCC-12.2.0/lib -L/apps/easybuild/core/software/OpenBLAS/0.3.21-GCC-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/UCC/1.1.0-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/UCC/1.1.0-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/PMIx/4.2.2-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/PMIx/4.2.2-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/libfabric/1.16.1-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/libfabric/1.16.1-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/UCX/1.13.1-GCCcore-12.2.0/lib -L/apps/easybuild/core/software/UCX/1.13.1-GCCcore-12.2.0/lib -Wl,-rpath,/apps/easybuild/core/software/GCCcore/12.2.0/lib -L/apps/easybuild/core/software/GCCcore/12.2.0/lib -lsuperlu_dist -lflexiblas -lpthread -lm -lX11 -lstdc++ -ldl -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -lgfortran -lm -lgfortran -lm -lgcc_s -lquadmath -lstdc++ -ldl
+-----------------------------------------
+

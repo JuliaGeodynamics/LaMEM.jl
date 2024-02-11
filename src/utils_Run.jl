@@ -73,7 +73,6 @@ function show_paths_LaMEM()
     return nothing
 end
 
-
 """
 This reads a LaMEM logfile (provided it was run with "-log_view") and collects key results from it; 
 mostly for scalability tests on HPC machines. It returns a markdown summary
@@ -113,10 +112,10 @@ function read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
         Memory_Gb = "-"
         Nodes = "-"
     end
-    MemoryNode_Gb = Memory_Gb/Nodes
+    MemNode_Gb = Memory_Gb/Nodes
 
     # print as Markdown table
-    table = (; FineGrid, Cores, Nodes, CoarseGrid, CoaCores, Levels, SNES, KSP, TotalTime, CoarseTime, MemoryNode_Gb, Filename) 
+    table = (; FineGrid, Cores, Nodes, CoarseGrid, CoaCores, Levels, SNES, KSP, TotalTime, CoarseTime, MemNode_Gb, Filename) 
     print_table_markdown(table, header=header)
 
     return lines

@@ -1,6 +1,4 @@
 export remove_popup_messages_mac, show_paths_LaMEM, read_LaMEM_logfile
-using MarkdownTables
-
 
 """
     remove_popup_messages_mac()
@@ -108,17 +106,19 @@ function read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
         #Memory_Gb = extract_info_logfile(lines_mem, "Memory Utilized:", LaMEM=false, entry=5)
 
         Nodes      = Int64(extract_info_logfile(lines_mem, "Nodes:", LaMEM=false, entry=1))
+        MemNode_Gb = Memory_Gb/Nodes
     else
         Memory_Gb = "-"
         Nodes = "-"
+        MemNode_Gb = "-"
     end
-    MemNode_Gb = Memory_Gb/Nodes
-
+    
+    
     # print as Markdown table
     table = (; FineGrid, Cores, Nodes, CoarseGrid, CoaCores, Levels, SNES, KSP, TotalTime, CoarseTime, MemNode_Gb, Filename) 
     print_table_markdown(table, header=header)
 
-    return lines
+    return nothing
 end
 
 

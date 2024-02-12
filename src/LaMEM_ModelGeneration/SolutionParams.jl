@@ -183,7 +183,9 @@ function Write_LaMEM_InputFile(io, d::SolutionParams)
         if getfield(d,f) != getfield(Reference,f) ||
             (f == :eta_ref) ||
             (f == :gravity) ||
-            (f == :act_p_shift)
+            (f == :act_p_shift) ||
+            (f == :init_guess) ||
+            (f == :p_lim_plast)
             
             # only print if value differs from reference value
             name = rpad(String(f),15)

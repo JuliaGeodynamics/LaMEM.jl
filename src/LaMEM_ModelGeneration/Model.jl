@@ -160,7 +160,13 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
         # If we want to write an input file 
         Write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
- 
+    
+    if any(hasplasticity.(d.Materials.Phases))
+        # We have plasticity, so we likely want to see that
+        d.Output.out_plast_strain    = 1     # accumulated plastic strain
+        d.Output.out_plast_dissip    = 1      # plastic dissipation
+    end
+
     io = open(fname,"w")
 
     Write_LaMEM_InputFile(io, d.Scaling)

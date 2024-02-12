@@ -6,7 +6,7 @@ export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_softening!, add_phasetransition!, add_phaseaggregate!,
         add_dike!, add_geom! , cross_section,
         set_air, copy_phase,
-        isdefault
+        isdefault, hasplasticity
 
 
 
@@ -390,4 +390,17 @@ function isdefault(s1, s_default)
     end
 
     return default
+end
+
+"""
+    hasplasticity(p::Phase)
+
+`true` if `p` contains plastic parameters (cohesion or friction angle)
+"""
+function hasplasticity(p::Phase)
+    plastic = false
+    if !isnothing(p.ch) || !isnothing(p.fr)
+        plastic = true
+    end
+    return plastic
 end

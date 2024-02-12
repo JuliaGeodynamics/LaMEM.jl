@@ -129,7 +129,8 @@ function Write_LaMEM_InputFile(io, d::FreeSurface)
 
     if surf_use==1
         for f in fields
-            if getfield(d,f) != getfield(Reference,f) && (f != :Topography)
+            if (getfield(d,f) != getfield(Reference,f) && (f != :Topography)) 
+                
                 # only print if value differs from reference value
                 name = rpad(String(f),15)
                 comment = get_doc(FreeSurface, f)

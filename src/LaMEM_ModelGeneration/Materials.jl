@@ -120,6 +120,9 @@ Base.@kwdef mutable struct Phase
     "stabilization viscosity (default is eta_min)"
     eta_st::Union{Nothing,Float64}       = nothing   
 
+    "viscoplastic plasticity regularisation viscosity"
+    eta_vp::Union{Nothing,Float64}       = nothing   
+
     "pore-pressure ratio"
     rp::Union{Nothing,Float64}       = nothing   
 

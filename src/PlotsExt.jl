@@ -55,6 +55,7 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
     return hm
 end
 
+#=
 """
     plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
                         timestep::Symbol=:all,
@@ -78,7 +79,7 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
 
         return nothing
 end
-
+=#
 
 """
     plot_topo(topo::CartData, args...)

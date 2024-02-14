@@ -63,7 +63,7 @@ end
 This allows plotting all timesteps if you specify `timestep=:all`
 """
 function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
-        timestep::Symbol, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+        timestep::Symbol=:all, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
 
         if timestep==:all
             Timesteps,_,_ = Read_LaMEM_simulation(model);

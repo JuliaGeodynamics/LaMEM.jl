@@ -42,6 +42,11 @@ function UpdateDefaultParameters(model::Model)
     model.Output.out_pressure         = 1 
     model.Output.out_temperature      = 1  
 
+    if isdefault(model.Solver,Solver())
+        # the LaMEM default (superlu_dist) currently doesn't work with PETSc_jll
+        model.Solver.DirectSolver = "mumps";    
+    end
+    
     # if using multigrid in a 2D setup
     if model.Solver.SolverType=="multigrid" &&  model.Grid.nel_y[1]==1
         push!(model.Solver.PETSc_options,"-da_refine_y 1") 

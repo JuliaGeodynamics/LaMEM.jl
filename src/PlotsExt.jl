@@ -4,7 +4,7 @@ println("Adding Plots.jl plotting extensions for LaMEM")
 using LaMEM, GeophysicalModelGenerator, Statistics, DelimitedFiles
 using .Plots
 import .Plots: heatmap
-export plot_topo, plot_cross_section, plot_phasediagram
+export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
  
 """
     plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
@@ -55,31 +55,24 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
     return hm
 end
 
-#=
+
 """
-    plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
-                        timestep::Symbol=:all,
+    plot_cross_section_simulation(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
                         dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
    
-This allows plotting all timesteps if you specify `timestep=:all`
+As `plot_cross_section`, but for the entire simulation instead of a single timestep.
 """
-function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
-        timestep::Symbol=:all, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+function plot_cross_section_simulation(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
+        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
 
-        if timestep==:all
-            Timesteps,_,_ = Read_LaMEM_simulation(model);
-            for timestep_val in Timesteps
-                plot_cross_section(model, args, field=field, timestep=timestep_val, dim=dim, x=x, y=y, z=z, aspect_ratio=aspect_ratio)
-            end
+    Timesteps,_,_ = Read_LaMEM_simulation(model);
+    for timestep_val in Timesteps
+        plot_cross_section(model, args, field=field, timestep=timestep_val, dim=dim, x=x, y=y, z=z, aspect_ratio=aspect_ratio)
+    end
 
-        else
-            error("unknown timestep: $timestep")
-        end 
-
-
-        return nothing
+    return nothing
 end
-=#
+
 
 """
     plot_topo(topo::CartData, args...)

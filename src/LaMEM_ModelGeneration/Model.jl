@@ -160,7 +160,13 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
         # If we want to write an input file 
         Write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
- 
+    
+    if any(hasplasticity.(d.Materials.Phases))
+        # We have plasticity, so we likely want to see that
+        d.Output.out_plast_strain    = 1     # accumulated plastic strain
+        d.Output.out_plast_dissip    = 1      # plastic dissipation
+    end
+
     io = open(fname,"w")
 
     Write_LaMEM_InputFile(io, d.Scaling)
@@ -188,13 +194,15 @@ Performs a LaMEM run for the parameters that are specified in `model`
 """
 function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 
+    cur_dir = pwd(); 
+    
+    #if !isdir(model.Output.out_dir); mkdir(model.Output.out_dir); end # create directory if needed
     create_initialsetup(model, cores, args);    
     
-    cur_dir = pwd(); 
     if !isempty(model.Output.out_dir)
         cd(model.Output.out_dir)
     end
-    
+   
     run_lamem(model.Output.param_file_name, cores, args; wait=wait)
     
     cd(cur_dir)
@@ -219,9 +227,7 @@ function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=fa
 
     println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
     cur_dir = pwd(); 
-    if !isempty(model.Output.out_dir)
-        cd(model.Output.out_dir)
-    end
+
     create_initialsetup(model, cores, args,  verbose=verbose);    
     
     cd(cur_dir)

@@ -54,7 +54,7 @@ Base.@kwdef mutable struct ModelSetup
     nmark_avd::Vector{Int64}        = [3, 3, 3]             
 
     "max number of same phase markers per subcell (subgrid marker control)"
-    nmark_sub::Int64                = 1        
+    nmark_sub::Int64                = 3        
 
     "Different geometric primitives that can be selected if we `msetup``=`geom`; see `geom_Sphere`"
     geom_primitives::Vector    = []
@@ -169,11 +169,10 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
             (f == :msetup)      ||
             (f == :rand_noise)  ||
             (f == :nmark_lim)   ||
+            (f == :nmark_sub)   ||
             (f == :advect)      ||
             (f == :interp)      ||
             (f == :mark_ctrl)
-            
-            
             
 
             if (f != :geom_primitives)

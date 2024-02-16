@@ -151,7 +151,7 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = Read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.phase) ≈ 29047.736f0
+    @test  sum(data.fields.phase) ≈ 29060.664f0
     
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)

@@ -4,16 +4,21 @@ println("Adding Plots.jl plotting extensions for LaMEM")
 using LaMEM, GeophysicalModelGenerator, Statistics, DelimitedFiles
 using .Plots
 import .Plots: heatmap
-export plot_topo, plot_cross_section, plot_phasediagram
+export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
  
 """
-    plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+    plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
+                        timestep::Union{Nothing, Int64}=nothing,
+                        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
    
 This plots a cross-section through the LaMEM `model`, of the field  `field`. If that is a vector or tensor field, specify `dim` to indicate which of the fields you want to see.
 If the keyword `timestep` is specified, it will load a timestep 
 """
-function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase, timestep=nothing, dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
-    
+function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
+        timestep::Union{Nothing, Int64}=nothing, dim=1, 
+        x=nothing, y=nothing, z=nothing, 
+        aspect_ratio::Union{Real, Symbol}=:equal)
+
     if !isnothing(timestep)
         # load a particular timestep
         data_cart, time = Read_LaMEM_timestep(model,timestep)
@@ -48,6 +53,24 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
                 args...)
                 
     return hm
+end
+
+
+"""
+    plot_cross_section_simulation(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
+                        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+   
+As `plot_cross_section`, but for the entire simulation instead of a single timestep.
+"""
+function plot_cross_section_simulation(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
+        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+
+    Timesteps,_,_ = Read_LaMEM_simulation(model);
+    for timestep_val in Timesteps
+        plot_cross_section(model, args, field=field, timestep=timestep_val, dim=dim, x=x, y=y, z=z, aspect_ratio=aspect_ratio)
+    end
+
+    return nothing
 end
 
 

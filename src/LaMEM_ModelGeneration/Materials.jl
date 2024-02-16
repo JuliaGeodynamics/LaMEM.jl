@@ -120,6 +120,9 @@ Base.@kwdef mutable struct Phase
     "stabilization viscosity (default is eta_min)"
     eta_st::Union{Nothing,Float64}       = nothing   
 
+    "viscoplastic plasticity regularisation viscosity"
+    eta_vp::Union{Nothing,Float64}       = nothing   
+
     "pore-pressure ratio"
     rp::Union{Nothing,Float64}       = nothing   
 
@@ -221,7 +224,7 @@ Base.@kwdef mutable struct Softening
     A::Float64           =   0.7     
     
     "Material length scale (in selected units, e.g. km in geo)"
-    Lm::Float64          =   0.2    
+    Lm::Union{Nothing,Float64}          =   nothing   
     
     # healing parameters
     "APS when healTau2 activates"

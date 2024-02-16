@@ -35,6 +35,57 @@ function UpdateDefaultParameters(model::Model)
         model.SolutionParams.act_p_shift = 1
     end
 
+    # Output some fields @ all times
+    model.Output.out_density          = 1
+    model.Output.out_j2_dev_stress    = 1 
+    model.Output.out_j2_strain_rate   = 1 
+    model.Output.out_pressure         = 1 
+    model.Output.out_temperature      = 1  
+
+    if isdefault(model.Solver,Solver())
+        # the LaMEM default (superlu_dist) currently doesn't work with PETSc_jll
+        model.Solver.DirectSolver = "mumps";    
+    end
+    
+    # if using multigrid in a 2D setup
+    if model.Solver.SolverType=="multigrid" &&  model.Grid.nel_y[1]==1
+        push!(model.Solver.PETSc_options,"-da_refine_y 1") 
+    end
+
+    # if we have a free surface, you'll generally want output  
+    if  model.FreeSurface.surf_use==1
+        model.Output.out_surf=1
+        model.Output.out_surf_pvd         = 1 
+        model.Output.out_surf_velocity    = 1 
+        model.Output.out_surf_topography  = 1 
+        model.Output.out_surf_amplitude   = 1  
+    end
+
+    # Scaling: if we use default values, employ smarter default values based on the model setup
+    if isdefault(model.Scaling,Scaling())
+        le = abs(diff(model.Grid.coord_z)[1])*km    # length
+        η  = model.SolutionParams.eta_ref*Pas       # viscosity
+        model.Scaling = Scaling(GEO_units(length=le, viscosity = η))
+    end
+        
+    # exx_strain_rates: no need to specify exx_num_periods
+    if length(model.BoundaryConditions.exx_strain_rates)==1 && model.BoundaryConditions.exx_num_periods>1
+        # we only specified a single strainrate so it'll be constant with time
+        model.BoundaryConditions.exx_num_periods = 1
+        model.BoundaryConditions.exx_time_delims = [1e20];
+    end
+
+    if  model.FreeSurface.surf_use==1
+        # if we use a free surface & surf_level==nothing, set it to zero
+        if isnothing(model.FreeSurface.surf_level)
+            model.FreeSurface.surf_level = 0.0;
+        end
+        if isnothing(model.FreeSurface.surf_air_phase)
+            model.FreeSurface.surf_air_phase = 0
+        end
+
+        
+    end
 
     return model
 end

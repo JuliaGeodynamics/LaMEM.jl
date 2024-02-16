@@ -583,6 +583,7 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
         for file in pvtr.vtk_filenames
             rm(file)
         end
+        rm(filename)
     end
 
     # go back
@@ -592,10 +593,11 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
 end
 
 """
+    compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=false)
 
-This compresses all LaMEM VTR files in a simulation
+This compresses all LaMEM VTR files in a simulation.
 """
-function compress_pvd(filename_pvd::String; Dir=pwd())
+function compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=false)
     cur_dir = pwd()
     cd(Dir)
     
@@ -605,10 +607,10 @@ function compress_pvd(filename_pvd::String; Dir=pwd())
 
     # Loop over all files
     for (i,file) in enumerate(pvd.vtk_filenames)
-        dir, filename = LaMEM.IO_functions.split_path_name(pwd(), file)
+        dir, filename = split_path_name(pwd(), file)
         
         # compress
-        filenames_compressed[i] = compress_vtr_file(filename, Dir=dir, delete_original_files=false)
+        filenames_compressed[i] = compress_vtr_file(filename, Dir=dir, delete_original_files=delete_original_files)
     end
 
     # replace the filenames in the pvd file
@@ -622,7 +624,7 @@ function compress_pvd(filename_pvd::String; Dir=pwd())
     # Create a new pvd file with updated names
     filename_pvd_compressed = filename_pvd[1:end-4]*"_compressed.pvd"   
     pvd_compressed = paraview_collection(filename_pvd_compressed)
-    for i=1:length(vtk_filenames_compressed)
+    for i in eachindex(vtk_filenames_compressed)
         xroot = root(pvd_compressed.xdoc)
         xMBDS = find_element(xroot, "Collection")
         xDataSet = new_child(xMBDS, "DataSet")
@@ -632,6 +634,10 @@ function compress_pvd(filename_pvd::String; Dir=pwd())
     end
     save_file(pvd_compressed.xdoc, pvd_compressed.path)
     
+    if delete_original_files
+        rm(filename_pvd)
+    end
+
     cd(cur_dir)
 
     return filename_pvd_compressed

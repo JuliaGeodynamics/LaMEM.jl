@@ -589,7 +589,6 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
         println("Compressed files $filename in directory $Dir")
     else
         println("File $filename did not exist in $Dir, so no compression done")
-        filename_compressed = ""
     end
 
     # go back

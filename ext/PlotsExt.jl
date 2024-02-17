@@ -1,11 +1,14 @@
-# Plotting extensions, that are only loaded when GLMakie is available
+module PlotsExt
+
+using Plots
+using GeophysicalModelGenerator, Statistics, DelimitedFiles
+import LaMEM: cross_section, Model, Read_LaMEM_timestep, Read_LaMEM_simulation, read_phase_diagram
+import LaMEM: plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
+export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
+
+# Plotting extensions, that are only loaded when Plots is available
 println("Adding Plots.jl plotting extensions for LaMEM")
 
-using LaMEM, GeophysicalModelGenerator, Statistics, DelimitedFiles
-using .Plots
-import .Plots: heatmap
-export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
- 
 """
     plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol=:phase,  
                         timestep::Union{Nothing, Int64}=nothing,
@@ -44,7 +47,7 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
         title_str=title_str*"; time=$(time[1])"
     end
 
-    hm = heatmap(data_tuple.x, data_tuple.z, data_field', 
+    hm = Plots.heatmap(data_tuple.x, data_tuple.z, data_field', 
                 aspect_ratio=aspect_ratio, 
                 xlabel=axes_str.x_str,
                 ylabel=axes_str.z_str,
@@ -81,7 +84,7 @@ Simple function to plot the topography
 """
 function plot_topo(topo::CartData; kwargs...)
    
-    hm = heatmap(topo.x.val[:,1,1], topo.y.val[1,:,1], topo.fields.Topography[:,:,1]'; 
+    hm = Plots.heatmap(topo.x.val[:,1,1], topo.y.val[1,:,1], topo.fields.Topography[:,:,1]'; 
                 aspect_ratio=:equal, 
                 xlabel="x",
                 ylabel="y",
@@ -123,4 +126,7 @@ function plot_phasediagram(name::String="Rhyolite", field=:ρ;  colormap=:batlow
                 kwargs...)
 
     return hm
+end
+
+
 end

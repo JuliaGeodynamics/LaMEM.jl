@@ -2,7 +2,6 @@ module LaMEM
 
 using GeoParams
 using .GeoParams
-using Requires
 export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
 #export GeoParams
 
@@ -43,12 +42,23 @@ export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories
 
+
+# Functions that will only be defined once "Plots" is loaded
+function plot_topo end 
+function plot_cross_section end 
+function plot_phasediagram end 
+function plot_cross_section_simulation end
+export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
+
+
+#=
 function __init__()
     #@require GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a" begin 
     @require Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80" begin
         @eval include("PlotsExt.jl")
     end
 end
+=#
 
 
 end # module

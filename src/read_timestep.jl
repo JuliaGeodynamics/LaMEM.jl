@@ -4,11 +4,12 @@
                   
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, XYZGrid
-using Glob, ReadVTK
+using Glob, ReadVTK, WriteVTK, LightXML
 
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
 export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
 export PassiveTracer_Time
+export compress_vtr_file, compress_pvd
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -152,6 +153,10 @@ function ReadField_3D_pVTU(pvtu, FieldName)
 end
 
  # The FileName can contain a directory as well; deal with that here
+"""
+ dir, file = split_path_name(DirName_base::String, FileName::String)
+
+"""
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)
     id       = findlast("/", FullName)[1];
@@ -524,7 +529,7 @@ function extract_passive_tracers_CartData(data0::CartData, ID )
     return nt
 end
 
-# Ctreaye
+# combine new named tuple with existing one
 function combine_named_tuples(nt,nt1)
     flds = keys(nt);
 
@@ -534,4 +539,127 @@ function combine_named_tuples(nt,nt1)
     end
 
     return nt
+end
+
+
+"""
+    filename_compressed::String =  compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=false)
+
+Compresses a LaMEM VTR file (loads parallel files & save them again )
+"""
+function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=false)
+    cur_dir = pwd()
+    cd(Dir)
+
+    filename_compressed = filename[1:end-5]*"_compressed.vtr"
+
+    # Read file
+    if isfile(filename)
+        pvtr = PVTKFile(filename)
+        coords = get_coordinates(pvtr)
+        
+        # create new file that holds compressed data
+        vtr_compressed = vtk_grid(filename_compressed, coords) 
+
+        # Copy data_points
+        data_points = get_point_data(pvtr)
+        names_points = keys(data_points)
+        for name in names_points
+            data_Field  = get_data_reshaped(data_points[name], cell_data=false);
+            vtr_compressed[name] = data_Field
+        end    
+
+        data_cell = get_cell_data(pvtr)
+        names_cells = keys(data_cell)
+        for name in names_cells
+            data_Field  = get_data_reshaped(data_cell[name], cell_data=true);
+            if typeof(data_Field[1])==UInt8
+                data_Field = Int64.(data_Field)
+            end
+            
+            vtr_compressed[name] = data_Field
+        end    
+        
+        # save file
+        vtk_save(vtr_compressed)
+
+        # remove original files to save diskspace
+        if delete_original_files
+            for file in pvtr.vtk_filenames
+                rm(file)
+            end
+            rm(filename)
+        end
+        println("Compressed files $filename in directory $Dir")
+    else
+        println("File $filename did not exist in $Dir, so no compression done")
+    end
+
+    # go back
+    cd(cur_dir)
+    
+
+    
+    return filename_compressed
+end
+
+"""
+    compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=false)
+
+This compresses all LaMEM VTR files in a simulation.
+"""
+function compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=false)
+    cur_dir = pwd()
+    cd(Dir)
+    
+    if !isfile(filename_pvd)
+        cd(cur_dir)
+        println("File $filename_pvd did not exist in $Dir, so no compression done")
+        return
+    end
+    # Read pvd file
+    pvd = PVDFile(filename_pvd)
+    vtk_filenames = pvd.vtk_filenames
+    filenames_compressed = Vector{String}(undef, length(vtk_filenames))
+
+    # Loop over all files
+#Threads.@threads 
+    for (i,file) in enumerate(vtk_filenames)
+        dir, filename = split_path_name(pwd(), file)
+        
+        # compress
+        filenames_compressed[i] = compress_vtr_file(filename, Dir=dir, delete_original_files=delete_original_files)
+
+        # delete memory
+        GC.gc()
+    end
+
+    # replace the filenames in the pvd file
+    vtk_filenames_compressed = copy(pvd.vtk_filenames)
+    for i=1:length(vtk_filenames_compressed)
+        txt = split(vtk_filenames_compressed[i], Base.Filesystem.path_separator)
+        txt[end] = filenames_compressed[i]
+        vtk_filenames_compressed[i] = joinpath(txt)
+    end
+
+    # Create a new pvd file with updated names
+    filename_pvd_compressed = filename_pvd[1:end-4]*"_compressed.pvd"   
+    pvd_compressed = paraview_collection(filename_pvd_compressed)
+    for i in eachindex(vtk_filenames_compressed)
+        xroot = root(pvd_compressed.xdoc)
+        xMBDS = find_element(xroot, "Collection")
+        xDataSet = new_child(xMBDS, "DataSet")
+        set_attribute(xDataSet, "timestep", string(pvd.timesteps[i]))
+        set_attribute(xDataSet, "part", "0")
+        set_attribute(xDataSet, "file", vtk_filenames_compressed[i])
+    end
+    save_file(pvd_compressed.xdoc, pvd_compressed.path)
+    
+    if delete_original_files
+        rm(filename_pvd)
+    end
+
+    cd(cur_dir)
+
+    return filename_pvd_compressed
 end

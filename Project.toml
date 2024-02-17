@@ -1,7 +1,7 @@
 name = "LaMEM"
 uuid = "2e889f3d-35ce-4a77-8ea2-858aecb630f7"
 authors = ["Boris Kaus <kaus@uni-mainz.de>"]
-version = "0.2.10"
+version = "0.2.11"
 
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
@@ -10,9 +10,11 @@ GeoParams = "e018b62d-d9de-4a26-8697-af89c310ae38"
 GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
+LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 MPICH_jll = "7cb0a576-ebde-5e09-9194-50597f1243b4"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
 
 [weakdeps]
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
@@ -26,9 +28,11 @@ DocStringExtensions = "0.9"
 GeoParams = "0.4, 0.5"
 GeophysicalModelGenerator = "0.4 - 0.6"
 Glob = "1"
+LightXML = "0.9"
 Plots = "1"
 ReadVTK = "0.1, 0.2"
 Statistics = "1.0"
+WriteVTK = "1"
 julia = "1.9"
 MPICH_jll = "4.1 - 4.1.2"
 

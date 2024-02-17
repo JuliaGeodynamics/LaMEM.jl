@@ -614,7 +614,7 @@ function compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=fal
     filenames_compressed = Vector{String}(undef, length(pvd.vtk_filenames))
 
     # Loop over all files
-    for (i,file) in enumerate(pvd.vtk_filenames)
+Threads.@threads for (i,file) in enumerate(pvd.vtk_filenames)
         dir, filename = split_path_name(pwd(), file)
         
         # compress

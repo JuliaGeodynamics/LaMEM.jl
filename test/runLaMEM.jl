@@ -14,8 +14,9 @@ pkg_dir = pkgdir(LaMEM)
     
     if !iswindows()
         try
-            out = run_lamem(ParamFile, 4,"-nstep_max 1")       # 4 cores
+            out = run_lamem(ParamFile, 4,"-nstep_max 2")       # 4 cores
             @test isnothing(out)
+            clean_directory()
         catch 
             println("Falling Block test on 4 cores failed")
         end

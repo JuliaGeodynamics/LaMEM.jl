@@ -10,6 +10,7 @@ GeoParams = "e018b62d-d9de-4a26-8697-af89c310ae38"
 GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
+MPICH_jll = "7cb0a576-ebde-5e09-9194-50597f1243b4"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
@@ -29,6 +30,7 @@ Plots = "1"
 ReadVTK = "0.1, 0.2"
 Statistics = "1.0"
 julia = "1.9"
+MPICH_jll = "4.1 - 4.1.2"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

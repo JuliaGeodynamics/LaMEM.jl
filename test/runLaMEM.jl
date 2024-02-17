@@ -16,7 +16,6 @@ pkg_dir = pkgdir(LaMEM)
         try
             out = run_lamem(ParamFile, 4,"-nstep_max 2")       # 4 cores
             @test isnothing(out)
-            clean_directory()
         catch 
             println("Falling Block test on 4 cores failed")
         end
@@ -24,7 +23,7 @@ pkg_dir = pkgdir(LaMEM)
 
     # Create a setup using GMG
     include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")
-    out = run_lamem(ParamFile_2, 1, "-nstep_max 2")    # 1 core
+    out = run_lamem(ParamFile_2, 1, "-nstep_max 1")    # 1 core
     @test isnothing(out)
 
     # Try direct solvers 

@@ -554,40 +554,48 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
     filename_compressed = filename[1:end-5]*"_compressed.vtr"
 
     # Read file
-    pvtr = PVTKFile(filename)
-    coords = get_coordinates(pvtr)
-    
-    # create new file that holds compressed data
-    vtr_compressed = vtk_grid(filename_compressed, coords) 
+    if isfile(filename)
+        pvtr = PVTKFile(filename)
+        coords = get_coordinates(pvtr)
+        
+        # create new file that holds compressed data
+        vtr_compressed = vtk_grid(filename_compressed, coords) 
 
-    # Copy data_points
-    data_points = get_point_data(pvtr)
-    names_points = keys(data_points)
-    for name in names_points
-        data_Field  = get_data_reshaped(data_points[name], cell_data=false);
-        vtr_compressed[name] = data_Field
-    end    
+        # Copy data_points
+        data_points = get_point_data(pvtr)
+        names_points = keys(data_points)
+        for name in names_points
+            data_Field  = get_data_reshaped(data_points[name], cell_data=false);
+            vtr_compressed[name] = data_Field
+        end    
 
-    data_cell = get_cell_data(pvtr)
-    names_cells = keys(data_cell)
-    for name in names_cells
-        data_Field  = get_data_reshaped(data_points[name], cell_data=true);
-        vtr_compressed[name] = data_Field
-    end    
-    
-    # save file
-    vtk_save(vtr_compressed)
+        data_cell = get_cell_data(pvtr)
+        names_cells = keys(data_cell)
+        for name in names_cells
+            data_Field  = get_data_reshaped(data_points[name], cell_data=true);
+            vtr_compressed[name] = data_Field
+        end    
+        
+        # save file
+        vtk_save(vtr_compressed)
 
-    # remove original files to save diskspace
-    if delete_original_files
-        for file in pvtr.vtk_filenames
-            rm(file)
+        # remove original files to save diskspace
+        if delete_original_files
+            for file in pvtr.vtk_filenames
+                rm(file)
+            end
+            rm(filename)
         end
-        rm(filename)
+        println("Compressed files $filename in directory $Dir")
+    else
+        println("File $filename did not exist in $Dir, so no compression done")
+        filename_compressed = ""
     end
 
     # go back
     cd(cur_dir)
+    
+
     
     return filename_compressed
 end

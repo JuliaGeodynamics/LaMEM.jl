@@ -56,5 +56,5 @@ cd(dir)
 
 
 @show pwd(), dir
-Save_LaMEMMarkersParallel(Model3D)                          # Create LaMEM marker input on 1 core
+Save_LaMEMMarkersParallel(Model3D, directory=joinpath(dir,"markers"))                          # Create LaMEM marker input on 1 core
 cd(cur_dir)

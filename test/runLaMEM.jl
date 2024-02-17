@@ -22,9 +22,9 @@ pkg_dir = pkgdir(LaMEM)
     end
 
     # Create a setup using GMG
-#    include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")
-#    out = run_lamem(ParamFile_2, 1, "-nstep_max 1")    # 1 core
-#    @test isnothing(out)
+    include("CreateMarkers_Subduction_Linear_FreeSlip_parallel.jl")
+    out = run_lamem(ParamFile_2, 1, "-nstep_max 1")    # 1 core
+    @test isnothing(out)
 
     # Try direct solvers 
     ParamFile = "input_files/FallingBlock_DirectSolver.dat";

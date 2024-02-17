@@ -573,6 +573,10 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
         names_cells = keys(data_cell)
         for name in names_cells
             data_Field  = get_data_reshaped(data_cell[name], cell_data=true);
+            if typeof(data_Field[1])==UInt8
+                data_Field = Int64.(data_Field)
+            end
+            
             vtr_compressed[name] = data_Field
         end    
         

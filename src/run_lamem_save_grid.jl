@@ -85,6 +85,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	arr          = JuliaStringToArray(logoutput)
 	foundline    = get_line_containing(arr,"Processor grid  [nx, ny, nz]         : ")
 	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
+	
 	sprtlftbrkt  = split(foundline,"[")
 	sprtrghtbrkt = split(sprtlftbrkt[3],"]")
 	separatecoma = split(sprtrghtbrkt[1],",")

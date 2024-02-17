@@ -11,5 +11,5 @@ include("test_compression.jl")
 
 if !Sys.iswindows()
     # clean up
-    #clean_directory("./")
+    clean_directory("./")
 end

@@ -572,7 +572,7 @@ function compress_vtr_file(filename::String; Dir=pwd(), delete_original_files=fa
         data_cell = get_cell_data(pvtr)
         names_cells = keys(data_cell)
         for name in names_cells
-            data_Field  = get_data_reshaped(data_points[name], cell_data=true);
+            data_Field  = get_data_reshaped(data_cell[name], cell_data=true);
             vtr_compressed[name] = data_Field
         end    
         
@@ -608,12 +608,19 @@ function compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=fal
     cur_dir = pwd()
     cd(Dir)
     
+    if !isfile(filename_pvd)
+        cd(cur_dir)
+        println("File $filename_pvd did not exist in $Dir, so no compression done")
+        return
+    end
     # Read pvd file
     pvd = PVDFile(filename_pvd)
-    filenames_compressed = Vector{String}(undef, length(pvd.vtk_filenames))
+    vtk_filenames = pvd.vtk_filenames
+    filenames_compressed = Vector{String}(undef, length(vtk_filenames))
 
     # Loop over all files
-Threads.@threads for (i,file) in enumerate(pvd.vtk_filenames)
+#Threads.@threads 
+    for (i,file) in enumerate(vtk_filenames)
         dir, filename = split_path_name(pwd(), file)
         
         # compress

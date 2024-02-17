@@ -619,6 +619,9 @@ function compress_pvd(filename_pvd::String; Dir=pwd(), delete_original_files=fal
         
         # compress
         filenames_compressed[i] = compress_vtr_file(filename, Dir=dir, delete_original_files=delete_original_files)
+
+        # delete memory
+        GC.gc()
     end
 
     # replace the filenames in the pvd file

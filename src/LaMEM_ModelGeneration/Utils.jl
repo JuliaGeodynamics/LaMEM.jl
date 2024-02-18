@@ -65,9 +65,11 @@ Add several phases @ once.
 """
 function add_phase!(model::Model, phases...) 
     for phase in phases
-        push!(model.Materials.Phases, phase);
+        
+        push!(model.Materials.Phases, process_Phase(phase));
     end
 end
+
 
 
 """

@@ -1,6 +1,6 @@
 # Specify Material properties
+using GeoParams
 export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, Write_LaMEM_InputFile
-
 
 
 """
@@ -272,6 +272,43 @@ Base.@kwdef mutable struct Phase
 
     "melt fraction viscosity correction factor (positive scalar)"
     mfc::Union{Nothing,Float64}       = nothing 
+
+    """
+    GeoParams creeplaws 
+    
+    Set diffusion or dislocation creeplaws as provided by the GeoParams package:
+    
+    ```julia
+    julia> using GeoParams
+    julia> a = SetDiffusionCreep(GeoParams.Diffusion.dry_anorthite_Rybacki_2006);
+    julia> p = Phase(ID=1,Name="test", GeoParams=[a]);
+    ```
+    Note that GeoParams should be a vector, as you could, for example, have diffusion and dislocation creep parameters
+    
+    Note also that this will overwrite any other creeplaws provided in the Phase struct.
+    """
+    GeoParams::Union{Nothing,Vector{AbstractCreepLaw}}       = nothing 
+end
+
+
+function process_Phase(phase::Phase)
+    if !isnothing(phase.GeoParams)
+        # NOTE: this needs checking; likely that B in LaMEM is defined differently!
+        println("GeoParamsExt: adding creeplaw params")
+        for ph in phase.GeoParams
+            if isa(ph, DiffusionCreep)
+                phase.Bd = ph.A
+                phase.Ed = ph.E
+                phase.Vd = ph.V
+            elseif isa(ph, DislocationCreep)
+                phase.Bn = ph.A
+                phase.En = ph.E
+                phase.Vn = ph.V
+                phase.n  = ph.n
+            end
+        end
+    end
+    return phase
 end
 
 function show(io::IO, d::Phase)
@@ -280,9 +317,22 @@ function show(io::IO, d::Phase)
 
     # print fields
     for f in fields
-        if !isnothing(getfield(d,f)) & (f != :ID) & (f != :Name)
+        if !isnothing(getfield(d,f)) & (f != :ID) & (f != :Name) & (f != :GeoParams)
             printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
         end
+
+        # if we have GeoParams creep data, print it differently
+        if f == :GeoParams && !isnothing(getfield(d,f))
+            g = getfield(d,f);
+            names = "["
+            for i=1:length(g)
+                name = GeoParams.uint2str(g[i].Name)
+                names = names*"$(name); "
+            end
+            names = names*"]"
+            printstyled(io,"  $(rpad(String(f),9)) = $names \n")        
+        end
+        
     end
 
     return nothing
@@ -302,7 +352,6 @@ function show_short(d::Phase)
     str=str*")"
     return str
 end
-
 
 """
     Defines strain softening parameters

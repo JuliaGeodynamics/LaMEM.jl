@@ -125,30 +125,39 @@ If you want to quantitatively do something with the results, there is an easy wa
 ```julia
 julia> using LaMEM
 ```
-You can first read the `*.pvd` file in the directory to see which timesteps are available:
+You can first read the `*.pvd` file in the directory to see which timesteps are available. If you used julia to run the simulation (as under 2 above ), this is done with:
 ```julia
-julia> FileName="FB_multigrid"
-julia> DirName ="test"
-julia> Timestep, Filenames, Time = Read_LaMEM_simulation(FileName, DirName)
-([0, 1], ["Timestep_00000000_0.00000000e+00/FB_multigrid.pvtr", "Timestep_00000001_6.72970343e+00/FB_multigrid.pvtr"], [0.0, 6.729703])
+julia> julia> Timestep, Filenames, t = Read_LaMEM_simulation(model)
+([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], ["Timestep_00000000_0.00000000e+00/output.pvtr", "Timestep_00000001_4.40000000e-02/output.pvtr", "Timestep_00000002_9.24000000e-02/output.pvtr", "Timestep_00000003_1.45640000e-01/output.pvtr", "Timestep_00000004_2.04204000e-01/output.pvtr", "Timestep_00000005_2.68624400e-01/output.pvtr", "Timestep_00000006_3.39486840e-01/output.pvtr", "Timestep_00000007_4.17435524e-01/output.pvtr", "Timestep_00000008_5.03179076e-01/output.pvtr", "Timestep_00000009_5.97496984e-01/output.pvtr", "Timestep_00000010_7.01246682e-01/output.pvtr", "Timestep_00000011_8.15371351e-01/output.pvtr", "Timestep_00000012_9.40908486e-01/output.pvtr", "Timestep_00000013_1.07899933e+00/output.pvtr"], [0.0, 0.044, 0.0924, 0.14564, 0.204204, 0.2686244, 0.3394868, 0.4174355, 0.5031791, 0.597497, 0.7012467, 0.8153714, 0.9409085, 1.078999])
 ```
+
+If you instead have an existing LaMEM simulation, you can specify the `*.pvd` file:
+```julia
+julia> pvdname="output.pvd"
+julia> Timestep, Filenames, t = Read_LaMEM_simulation(pvdname)
+```
+
 We can read a particular timestep (say 1) with:
 ```julia
-julia> data, time = Read_LaMEM_timestep(FileName, 1, DirName)
+julia> data, time = Read_LaMEM_timestep(model, 1)
 (CartData 
-    size    : (33, 33, 33)
-    x       ϵ [ 0.0 : 1.0]
-    y       ϵ [ 0.0 : 1.0]
-    z       ϵ [ 0.0 : 1.0]
-    fields  : (:phase, :visc_total, :visc_creep, :velocity, :pressure, :strain_rate, :j2_dev_stress, :j2_strain_rate)
+    size    : (17, 17, 17)
+    x       ϵ [ -1.0 : 1.0]
+    y       ϵ [ -1.0 : 1.0]
+    z       ϵ [ -1.0 : 1.0]
+    fields  : (:phase, :density, :visc_total, :visc_creep, :velocity, :pressure, :temperature, :j2_dev_stress, :j2_strain_rate)
   attributes: ["note"]
-, [6.729703])
+, [0.044])
 ```
 The output is in a `CartData` structure (as defined in GeophysicalModelGenerator).
-More details are given in the documentation.
+More details are given in the [documentation](https://juliageodynamics.github.io/LaMEM.jl/dev/).
 
 ### 5. Dependencies
 We rely on the following packages:
 - [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.
 - [LaMEM_jll](https://github.com/JuliaRegistries/General/tree/master/L/LaMEM_jll) - this contains the LaMEM binaries, precompiled for most systems. Note that on windows, the MUMPS parallel direct solver is not available.
 - [ReadVTK](https://github.com/JuliaVTK/ReadVTK.jl) - This reads the LaMEM `*.vtk` files (or the rectilinear and structured grid versions of it)  baxck into julia.
+
+
+### 6. Funding
+Funding for this julia interface has been provided by the European Research Council (ERC CoG [MAGMA # 771143](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwi8rN_Iy7SEAxX8SfEDHfd3AzkQFnoECB4QAQ&url=https%3A%2F%2Fcordis.europa.eu%2Fproject%2Fid%2F771143&usg=AOvVaw1G1LUjR9t9KtX6pcE2ozr2&opi=89978449)), and by the EuroHPC-JU Center of Excellence [CHEESE-2P](https://cheese2.eu).

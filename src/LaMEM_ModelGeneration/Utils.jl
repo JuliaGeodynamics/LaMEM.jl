@@ -65,8 +65,8 @@ Add several phases @ once.
 """
 function add_phase!(model::Model, phases...) 
     for phase in phases
-        
-        push!(model.Materials.Phases, process_Phase(phase));
+
+        push!(model.Materials.Phases, add_geoparams_rheologies(phase));
     end
 end
 

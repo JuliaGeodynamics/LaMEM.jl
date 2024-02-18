@@ -291,7 +291,7 @@ Base.@kwdef mutable struct Phase
 end
 
 
-function process_Phase(phase::Phase)
+function add_geoparams_rheologies(phase::Phase)
     if !isnothing(phase.GeoParams)
         # NOTE: this needs checking; likely that B in LaMEM is defined differently!
         println("GeoParamsExt: adding creeplaw params")

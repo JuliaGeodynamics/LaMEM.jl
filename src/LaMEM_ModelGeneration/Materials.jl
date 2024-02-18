@@ -24,13 +24,112 @@ Base.@kwdef mutable struct Phase
     "material ID for phase visualization (default is ID)"
     visID::Union{Nothing,Int64}      = nothing     
 
-    "DIFFUSION creep profile; example: \"Dry_Olivine_diff_creep-Hirth_Kohlstedt_2003\""
+    """
+    Build-in DIFFUSION creep profiles:
+    
+    Example: `"Dry__Olivine_diff_creep-Hirth_Kohlstedt_2003"`
+    
+    Available build-in diffusion creep rheologies are:
+    
+    1) From [Hirth, G. and Kohlstedt D. (2003), Rheology of the upper mantle and the mantle wedge: A view from the experimentalists]:
+
+    - `"Dry_Olivine_diff_creep-Hirth_Kohlstedt_2003"`
+    - `"Wet_Olivine_diff_creep-Hirth_Kohlstedt_2003_constant_C_OH"`
+    - `"Wet_Olivine_diff_creep-Hirth_Kohlstedt_2003"`
+
+    2) From [Rybacki and Dresen, 2000, JGR]:
+    - `"Dry_Plagioclase_RybackiDresen_2000"`
+    - `"Wet_Plagioclase_RybackiDresen_2000"`
+
+    Note that you can always specify your own, by setting `Bd`, `Ed`, `Vd` accordingly.
+    """
     diff_prof::Union{Nothing,String}  = nothing
 
-    "DISLOCATION creep profile; example: \"Granite-Tirel_et_al_2008\""
+    """
+    Build-in DISLOCATION creep profiles: 
+    
+    Example: `"Granite-Tirel_et_al_2008"`
+
+    Available build-in dislocation creep rheologies are:
+    
+    1) From [Ranalli 1995]:
+
+    - `"Dry_Olivine-Ranalli_1995"`
+    - `"Wet_Olivine-Ranalli_1995"`
+    - `"Wet_Quarzite-Ranalli_1995"`
+    - `"Quarzite-Ranalli_1995"`
+    - `"Mafic_Granulite-Ranalli_1995"`
+    - `"Plagioclase_An75-Ranalli_1995"`
+
+    2) From [Carter and Tsenn (1986). Flow properties of continental lithosphere - page 18]:
+    
+    - `"Quartz_Diorite-Hansen_Carter_1982"`
+    
+    3) From [J. de Bremond d'Ars et al. Tectonophysics (1999). Hydrothermalism and Diapirism in the Archaean: gravitational instability constrains. - page 5]
+
+    - `"Diabase-Caristan_1982"`
+    - `"Tumut_Pond_Serpentinite-Raleigh_Paterson_1965"`
+
+    4) From [Mackwell, Zimmerman & Kohlstedt (1998). High-temperature deformation]:
+    
+    - `"Maryland_strong_diabase-Mackwell_et_al_1998"`
+
+    5) From [Ueda et al (PEPI 2008)]:
+
+    - `"Wet_Quarzite-Ueda_et_al_2008"`
+    
+    6) From [Huismans et al 2001]:
+
+    - `"Diabase-Huismans_et_al_2001"`
+    - `"Granite-Huismans_et_al_2001"`
+    
+    7) From [Burg And Podladchikov (1999)]:
+
+    - `"Dry_Upper_Crust-Schmalholz_Kaus_Burg_2009"`
+    - `"Weak_Lower_Crust-Schmalholz_Kaus_Burg_2009"`
+    - `"Olivine-Burg_Podladchikov_1999"`
+    
+    8) From [Rybacki and Dresen, 2000, JGR]:
+
+    - `"Dry_Plagioclase_RybackiDresen_2000"`
+    - `"Wet_Plagioclase_RybackiDresen_2000"`
+
+    9) From [Hirth, G. & Kohlstedt (2003), D. Rheology of the upper mantle and the mantle wedge: A view from the experimentalists]:
+
+    - `"Wet_Olivine_disl_creep-Hirth_Kohlstedt_2003"`
+    - `"Wet_Olivine_disl_creep-Hirth_Kohlstedt_2003_constant_C_OH"`
+    - `"Dry_Olivine_disl_creep-Hirth_Kohlstedt_2003"`
+
+    10) From [SchmalholzKausBurg(2009), Geology (wet olivine)]:
+
+    - `"Wet_Upper_Mantle-Burg_Schmalholz_2008"`
+    - `"Granite-Tirel_et_al_2008"`
+
+    11) From [Urai et al.(2008)]:
+
+    - `"Ara_rocksalt-Urai_et_al.(2008)"`
+
+    12) From [Bräuer et al. (2011) Description of the Gorleben site (PART 4): Geotechnical exploration of the Gorleben salt dome - page 126]:
+
+    - `"RockSaltReference_BGRa_class3-Braeumer_et_al_2011"`
+
+    13) From [Mueller and Briegel (1978)]:
+
+    - `"Polycrystalline_Anhydrite-Mueller_and_Briegel(1978)"`
+
+    Note that you can always specify your own, by setting `Bn`, `En`, `Vn`, and `n` accordingly.
+    """
     disl_prof::Union{Nothing,String}  = nothing                    
 
-    "PEIERLS creep profile; example:  \"Olivine_Peierls-Kameyama_1999\""
+    """
+    Build-in PEIERLS creep profiles:
+
+    example:  `"Olivine_Peierls-Kameyama_1999"`
+
+    Available profiles:
+    - `"Olivine_Peierls-Kameyama_1999"`
+
+    """
     peir_prof::Union{Nothing,String}  = nothing               
 
     "depth-dependent density model parameter"
@@ -702,6 +801,7 @@ function Write_LaMEM_InputFile(io, d::Materials)
             if !isnothing(getfield(phase,p))
                 name = rpad(String(p),15)
                 comment = get_doc(Phase, p)
+                comment = split(comment,"\n")[1]
                 data = getfield(phase,p) 
                 println(io,"        $name  = $(write_vec(data))     # $(comment)")
             end

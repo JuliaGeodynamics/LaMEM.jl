@@ -1,6 +1,7 @@
 # Specify Material properties
 using GeoParams
 export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, Write_LaMEM_InputFile
+export add_geoparams_rheologies
 
 
 """
@@ -294,14 +295,13 @@ end
 function add_geoparams_rheologies(phase::Phase)
     if !isnothing(phase.GeoParams)
         # NOTE: this needs checking; likely that B in LaMEM is defined differently!
-        println("GeoParamsExt: adding creeplaw params")
         for ph in phase.GeoParams
             if isa(ph, DiffusionCreep)
-                phase.Bd = ph.A
+                phase.Bd = NumValue(ph.A)*ph.FT/ph.FE*1e-2^(NumValue(ph.p))
                 phase.Ed = ph.E
                 phase.Vd = ph.V
             elseif isa(ph, DislocationCreep)
-                phase.Bn = ph.A
+                phase.Bn = NumValue(ph.A)*ph.FT^NumValue(ph.n)/ph.FE
                 phase.En = ph.E
                 phase.Vn = ph.V
                 phase.n  = ph.n
@@ -847,7 +847,7 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io, "   <MaterialStart>")
         phase_fields    = fieldnames(typeof(phase))
         for p in phase_fields
-            if !isnothing(getfield(phase,p))
+            if !isnothing(getfield(phase,p)) & (p != :GeoParams)
                 name = rpad(String(p),15)
                 comment = get_doc(Phase, p)
                 comment = split(comment,"\n")[1]

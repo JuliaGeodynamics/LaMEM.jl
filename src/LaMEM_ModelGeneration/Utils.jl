@@ -4,7 +4,7 @@ import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
         add_softening!, add_phasetransition!, add_phaseaggregate!,
-        add_dike!, add_geom! , cross_section,
+        add_dike!, add_geom!, rm_geom!, cross_section,
         set_air, copy_phase,
         isdefault, hasplasticity,
         stress_strainrate_0D
@@ -71,7 +71,6 @@ function add_phase!(model::Model, phases...)
         push!(model.Materials.Phases, phase_added);
     end
 end
-
 
 
 """
@@ -196,13 +195,42 @@ This adds an internal geometric primitive object `geom_object` to the LaMEM Mode
 
 Currently available primitive geom objects are:
 - `geom_Sphere`
+- `geom_Ellipsoid`
+- `geom_Box`
+- `geom_Layer`
+- `geom_Cylinder`
+- `geom_RidgeSeg`
+- `geom_Hex`
+
 """
 function add_geom!(model::Model, geom_object)
     push!(model.ModelSetup.geom_primitives, geom_object);
-    set_geom!(model, geom_object)
+    model.ModelSetup.msetup = "geom";
+    
+    #set_geom!(model, geom_object)
+
     return nothing
 end
 
+
+"""
+    add_geom!(model::Model, geom_object)
+Add several geometric objects @ once.
+"""
+function add_geom!(model::Model, geom_objects...) 
+    for geom_object in geom_objects
+        add_geom!(model, geom_object)
+    end
+end
+
+"""
+    rm_geom!(model::Model)
+This removes all existing geometric objects from `model`
+"""
+function rm_geom!(model::Model) 
+    model.ModelSetup.geom_primitives = []
+    return nothing
+end
 
 """
 

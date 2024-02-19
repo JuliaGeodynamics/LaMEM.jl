@@ -10,7 +10,7 @@ export ModelSetup, Write_LaMEM_InputFile,
     $(TYPEDFIELDS)
 """
 Base.@kwdef mutable struct ModelSetup
-    "Setup type - can be `geom` (phases are assigned from geometric primitives), `files` (from julia input), `polygons` (from geomIO input, which requires `poly_file` to be specified) "
+    "Setup type - can be `geom` (phases are assigned from geometric primitives, using `add_geom!(model, ...)`), `files` (from julia input), `polygons` (from geomIO input, which requires `poly_file` to be specified) "
     msetup::String          = "files"              
      
     "add random noise to the particle location"
@@ -93,7 +93,12 @@ end
 
 
 function show_short(io::IO, d::ModelSetup)
-    println(io,"|-- Model setup options :  Type=$(d.msetup); ")
+    str_geom = ""
+    if d.msetup == "geom"
+        str_geom = "$(length(d.geom_primitives)) geometric primitive objects"
+    end
+
+    println(io,"|-- Model setup options :  Type=$(d.msetup); $(str_geom)")
 
     return nothing
 end
@@ -209,7 +214,7 @@ Base.@kwdef struct geom_Box
     phase::Int64          = 1          
      
     "box bound coordinates: `left`, `right`, `front`, `back`, `bottom`, `top` "
-    bounds::Vector{Float64}      = [1.0 2.0 1.0 2.0 1.0 2.0]
+    bounds::Vector{Float64}      = [1.0, 2.0, 1.0, 2.0, 1.0, 2.0]
         
     "optional: Temperature structure. possibilities: [constant, linear, halfspace]"
     Temperature::Union{String,Nothing} = nothing
@@ -414,7 +419,7 @@ function Write_LaMEM_InputFile(io, d::geom_Layer)
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
     end
-    println(io, "    <LayerStart>")
+    println(io, "    <LayerEnd>")
     return nothing
 end
 # -------
@@ -518,7 +523,6 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
         for object in d.geom_primitives
             Write_LaMEM_InputFile(io, object)
         end
-
     end
 
 

@@ -1,6 +1,7 @@
 # Specify Material properties
+using GeoParams
 export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, Write_LaMEM_InputFile
-
+export add_geoparams_rheologies
 
 
 """
@@ -272,6 +273,56 @@ Base.@kwdef mutable struct Phase
 
     "melt fraction viscosity correction factor (positive scalar)"
     mfc::Union{Nothing,Float64}       = nothing 
+
+    """
+    GeoParams creeplaws 
+    
+    Set diffusion or dislocation creeplaws as provided by the GeoParams package:
+    
+    ```julia
+    julia> using GeoParams
+    julia> a = SetDiffusionCreep(GeoParams.Diffusion.dry_anorthite_Rybacki_2006);
+    julia> p = Phase(ID=1,Name="test", GeoParams=[a]);
+    ```
+    Note that GeoParams should be a vector, as you could, for example, have diffusion and dislocation creep parameters
+    
+    Note also that this will overwrite any other creeplaws provided in the Phase struct.
+    """
+    GeoParams::Union{Nothing,Vector{AbstractCreepLaw}}       = nothing 
+
+    """
+    grainsize [m] (not used in LaMEM!)
+    This is not actually used in LaMEM, but is required when setting diffusion creep parameters by using GeoParams 
+    """
+    grainsize::Union{Nothing, Float64} = nothing
+
+end
+
+
+function add_geoparams_rheologies(phase::Phase)
+    if !isnothing(phase.GeoParams)
+        # NOTE: this needs checking; likely that B in LaMEM is defined differently!
+        for ph in phase.GeoParams
+            if isa(ph, DiffusionCreep)
+                d0       = phase.grainsize
+                if isnothing(d0)
+                    error("If you use GeoParams to set diffusion creep, you need to specify the grainsize in the Phase info")
+                end
+
+                #phase.Bd = NumValue(ph.A)*ph.FT/ph.FE*d0^(NumValue(ph.p))
+                phase.Bd = NumValue(ph.A)*d0^(NumValue(ph.p))*ph.FT/ph.FE
+                
+                phase.Ed = ph.E
+                phase.Vd = ph.V
+            elseif isa(ph, DislocationCreep)
+                phase.Bn = NumValue(ph.A)*ph.FT^NumValue(ph.n)/ph.FE
+                phase.En = ph.E
+                phase.Vn = ph.V
+                phase.n  = ph.n
+            end
+        end
+    end
+    return phase
 end
 
 function show(io::IO, d::Phase)
@@ -280,9 +331,22 @@ function show(io::IO, d::Phase)
 
     # print fields
     for f in fields
-        if !isnothing(getfield(d,f)) & (f != :ID) & (f != :Name)
+        if !isnothing(getfield(d,f)) & (f != :ID) & (f != :Name) & (f != :GeoParams)
             printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
         end
+
+        # if we have GeoParams creep data, print it differently
+        if f == :GeoParams && !isnothing(getfield(d,f))
+            g = getfield(d,f);
+            names = "["
+            for i=1:length(g)
+                name = GeoParams.uint2str(g[i].Name)
+                names = names*"$(name); "
+            end
+            names = names*"]"
+            printstyled(io,"  $(rpad(String(f),9)) = $names \n")        
+        end
+        
     end
 
     return nothing
@@ -292,17 +356,26 @@ function show_short(d::Phase)
     fields    = fieldnames(typeof(d))
     str = "Phase("
     for (i,f) in enumerate(fields)
-        if !isnothing(getfield(d,f))
+        if !isnothing(getfield(d,f)) & (f != :GeoParams) 
             str=str*"$(String(f))=$(getfield(d,f))"        
             if i<length(fields)
                 str=str*","
             end
+        elseif !isnothing(getfield(d,f)) && f == :GeoParams 
+            g = getfield(d,f);
+            names = "["
+            for i=1:length(g)
+                name = GeoParams.uint2str(g[i].Name)
+                names = names*"$(name);"
+            end
+            names = names*"]"
+            str *= "  $(rpad(String(f),9)) = $names"
         end
+
     end
     str=str*")"
     return str
 end
-
 
 """
     Defines strain softening parameters
@@ -798,7 +871,7 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io, "   <MaterialStart>")
         phase_fields    = fieldnames(typeof(phase))
         for p in phase_fields
-            if !isnothing(getfield(phase,p))
+            if !isnothing(getfield(phase,p)) & (p != :GeoParams) & (p != :grainsize)
                 name = rpad(String(p),15)
                 comment = get_doc(Phase, p)
                 comment = split(comment,"\n")[1]

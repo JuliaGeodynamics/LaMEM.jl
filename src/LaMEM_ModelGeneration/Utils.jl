@@ -6,7 +6,8 @@ export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_softening!, add_phasetransition!, add_phaseaggregate!,
         add_dike!, add_geom! , cross_section,
         set_air, copy_phase,
-        isdefault, hasplasticity
+        isdefault, hasplasticity,
+        stress_strainrate_0D
 
 
 
@@ -55,7 +56,8 @@ end
 This adds a `phase` (with material properties) to `model`
 """
 function add_phase!(model::Model, phase::Phase) 
-    push!(model.Materials.Phases, phase);
+    phase_added = add_geoparams_rheologies(phase)
+    push!(model.Materials.Phases, phase_added);
     return nothing
 end
 
@@ -65,9 +67,11 @@ Add several phases @ once.
 """
 function add_phase!(model::Model, phases...) 
     for phase in phases
-        push!(model.Materials.Phases, phase);
+        phase_added = add_geoparams_rheologies(phase)
+        push!(model.Materials.Phases, phase_added);
     end
 end
+
 
 
 """
@@ -403,4 +407,46 @@ function hasplasticity(p::Phase)
         plastic = true
     end
     return plastic
+end
+
+
+
+"""
+    τ = stress_strainrate_0D(rheology, ε_vec::Vector; n=8, T=700, nstep_max=2, clean=true)
+
+Computes the stress for a given strain rate and 0D rheology setup, for viscous creep rheologies. 
+    `n` is the resolution in `x,z`, `T` the temperature, `nstep_max` the number of time steps, `ε_vec`
+    the strainrate vector (in 1/s). 
+
+"""
+function stress_strainrate_0D(rheology, ε_vec::Vector; n=8, T=700, nstep_max=2, clean=true)
+
+    # Main model setup
+    model  = Model( Grid(nel=(n, n), x=[-1,1], z=[-1,1]),
+                    Time(nstep_max=nstep_max, dt=1e-6, dt_max=1, dt_min=1e-10, time_end=100), 
+                    BoundaryConditions(exx_strain_rates=[1e-15] ),   
+                    Output(out_dir="0D_1"))
+
+    rm_phase!(model)
+    add_phase!(model, rheology)
+    model.Grid.Temp.=T;
+                
+    τ = zero(ε_vec)
+    for (i,ε) in enumerate(ε_vec)
+        # run the simulation on 1 core
+        model.Output.out_dir="0D_$i"
+        model.BoundaryConditions.exx_strain_rates = [ε]
+        run_lamem(model, 1); #run
+        data,_ = Read_LaMEM_timestep(model, last=true) # read
+        
+        @show extrema(data.fields.j2_dev_stress)
+
+        τ[i] = Float64.(sum(extrema(data.fields.j2_dev_stress))/2) # in MPa
+
+        if clean
+            rm("0D_$i",recursive=true)
+        end
+    end
+   
+    return τ
 end

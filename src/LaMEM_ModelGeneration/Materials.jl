@@ -356,12 +356,22 @@ function show_short(d::Phase)
     fields    = fieldnames(typeof(d))
     str = "Phase("
     for (i,f) in enumerate(fields)
-        if !isnothing(getfield(d,f))
+        if !isnothing(getfield(d,f)) & (f != :GeoParams) 
             str=str*"$(String(f))=$(getfield(d,f))"        
             if i<length(fields)
                 str=str*","
             end
+        elseif !isnothing(getfield(d,f)) && f == :GeoParams 
+            g = getfield(d,f);
+            names = "["
+            for i=1:length(g)
+                name = GeoParams.uint2str(g[i].Name)
+                names = names*"$(name);"
+            end
+            names = names*"]"
+            str *= "  $(rpad(String(f),9)) = $names"
         end
+
     end
     str=str*")"
     return str

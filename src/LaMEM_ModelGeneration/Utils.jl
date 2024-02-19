@@ -56,7 +56,8 @@ end
 This adds a `phase` (with material properties) to `model`
 """
 function add_phase!(model::Model, phase::Phase) 
-    push!(model.Materials.Phases, phase);
+    phase_added = add_geoparams_rheologies(phase)
+    push!(model.Materials.Phases, phase_added);
     return nothing
 end
 

@@ -59,7 +59,7 @@ using GeoParams, LaMEM
     τ_num1 = stress_strainrate_0D(rheology, ε_vec; T=T0)
 
     g = SetDiffusionCreep(GeoParams.Diffusion.dry_anorthite_Rybacki_2006)
-    rheology1 = add_geoparams_rheologies(Phase(ID=0,Name="rheology",GeoParams=[g], rho=3000, grainsize=100e-6))
+    rheology1 = Phase(ID=0,Name="rheology",GeoParams=[g], rho=3000, grainsize=100e-6)
     τ_num2 = stress_strainrate_0D(rheology1, ε_vec; T=T0)
     @test sum(τ_num1-τ_num2) ≈ 0.0 atol=1e-6 # check stress
  

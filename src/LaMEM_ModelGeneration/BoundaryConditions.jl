@@ -2,7 +2,7 @@
 #
 # WARNING: incomplete, more parameters to be added 
 
-export BoundaryConditions, VelocityBox, Write_LaMEM_InputFile
+export BoundaryConditions, VelocityBox, BCBlock, VelCylinder, Write_LaMEM_InputFile
 
 
 # -------
@@ -44,6 +44,7 @@ Base.@kwdef mutable struct VelocityBox
     advect::Int64 = 0
 end
 
+#=
 function show(io::IO, d::VelocityBox)
     println(io, "VelocityBox: ")
     fields    = fieldnames(typeof(d))
@@ -57,8 +58,9 @@ function show(io::IO, d::VelocityBox)
 
     return nothing
 end
+=#
 
-function show_short(d::VelocityBox)
+function show(d::VelocityBox)
     fields    = fieldnames(typeof(d))
     str = "VelocityBox("
     for (i,f) in enumerate(fields)
@@ -111,7 +113,7 @@ Base.@kwdef struct BCBlock
     path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]           
     
     "Number of polygon vertices"
-    npoly:Int64 =  4                                
+    npoly::Int64 =  4                                
 
     "Polygon x-y coordinates at initial time"
     poly::Vector{Float64}  =  [ 0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1]
@@ -124,9 +126,24 @@ Base.@kwdef struct BCBlock
 
 end
 
+#=
+function show(io::IO, d::BCBlock)
+    println(io, "BCBlock: ")
+    fields    = fieldnames(typeof(d))
+
+    # print fields
+    for f in fields
+        if !isnothing(getfield(d,f)) 
+            printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
+        end
+    end
+
+    return nothing
+end
+=#
 
 function show(io::IO, d::BCBlock)
-    println(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
+    print(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
     return nothing
 end
 
@@ -194,9 +211,23 @@ Base.@kwdef struct VelCylinder
 
 end
 
-
+#=
 function show(io::IO, d::VelCylinder)
-    println(io, "VelCylinder(base=($(d.baseX), $(d.baseY), $(d.baseZ)), cap=$(d.capX), $(d.capY), $(d.capZ))), radius=$(d.radius), Velocity=($(d.vx),$(d.vy),$(d.vz)), advect=$(d.advect), vmag=$(d.vmag), type=$(d.type))")
+    println(io, "VelCylinder: ")
+    fields    = fieldnames(typeof(d))
+
+    # print fields
+    for f in fields
+        if !isnothing(getfield(d,f)) 
+            printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
+        end
+    end
+
+    return nothing
+end
+=#
+function show(io::IO, d::VelCylinder)
+    print(io, "VelCylinder(base=($(d.baseX), $(d.baseY), $(d.baseZ)), cap=$(d.capX), $(d.capY), $(d.capZ))), radius=$(d.radius), Velocity=($(d.vx),$(d.vy),$(d.vz)), advect=$(d.advect), vmag=$(d.vmag), type=$(d.type))")
     return nothing
 end
 
@@ -287,6 +318,12 @@ Base.@kwdef mutable struct BoundaryConditions
 
     "List of added velocity boxes"
     VelocityBoxes::Vector{VelocityBox} = []
+
+    "List of added Bezier blocks"
+    BCBlocks::Vector{BCBlock} = []
+
+    "List of added velocity cylinders"
+    VelCylinders::Vector{VelCylinder} = []
 
     "Face identifier  (Left; Right; Front; Back; CompensatingInflow)"
     bvel_face::Union{Nothing,String}    =         nothing
@@ -471,9 +508,10 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
                 data = getfield(d, f)
                 println(io, "    $name  = $(write_vec(data))     # $(comment)")
             end
-
-        elseif f != :VelocityBoxes
-            Write_LaMEM_InputFile(io, f)
+        end
+        
+        #end        elseif f != :VelocityBoxes
+#            Write_LaMEM_InputFile(io, f)
 
 
             #=
@@ -500,16 +538,40 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
                 end
             end
             =#
-        elseif f != :VelCylinder
-            Write_LaMEM_InputFile(io, f)
-        elseif f != :BCBlock
-            Write_LaMEM_InputFile(io, f)
-
-
-        end
+      #  elseif f != :VelCylinder
+      #      Write_LaMEM_InputFile(io, f)
+      #  elseif f != :BCBlock
+      #      Write_LaMEM_InputFile(io, f)
+#
+#
+      #  end
 
     end
     println(io, "")
+
+    if length(d.VelocityBoxes)>0
+        println(io, "")
+        println(io, "# Velocity boxes: \n")
+        for object in d.VelocityBoxes
+            Write_LaMEM_InputFile(io, object)
+        end
+    end
+
+    if length(d.VelCylinders)>0
+        println(io, "")
+        for object in d.VelCylinders
+            Write_LaMEM_InputFile(io, object)
+        end
+    end
+
+    if length(d.BCBlocks)>0
+        println(io, "")
+        for object in d.BCBlocks
+            Write_LaMEM_InputFile(io, object)
+        end
+    end
+    
+    
 
 
     println(io, "# temperature on the top & bottom boundaries [usually constant]")

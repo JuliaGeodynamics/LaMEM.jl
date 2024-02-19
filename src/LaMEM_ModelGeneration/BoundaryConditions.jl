@@ -5,7 +5,7 @@
 export BoundaryConditions, VelocityBox, Write_LaMEM_InputFile
 
 
-
+# -------
 """
     Define velocity regions within the modelling region, by specifying its center point and width along the three axis.    
 
@@ -72,7 +72,149 @@ function show_short(d::VelocityBox)
     str=str*")"
     return str
 end
+"""
+    Write_LaMEM_InputFile(io, d::geom_Sphere)
 
+"""
+function Write_LaMEM_InputFile(io, d::VelocityBox)
+    fields    = fieldnames(typeof(d))
+    println(io, "    <VelBoxStart>")
+    for f in fields
+        if !isnothing(getfield(d,f))
+            name = rpad(String(f),15)
+            comment = get_doc(VelocityBox, f)
+            data = getfield(d,f) 
+            println(io,"        $name  = $(write_vec(data))     # $(comment)")
+        end
+    end
+    println(io, "    <VelBoxEnd>")
+    return nothing
+end
+
+# -------
+"""
+    LaMEM boundary condition `BCBlock` object 
+    
+    $(TYPEDFIELDS)
+"""
+Base.@kwdef struct BCBlock
+    "Number of path points of Bezier curve (path-points only!)"
+    npath::Int64 =  2      
+
+    "# Orientation angles at path points (counter-clockwise positive)"    
+    theta::Vector{Float64} =  [0.0, 5.0]                      
+    
+    "Times at path points"
+    time::Vector{Float64}  =  [1.0, 2.0]                
+    
+    "Path points x-y coordinates"
+    path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]           
+    
+    "Number of polygon vertices"
+    npoly:Int64 =  4                                
+
+    "Polygon x-y coordinates at initial time"
+    poly::Vector{Float64}  =  [ 0.0, 0.0, 0.1, 0.0, 0.1, 0.1, 0.0, 0.1]
+
+    "Polygon bottom coordinate"
+    bot::Float64    =  0.0                            
+    
+    "Polygon top coordinate"
+    top::Float64   =  0.1                              
+
+end
+
+
+function show(io::IO, d::BCBlock)
+    println(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
+    return nothing
+end
+
+function Write_LaMEM_InputFile(io, d::BCBlock)
+    fields    = fieldnames(typeof(d))
+    println(io, "    <BCBlockStart>")
+    for f in fields
+        if !isnothing(getfield(d,f))
+            name = rpad(String(f),15)
+            comment = get_doc(BCBlock, f)
+            data = getfield(d,f) 
+            println(io,"        $name  = $(write_vec(data))     # $(comment)")
+        end
+    end
+    println(io, "    <BCBlockEnd>")
+    return nothing
+end
+# -------
+
+# -------
+"""
+    LaMEM boundary condition internal velocty cylinder `VelCylinder` object 
+    
+    $(TYPEDFIELDS)
+"""
+Base.@kwdef struct VelCylinder
+    "X-coordinate of base of cylinder"
+    baseX::Float64    =   1.0      
+
+    "Y-coordinate of base of cylinder"
+    baseY::Float64    =   1.0      
+    
+    "Z-coordinate of base of cylinder"
+    baseZ::Float64    =   1.0      
+    
+    "X-coordinate of cap of cylinder"
+    capX::Float64     =   1.0      
+    
+    "Y-coordinate of cap of cylinder"
+    capY::Float64     =   1.0      
+    
+    "Z-coordinate of cap of cylinder"
+    capZ::Float64     =   1.0      
+    
+    "radius of cylinder"
+    radius::Float64   =   1.0     
+    
+    "Vx velocity of cylinder (default is unconstrained)"
+    vx::Union{Nothing,Float64}       =   nothing  
+    
+    "Vy velocity of cylinder (default is unconstrained)"
+    vy::Union{Nothing,Float64}       =   nothing     
+    
+    "Vz velocity of cylinder (default is unconstrained)  "
+    vz::Union{Nothing,Float64}       =   nothing  
+    
+    "cylinder advection flag"
+    advect::Int64   =   0        
+    
+    "magnitude of velocity applied along the cylinder's axis of orientation"
+    vmag::Float64     =   1.0     
+    
+    "velocity profile [uniform or parabolic]"
+    type::String     =   "uniform" 
+
+end
+
+
+function show(io::IO, d::VelCylinder)
+    println(io, "VelCylinder(base=($(d.baseX), $(d.baseY), $(d.baseZ)), cap=$(d.capX), $(d.capY), $(d.capZ))), radius=$(d.radius), Velocity=($(d.vx),$(d.vy),$(d.vz)), advect=$(d.advect), vmag=$(d.vmag), type=$(d.type))")
+    return nothing
+end
+
+function Write_LaMEM_InputFile(io, d::VelCylinder)
+    fields    = fieldnames(typeof(d))
+    println(io, "    <VelCylinderStart>")
+    for f in fields
+        if !isnothing(getfield(d,f))
+            name = rpad(String(f),15)
+            comment = get_doc(VelCylinder, f)
+            data = getfield(d,f) 
+            println(io,"        $name  = $(write_vec(data))     # $(comment)")
+        end
+    end
+    println(io, "    <VelCylinderEnd>")
+    return nothing
+end
+# -------
 
 
 """
@@ -115,6 +257,7 @@ Base.@kwdef mutable struct BoundaryConditions
 
     "exy_num_periods"
     exy_num_periods::Int64  = 2                 # same for simple shear components in x/y direction
+
     "exy_time_delims"
     exy_time_delims::Vector{Float64}  = [1.0]
     
@@ -272,13 +415,13 @@ Base.@kwdef mutable struct BoundaryConditions
     pres_top::Union{Nothing,Float64}       =   nothing 
 
     " Pressure on the bottom boundary"
-    pres_bot:Union{Nothing,Float64}       =   nothing 
+    pres_bot::Union{Nothing,Float64}       =   nothing 
 
     "pressure initial guess flag;  linear profile between pres_top and pres_bot in the unconstrained cells"
-    init_pres:Union{Nothing,Int64}       =   nothing 
+    init_pres::Union{Nothing,Int64}       =   nothing 
 
     "temperature initial guess flag; linear profile between temp_top and temp_bot"
-    init_temp:Union{Nothing,Int64}       =   nothing 
+    init_temp::Union{Nothing,Int64}       =   nothing 
 
 end 
 
@@ -319,7 +462,7 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
 
     for f in fields
 
-        if f != :VelocityBoxes # Skip the velocity boxes
+        if (f != :VelocityBoxes) && (f != :VelCylinder) && (f != :BCBlock) # Skip the velocity boxes
 
             if getfield(d, f) != getfield(Reference, f)
                 # only print if value differs from reference value
@@ -329,8 +472,11 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
                 println(io, "    $name  = $(write_vec(data))     # $(comment)")
             end
 
-        else
+        elseif f != :VelocityBoxes
+            Write_LaMEM_InputFile(io, f)
 
+
+            #=
             # Add the velocity boxes
             if length(d.VelocityBoxes) != 0
                 println(io, "")
@@ -353,6 +499,12 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
                     println(io, "")
                 end
             end
+            =#
+        elseif f != :VelCylinder
+            Write_LaMEM_InputFile(io, f)
+        elseif f != :BCBlock
+            Write_LaMEM_InputFile(io, f)
+
 
         end
 

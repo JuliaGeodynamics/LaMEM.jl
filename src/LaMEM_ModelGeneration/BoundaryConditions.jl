@@ -202,7 +202,85 @@ Base.@kwdef mutable struct BoundaryConditions
     "Depth interval of injection of the phase (the interval is defined by num_phase+1 coordinates). e.g. [-120 -100 -10 0    ]"
     bvel_phase_interval::Union{Nothing,Vector{Float64}}       =   nothing              
 
-end
+    "# Permeable lower boundary flag    "
+    open_bot_bound::Union{Nothing,Int64}       =   nothing    
+
+    "Phase of the inflow material from the bottom (The temperature of the inflow phase it is the same of the bottom boundary) in case of open_bot_bound=1"
+    permeable_phase_inflow::Union{Nothing,Int64}       =   nothing    
+
+    "fixed phase (no-flow condition)"
+    fix_phase::Union{Nothing,Int64}       =   nothing 
+
+    "fixed cells (no-flow condition)"
+    fix_cell::Union{Nothing,Int64}       =   nothing 
+
+    "fixed cells input file (extension is .xxxxxxxx.dat)"
+    fix_cell_file::Union{Nothing,String} = nothing
+
+    "How many periods with different temp_bot do we have? "
+    temp_bot_num_periods::Union{Nothing,Int64}       =   nothing 
+
+    "At which time do we switch from one to the next period?"
+    temp_bot_time_delim::Union{Nothing,Vector{Float64}}       =   nothing 
+
+    # Optional plume inflow @ bottom boundary
+    "# have a plume-like inflow boundary @ bottom"
+    Plume_InflowBoundary::Union{Nothing,Int64}       =   nothing 
+    
+    """
+    Type of plume inflow boundary.
+    - "Inflow_type" or 
+    - "Pressure_type" (circular)	or 
+    - "Permeable_Type" which combinse the open bot boundary with the plume boundary condition (the option herein listed overwrite open_bot, so do not activate) 	
+    """
+    Plume_Type::Union{Nothing,String}           =   nothing   
+    
+    "2D or 3D (circular)		"
+    Plume_Dimension::Union{Nothing,String}       =   nothing   
+
+    " how much of the plume is actually in the model. This usually 1 (default) but lower if the plume is in a corner of a symmetric setup and matters for the outflow"
+    Plume_areaFrac::Union{Nothing,Float64}       =   nothing 
+
+    "phase of plume material"
+    Plume_Phase::Union{Nothing,Int64}       =   nothing 
+
+    " # depth of provenience of the plume (i.e. how far from the bottom of the model the plume source is) "
+    Plume_Depth::Union{Nothing,Float64}       =   nothing 
+
+    "# Astenosphere phase (if the inflow occurs outside the plume radius)"
+    Plume_Mantle_Phase::Union{Nothing,Int64}       =   nothing 
+
+    "# temperature of inflow plume"
+    Plume_Temperature::Union{Nothing,Float64}       =   nothing 
+
+    " # Inflow velocity	(not required if Pressure_Type) in cm/year if using GEOunits"
+    Plume_Inflow_Velocity::Union{Nothing,Float64}       =   nothing 
+
+    " `\"Gaussian\"` or `\"Poiseuille\"`"
+    Plume_VelocityType::Union{Nothing,String}       =   nothing   
+    
+    "# [X,Y] of center  (2nd only in case of 3D plume)"
+    Plume_Center::Union{Nothing,Vector{Float64}}       =   nothing 
+
+    " # Width/Radius of plume"
+    Plume_Radius::Union{Nothing,Float64}       =   nothing 
+
+    "# Inflow phase. If the velocity happens to be positive in the domain, the inflow material has a constant phase and the temperature of the bottom"
+    Plume_Phase_Mantle::Union{Nothing,Int64}       =   nothing 
+
+    " Pressure on the top boundary"
+    pres_top::Union{Nothing,Float64}       =   nothing 
+
+    " Pressure on the bottom boundary"
+    pres_bot:Union{Nothing,Float64}       =   nothing 
+
+    "pressure initial guess flag;  linear profile between pres_top and pres_bot in the unconstrained cells"
+    init_pres:Union{Nothing,Int64}       =   nothing 
+
+    "temperature initial guess flag; linear profile between temp_top and temp_bot"
+    init_temp:Union{Nothing,Int64}       =   nothing 
+
+end 
 
 
 # Print info about the structure

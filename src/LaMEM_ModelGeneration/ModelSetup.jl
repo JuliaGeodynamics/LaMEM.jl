@@ -131,7 +131,7 @@ end
 
 
 function show(io::IO, d::geom_Sphere)
-    println(io, "Sphere(ph=$(d.phase), r=$(d.radius), cen=$(d.center), T=$(d.Temperature)=$(d.cstTemp))")
+    println(io, "Sphere(ph=$(d.phase), radius=$(d.radius), center=$(d.center), Temperature=$(d.Temperature),  cstTemp = $(d.cstTemp))")
     return nothing
 end
 

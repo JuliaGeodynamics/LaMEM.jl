@@ -37,7 +37,8 @@ export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
         add_phasetransition!, add_dike!, add_geom!, set_air, copy_phase,
         add_topography!, AboveSurface!, BelowSurface!,
         prepare_lamem, isdefault, hasplasticity,
-        add_geoparams_rheologies    
+        add_geoparams_rheologies,
+        stress_strainrate_0D    
 
 
 using .Run.LaMEM_jll

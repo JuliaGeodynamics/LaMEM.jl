@@ -289,6 +289,13 @@ Base.@kwdef mutable struct Phase
     Note also that this will overwrite any other creeplaws provided in the Phase struct.
     """
     GeoParams::Union{Nothing,Vector{AbstractCreepLaw}}       = nothing 
+
+    """
+    grainsize [m] (not used in LaMEM!)
+    This is not actually used in LaMEM, but is required when setting diffusion creep parameters by using GeoParams 
+    """
+    grainsize::Union{Nothing, Float64} = nothing
+
 end
 
 
@@ -297,7 +304,14 @@ function add_geoparams_rheologies(phase::Phase)
         # NOTE: this needs checking; likely that B in LaMEM is defined differently!
         for ph in phase.GeoParams
             if isa(ph, DiffusionCreep)
-                phase.Bd = NumValue(ph.A)*ph.FT/ph.FE*1e-2^(NumValue(ph.p))
+                d0       = phase.grainsize
+                if isnothing(d0)
+                    error("If you use GeoParams to set diffusion creep, you need to specify the grainsize in the Phase info")
+                end
+
+                #phase.Bd = NumValue(ph.A)*ph.FT/ph.FE*d0^(NumValue(ph.p))
+                phase.Bd = NumValue(ph.A)*d0^(NumValue(ph.p))*ph.FT/ph.FE
+                
                 phase.Ed = ph.E
                 phase.Vd = ph.V
             elseif isa(ph, DislocationCreep)
@@ -847,7 +861,7 @@ function Write_LaMEM_InputFile(io, d::Materials)
         println(io, "   <MaterialStart>")
         phase_fields    = fieldnames(typeof(phase))
         for p in phase_fields
-            if !isnothing(getfield(phase,p)) & (p != :GeoParams)
+            if !isnothing(getfield(phase,p)) & (p != :GeoParams) & (p != :grainsize)
                 name = rpad(String(p),15)
                 comment = get_doc(Phase, p)
                 comment = split(comment,"\n")[1]

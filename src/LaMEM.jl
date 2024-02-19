@@ -26,7 +26,7 @@ include("DocUtils.jl")
 include("LaMEM_ModelGeneration/LaMEM_Model.jl")
 using .LaMEM_Model
 export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
-        Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, SolutionParams,
+        Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, BCBlock, VelCylinder, SolutionParams,
         Solver, ModelSetup, 
         geom_Sphere, geom_Ellipsoid, geom_Box, geom_RidgeSeg, geom_Hex, geom_Layer, geom_Cylinder,
         Output,

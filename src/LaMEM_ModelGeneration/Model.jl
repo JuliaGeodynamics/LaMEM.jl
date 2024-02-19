@@ -216,7 +216,7 @@ end
 Prepares a LaMEM run for the parameters that are specified in `model`, without running the simulation
 
     1) Create the `*.dat` file
-    2) Write markers to disk
+    2) Write markers to disk in case we use a "files" setup
 
 This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster)
 
@@ -265,6 +265,9 @@ end
 
 Creates the initial model setup of LaMEM from `model`, which includes:
 - Writing the LaMEM (*.dat) input file
+
+and in case we do not employt geometric primitives to create the setup:
+
 - Write the VTK file (if requested when `model.Output.write_VTK_setup=true`)
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
 
@@ -279,6 +282,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
     end
 
     Write_LaMEM_InputFile(model, model.Output.param_file_name)
+    
     
     if !isnothing(model.FreeSurface.Topography)
         Save_LaMEMTopography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)

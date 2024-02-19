@@ -161,7 +161,43 @@ using GeophysicalModelGenerator
 end
 
 
-@testset "various julia setups" begin
+@testset "phase diagrams" begin
     # This tests requires an update of LaMEM, to allow phase diagram names that are longer
     #include("test_julia_setup_phase_diagrams.jl")
+end
+
+
+
+@testset "build-in geometries" begin
+    # This tests the ability to write output files when we have build-in geometrical objects,
+    # such as spheres, boxes, etc. as opoosed to doing this through the GeophysicalModelGenerator
+    model  = Model(Grid(nel=(16,16), x=[-2,2], z=[-1,1]),
+                    Time(nstep_max=2, dt=1, dt_max=10), 
+                    Solver(SolverType="direct"),
+                    Output(out_dir="example_1"))
+
+    # Specify material properties
+    matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000)
+    sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
+    add_phase!(model, sphere, matrix)
+
+    geom_sphere = geom_Sphere();
+    rm_geom!(model)
+    add_geom!(model, geom_sphere)
+    out = run_lamem(model)
+    @test isnothing(out)
+
+    geom_ellipsoid = geom_Ellipsoid();
+    geom_box = geom_Box();
+    geom_layer = geom_Layer();
+    geom_cylinder = geom_Cylinder();
+    geom_ridge = geom_RidgeSeg();
+    geom_hex = geom_Hex();
+
+    add_geom!(model, geom_ellipsoid, geom_box, geom_layer, geom_cylinder, geom_ridge, geom_hex)
+    out = run_lamem(model)
+    @test isnothing(out)
+
+
+    
 end

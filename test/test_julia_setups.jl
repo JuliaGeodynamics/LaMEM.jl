@@ -197,7 +197,41 @@ end
     add_geom!(model, geom_ellipsoid, geom_box, geom_layer, geom_cylinder, geom_ridge, geom_hex)
     out = run_lamem(model)
     @test isnothing(out)
+    
+end
 
+
+
+@testset "cross-section integration" begin
+    X,Y,Z       =   XYZGrid(0:1:120,10:.1:120,-30:.2:0);
+    Data_set3D  =   CartData(X,Y,Z, (;Z))
+
+    Data_cross  =   CrossSection(Data_set3D, Start=(15.,10), End=(15.0, 100))  
+
+    model  = Model(Grid(nel=(16,16), Profile=Data_cross),
+                        Time(nstep_max=100, dt=1, dt_max=10, time_end=100), 
+                        Solver(SolverType="direct"),
+                        Output(out_dir="example_2"))
+
+    @test !isnothing(model.Grid.Profile)==true 
+
+
+    # Specify material properties
+    rm_phase!(model)
+    matrix = Phase(ID=0,Name="matrix",eta=1e19, rho=3000)
+    sphere = Phase(ID=1,Name="sphere",eta=1e23, rho=3200)
+    add_phase!(model, sphere, matrix)
+
+    # Add an initial geometry (using GeophysicalModelGenerator routines)
+    AddSphere!(model,cen=(50,0.0, -15), radius=(0.5, ))
+
+    # run the simulation on 1 core
+    run_lamem(model, 1);
 
     
+
+    
+    
+
+                
 end

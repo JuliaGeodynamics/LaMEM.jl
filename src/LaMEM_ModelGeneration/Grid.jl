@@ -85,6 +85,10 @@ mutable struct Grid
     "Temp; 3D phase information"
     Temp    ::  Array{Float64} 
 
+    "Profile info; in case you perform a simulation along a cross-section through a 3D model you can store the original cross-section here"
+    Profile ::  Union{Nothing,CartData, ProfileData}
+
+
     # set default parameters
     function Grid(;
         nmark_x=3, nmark_y=3, nmark_z=3,
@@ -92,8 +96,27 @@ mutable struct Grid
         coord_x=[-10.0, 10.0], coord_y=[-5.0,5.0], coord_z=[-10.0,0.0],
         x=nothing, y=nothing, z=nothing,
         bias_x=1.0, bias_y=1.0, bias_z=0.0,
-        nel=nothing, nmark=nothing
+        nel=nothing, nmark=nothing, Profile=nothing
     )   
+        # In case we have a profile, we use the data of the profile to define the grid
+        if !isnothing(Profile)
+            if !haskey(Profile.fields,:FlatCrossSection)
+                error("The profile does not contain the field `:FlatCrossSection`; Add that with the GeophysicalModelGenerator function FlattenCrossSection, or use the CrossSection routine to generate a profile from volume data.")
+            end
+
+            x = [extrema(Profile.fields.FlatCrossSection)...,];
+            if isa(Profile, CartData) || isa(Profile, ParaviewData) 
+                z = [extrema(Profile.z.val)...,];
+            elseif isa(Profile, GeoData) || isa(Profile, UTMData) 
+                z = [extrema(Profile.depth.val)...,];
+            end
+
+            nel_y = 1
+            y = nothing
+            if isnothing(nel)
+                nel = [nel_x, nel_z]
+            end           
+        end
 
         # Define number of elements with a shortcut
         if !isnothing(nel)
@@ -104,8 +127,8 @@ mutable struct Grid
 
             if nel_y==1 && isnothing(y) && !isnothing(x) && !isnothing(z)
                 # 2D case and we did not specify y-coordinates, set y such that the aspect ratio is close to 1
-                dx = (x[end]-x[1])/nel_x
-                dz = (z[end]-z[1])/nel_z
+                dx = (x[end]-x[1])/nel_x[1]
+                dz = (z[end]-z[1])/nel_z[1]
                 dy = (dx+dz)/2
                 y = [-dy/2, dy/2]
                 
@@ -138,7 +161,7 @@ mutable struct Grid
 
         # Create struct
         return new(nmark_x, nmark_y, nmark_z, [nel_x...], [nel_y...], [nel_z...], [coord_x...], [coord_y...], [coord_z...], 
-            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM, Phases, Temp)
+            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM, Phases, Temp, Profile)
     end
 
 end
@@ -206,7 +229,10 @@ function show(io::IO, d::Grid)
     print_coord(io, "z", d.coord_z, d.bias_z, d.nseg_z, d.Grid.zn_vec)
     println(io,"  Phases      : range ϵ [$(minimum(d.Phases)) - $(maximum(d.Phases))]")
     println(io,"  Temp        : range ϵ [$(minimum(d.Temp)) - $(maximum(d.Temp))]")
-
+    
+    if !isnothing(d.Profile)
+        println(io,"  Profile     : yes")
+    end
 
     return nothing
 end
@@ -214,8 +240,11 @@ end
 function show_short(io::IO, d::Grid)
     nel   = (sum(d.nel_x), sum(d.nel_y), sum(d.nel_z)) 
     x,y,z = extrema(d.coord_x), extrema(d.coord_y), extrema(d.coord_z)
-    println(io,"|-- Grid                :  nel=$(nel); xϵ$x, yϵ$y, zϵ$z ")
-    
+    str   = "|-- Grid                :  nel=$(nel); xϵ$x, yϵ$y, zϵ$z"
+    if !isnothing(d.Profile)
+        str *= "; +profile"
+    end 
+    println(io,str)
     return nothing
 end
 

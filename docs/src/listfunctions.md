@@ -10,8 +10,9 @@ Modules = [ LaMEM.LaMEM_Model]
 ## Running LaMEM
 ```@autodocs
 Modules = [LaMEM.Run]
-
 ```
+
+
 ## Reading LaMEM output back into julia
 ```@autodocs
 Modules = [LaMEM.IO_functions]

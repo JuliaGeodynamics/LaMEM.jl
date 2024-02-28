@@ -1,5 +1,7 @@
 using Documenter
-push!(LOAD_PATH, "../src/")
+#push!(LOAD_PATH, "../src/")
+
+push!(LOAD_PATH, dirname(@__DIR__))
 
 using LaMEM
 
@@ -17,6 +19,7 @@ makedocs(;
                                                     "Example 1: Sphere" => "juliasetup_example_sphere.md",
                                                     "Example 2: Volcano" => "juliasetup_LaPalma.md",
                                                     "Example 3: 2D Subduction" => "juliasetup_TMSubduction.md",
+                                                    "Example 4: 3D Subduction" => "Subduction3D.md",
                                                     "Notebooks" => "juliasetup_pluto.md",
                                                     "Available functions" => "LaMEM_ModelFunctions.md",
                                                   ],

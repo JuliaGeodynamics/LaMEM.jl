@@ -409,9 +409,9 @@ Base.@kwdef mutable struct BoundaryConditions
     
     """
     Type of plume inflow boundary.
-    - "Inflow_type" or 
-    - "Pressure_type" (circular)	or 
-    - "Permeable_Type" which combinse the open bot boundary with the plume boundary condition (the option herein listed overwrite open_bot, so do not activate) 	
+    - `"Inflow_type"` or 
+    - `"Pressure_type"` (circular)	or 
+    - `"Permeable_Type"` which combines the open bot boundary with the plume boundary condition (the option herein listed overwrites open_bot, so do not activate that) 	
     """
     Plume_Type::Union{Nothing,String}           =   nothing   
     

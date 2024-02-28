@@ -64,7 +64,8 @@ end
 """ 
 	ProcessorPartFile = run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, directory=pwd())
 This calls LaMEM simulation, for using the parameter file `ParamFile` 
-and creates processor partitioning file "ProcessorPartitioning_`cores`cpu_X.Y.Z.bin" for `cores` number of cores. 
+and creates processor partitioning file `"ProcessorPartitioning_Xcpu_X.Y.Z.bin"` for `{X}` number of cores. 
+
 # Example:
 ```julia
 julia> using LaMEM

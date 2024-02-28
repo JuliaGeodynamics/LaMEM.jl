@@ -1,5 +1,7 @@
-using Documenter, LaMEM
+using Documenter
 push!(LOAD_PATH, "../src/")
+
+using LaMEM
 
 @info "Making documentation..."
 makedocs(;
@@ -9,18 +11,21 @@ makedocs(;
     format=Documenter.HTML(; prettyurls=get(ENV, "CI", nothing) == "true"), # easier local build
     pages=[
         "Home" => "index.md",
-        "Installation" => ["General instructions" => "man/installation.md",
-                            "Installation on HPC systems" => "man/installation_HPC.md"],
-        "Create & run LaMEM models from julia" => ["Overview" => "man/juliasetups.md",
-                                                    "Example 1: Sphere" => "man/juliasetup_example_sphere.md",
-                                                    "Example 2: Volcano" => "man/juliasetup_LaPalma.md",
-                                                    "Example 3: Subduction" => "man/juliasetup_TMSubduction.md",
-                                                    "Notebooks" => "man/juliasetup_pluto.md",
-                                                    "Available functions" => "man/LaMEM_ModelFunctions.md"],
-        "Run LaMEM" => "man/runlamem.md",
-        "Reading timesteps" => "man/readtimesteps.md",
-        "List of functions" => "man/listfunctions.md",
+        "Installation" => ["General instructions" => "installation.md",
+                            "Installation on HPC systems" => "installation_HPC.md"],
+        "Create & run LaMEM models from julia" => ["Overview" => "juliasetups.md",
+                                                    "Example 1: Sphere" => "juliasetup_example_sphere.md",
+                                                    "Example 2: Volcano" => "juliasetup_LaPalma.md",
+                                                    "Example 3: 2D Subduction" => "juliasetup_TMSubduction.md",
+                                                    "Notebooks" => "juliasetup_pluto.md",
+                                                    "Available functions" => "LaMEM_ModelFunctions.md",
+                                                  ],
+        "Run LaMEM" => "runlamem.md",
+        "Reading timesteps" => "readtimesteps.md",
+        "List of functions" => "listfunctions.md",
     ],
+    pagesonly=true,
+    warnonly=true
 )
 
 deploydocs(; repo="github.com/JuliaGeodynamics/LaMEM.jl.git", devbranch="main")

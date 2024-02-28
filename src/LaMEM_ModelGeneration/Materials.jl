@@ -291,7 +291,7 @@ Base.@kwdef mutable struct Phase
     GeoParams::Union{Nothing,Vector{AbstractCreepLaw}}       = nothing 
 
     """
-    grainsize [m] (not used in LaMEM!)
+    grainsize [m] (not used in LaMEM)
     This is not actually used in LaMEM, but is required when setting diffusion creep parameters by using GeoParams 
     """
     grainsize::Union{Nothing, Float64} = nothing
@@ -559,7 +559,7 @@ Base.@kwdef mutable struct PhaseTransition
     "[optional] end time of movement in Myr"
     t1_box::Union{Float64, Nothing}   =   nothing   
     
-    "[optional] clapeyron slope of phase transition [in K/MPa]; P=(T-T0_clapeyron)*clapeyron_slope + P0_clapeyron "
+    "[optional] clapeyron slope of phase transition [in K/MPa]; `P = ( T - T0_clapeyron ) * clapeyron_slope + P0_clapeyron` "
     clapeyron_slope::Union{Float64, Nothing}   =   nothing   
     
     "[optional] P0_clapeyron [Pa]"

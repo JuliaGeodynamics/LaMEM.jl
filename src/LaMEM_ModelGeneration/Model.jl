@@ -214,14 +214,12 @@ end
     prepare_lamem(model::Model, cores::Int64=1, args:String=""; verbose=false)
 
 Prepares a LaMEM run for the parameters that are specified in `model`, without running the simulation
-
     1) Create the `*.dat` file
     2) Write markers to disk in case we use a "files" setup
 
 This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster)
 
-Set `model.Output.write_VTK_setup` to `true` if you want to write a VTK file of the model setup
-
+Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup
 """
 function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false)
 

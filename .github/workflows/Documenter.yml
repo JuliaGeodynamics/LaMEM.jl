@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - '.zenodo.json'
       - '.github/workflows/benchmark.yml'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/CI.yml'
       - '.github/workflows/CompatHelper.yml'
   pull_request:
     paths-ignore:

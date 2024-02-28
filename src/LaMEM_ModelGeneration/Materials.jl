@@ -559,7 +559,7 @@ Base.@kwdef mutable struct PhaseTransition
     "[optional] end time of movement in Myr"
     t1_box::Union{Float64, Nothing}   =   nothing   
     
-    "[optional] clapeyron slope of phase transition [in K/MPa]; P = ( T - T0\_clapeyron ) \* clapeyron\_slope + P0\_clapeyron "
+    "[optional] clapeyron slope of phase transition [in K/MPa]; `P = ( T - T0_clapeyron ) * clapeyron_slope + P0_clapeyron` "
     clapeyron_slope::Union{Float64, Nothing}   =   nothing   
     
     "[optional] P0_clapeyron [Pa]"

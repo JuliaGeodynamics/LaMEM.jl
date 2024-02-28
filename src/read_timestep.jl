@@ -64,7 +64,7 @@ end
 
 """
     data_Field = ArrayToTuple(data_Field)
-Transfers a n by 3D array (n>1) to 
+Transfers a 3D array (`n>1`) to a tuple of length `n`.
 """
 function ArrayToTuple(data_Field)
     if length(size(data_Field))>3
@@ -81,6 +81,11 @@ function ArrayToTuple(data_Field)
     return data_t
 end
 
+
+"""
+    data_out, isCell = ReadField_3D_pVTS(pvts, FieldName)    
+internal routine to read a 3D `pvts` file
+"""
 function ReadField_3D_pVTS(pvts, FieldName)
     isCell          =   false;
     
@@ -154,8 +159,8 @@ end
 
  # The FileName can contain a directory as well; deal with that here
 """
- dir, file = split_path_name(DirName_base::String, FileName::String)
-
+    dir, file = split_path_name(DirName_base::String, FileName::String)
+Routine that splits the name in a directory `DirName_base` and a filename `FileName`
 """
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)

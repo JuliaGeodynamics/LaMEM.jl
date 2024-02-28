@@ -28,7 +28,7 @@ Base.@kwdef mutable struct SolutionParams
     "shear heating efficiency parameter   [0 - 1]"   
     shear_heat_eff::Float64  = 1.0             
     
-    "Adiabatic Heating activation flag and efficiency. [0.0 - 1.0] (e.g. 0.5 means that only 50% of the potential adiabatic heating affects the energy equation)"
+    "Adiabatic Heating activation flag and efficiency. [0.0 - 1.0] (e.g., 0.5 means that only 50 percent of the potential adiabatic heating affects the energy equation)"
     Adiabatic_Heat::Float64  = 0.0    
     
     "temperature diffusion activation flag"

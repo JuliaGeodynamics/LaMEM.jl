@@ -1,5 +1,5 @@
+# Note: this workflow is copied from the Trixi.jl package
 name: Documentation
-
 on:
   push:
     branches:
@@ -13,8 +13,7 @@ on:
   pull_request:
     paths-ignore:
       - '.zenodo.json'
-      - '.github/workflows/benchmark.yml'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/CI.yml'
       - '.github/workflows/CompatHelper.yml'
       - '.github/workflows/TagBot.yml'
       - 'benchmark/**'

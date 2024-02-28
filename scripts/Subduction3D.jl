@@ -12,21 +12,27 @@ using LaMEM, GeophysicalModelGenerator
 # Next, we generate the main model setup, specifying the resolution and grid dimensions.
 # Note that a range of default values will be set, depending on the parameters you specify.
 model = Model(  
-                Grid(nel=(128,32,64), x=[-3960, 500], y=[0,2640], z=[-660 ,0]), # Define the grid
+                ## Define the grid
+                Grid(nel=(128,32,64), x=[-3960, 500], y=[0,2640], z=[-660 ,0]), 
                 
-                BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]), # No slip lower boundary; the rest is free slip
+                ## No slip lower boundary; the rest is free slip
+                BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]), 
                 
-                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",  # We use a multigrid solver with 4 levels
+                ## We use a multigrid solver with 4 levels:
+                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",  
                         PETSc_options=[ "-snes_type ksponly", 
                                         "-js_ksp_rtol 1e-3", 
                                         "-js_ksp_atol 1e-4", 
                                         "-js_ksp_monitor"]),
 
-                Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),         # Output filename
+                ## Output filename
+                Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),        
 
-                Time(nstep_max=200, nstep_out=5, time_end=100, dt_min=1e-5),            # Timestepping etc
+                ## Timestepping etc
+                Time(nstep_max=200, nstep_out=5, time_end=100, dt_min=1e-5),           
 
-                Scaling(GEO_units(length=1km, stress=1e9Pa) )       # Scaling
+                ## Scaling:
+                Scaling(GEO_units(length=1km, stress=1e9Pa) )       
             ) 
 
 
@@ -40,7 +46,7 @@ AddBox!(model, xlim=(-3000,-1000), ylim=(0,1000), zlim=(-80,0), phase=Lithospher
 AddBox!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
 
 # There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
-using Plots
+using Plots 
 plot_cross_section(model, y=100, field=:phase)
 
 # Which will give the following plot:
@@ -80,3 +86,8 @@ run_lamem(model, 8)
 # Note that this is a significantly higher resolution than the original paper, which was run on an HPC system (admittedly, this was 20 years ago).
 
 # The file `Subduction_3D.jl` in `/scripts` reproduces this example
+
+
+# ### Markdown page generation
+#This file was generated using Literate:
+#Literate.markdown("Subduction3D.jl","../docs/src/",keepcomments=true, execute=false, codefence = "```julia" => "```")

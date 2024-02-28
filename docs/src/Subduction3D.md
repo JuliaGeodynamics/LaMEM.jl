@@ -10,47 +10,53 @@ This is very similar to the setup described by Schellart and coworkers in a [200
 ## 1. Generate main model setup
 We first load the packages:
 
-````@example Subduction3D
+```julia
 using LaMEM, GeophysicalModelGenerator
-````
+```
 
 Next, we generate the main model setup, specifying the resolution and grid dimensions.
 Note that a range of default values will be set, depending on the parameters you specify.
 
-````@example Subduction3D
+```julia
 model = Model(
-                Grid(nel=(128,32,64), x=[-3960, 500], y=[0,2640], z=[-660 ,0]), # Define the grid
+                # Define the grid
+                Grid(nel=(128,32,64), x=[-3960, 500], y=[0,2640], z=[-660 ,0]),
 
-                BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]), # No slip lower boundary; the rest is free slip
+                # No slip lower boundary; the rest is free slip
+                BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]),
 
-                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",  # We use a multigrid solver with 4 levels
+                # We use a multigrid solver with 4 levels:
+                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",
                         PETSc_options=[ "-snes_type ksponly",
                                         "-js_ksp_rtol 1e-3",
                                         "-js_ksp_atol 1e-4",
                                         "-js_ksp_monitor"]),
 
-                Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),         # Output filename
+                # Output filename
+                Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),
 
-                Time(nstep_max=200, nstep_out=5, time_end=100, dt_min=1e-5),            # Timestepping etc
+                # Timestepping etc
+                Time(nstep_max=200, nstep_out=5, time_end=100, dt_min=1e-5),
 
-                Scaling(GEO_units(length=1km, stress=1e9Pa) )       # Scaling
+                # Scaling:
+                Scaling(GEO_units(length=1km, stress=1e9Pa) )
             )
-````
+```
 
 ## 2. Define geometry
 Next, we specify the geometry of the model, using the `AddBox!` function from `GeophysicalModelGenerator`.
 We start with the horizontal part of the slab. The function `AddBox!` allows you to specify a layered lithosphere; here we have a crust and mantle. It also allows specifying a thermal structure.
 Since the current setup is only mechanical, we don't specify that here.
 
-````@example Subduction3D
+```julia
 AddBox!(model, xlim=(-3000,-1000), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]))
-````
+```
 
 The inclined part of the slab is generate by giving it a dip:
 
-````@example Subduction3D
+```julia
 AddBox!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
-````
+```
 
 There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
 
@@ -65,23 +71,23 @@ Which will give the following plot:
 ## 3. Add material properties:
 We can specify material properties by using the `Phase` function
 
-````@example Subduction3D
+```julia
 mantle = Phase(Name="mantle",ID=0,eta=1e21,rho=3200)
 crust  = Phase(Name="crust", ID=1,eta=1e21,rho=3280)
 slab   = Phase(Name="slab",  ID=2,eta=2e23,rho=3280)
-````
+```
 
 and we can add them to the model with:
 
-````@example Subduction3D
+```julia
 add_phase!(model, mantle, slab, crust)
-````
+```
 
 You can check that this is set with:
 
-````@example Subduction3D
+```julia
 model
-````
+```
 
 ```julia
 LaMEM Model setup
@@ -109,6 +115,13 @@ The results looks like this with paraview:
 Note that this is a significantly higher resolution than the original paper, which was run on an HPC system (admittedly, this was 20 years ago).
 
 The file `Subduction_3D.jl` in `/scripts` reproduces this example
+
+### Markdown page generation
+
+```julia
+#This file was generated using Literate:
+#Literate.markdown("Subduction3D.jl","../docs/src/",keepcomments=true, execute=false, codefence = "```julia" => "```")
+```
 
 ---
 

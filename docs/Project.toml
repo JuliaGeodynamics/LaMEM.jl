@@ -1,11 +1,7 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"
-Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 Documenter = "1"
 Test = "1"
-GeophysicalModelGenerator = "0.4 - 0.6"
-Plots = "1"

@@ -54,10 +54,10 @@ AddBox!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=Lithospheri
 
 There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
 
-````@example Subduction3D
+```julia
 using Plots
 plot_cross_section(model, y=100, field=:phase)
-````
+```
 
 Which will give the following plot:
 ![2D cross section](assets/SubductionSetup_3D.png)
@@ -100,9 +100,9 @@ LaMEM Model setup
 ## 4. Run the model
 Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores:
 
-````@example Subduction3D
+```julia
 run_lamem(model, 8)
-````
+```
 
 The results looks like this with paraview:
 ![3D subduction paraview](assets/Subduction_3D_pv.png)

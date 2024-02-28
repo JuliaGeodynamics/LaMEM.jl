@@ -1,5 +1,7 @@
+using Documenter
 push!(LOAD_PATH, "../src/")
-using Documenter, LaMEM
+
+using LaMEM
 
 @info "Making documentation..."
 makedocs(;

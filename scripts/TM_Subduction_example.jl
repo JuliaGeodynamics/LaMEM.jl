@@ -62,7 +62,7 @@ model.Grid.Temp[model.Grid.Grid.Z .> 0]    .=  Tair;
 model.Grid.Phases[model.Grid.Grid.Z .> 0.0 ] .= 5;
 
 # Left ocanic plate:
-AddBox!(model;  xlim    = (-2000.0, 0.0), 
+addBox!(model;  xlim    = (-2000.0, 0.0), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -74,7 +74,7 @@ AddBox!(model;  xlim    = (-2000.0, 0.0),
                                                 AgeRidge    = 0.01;
                                                 maxAge      = 80.0      ) )
 # Add right oceanic plate:
-AddBox!(model;  xlim    = (1500, 2000), 
+addBox!(model;  xlim    = (1500, 2000), 
                 ylim    = (model.Grid.coord_y..., ), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -87,7 +87,7 @@ AddBox!(model;  xlim    = (1500, 2000),
                                                 maxAge      = 80.0      ) )
                                     
 # Add overriding plate margin
-AddBox!(model;  xlim    = (0.0, 400.0), 
+addBox!(model;  xlim    = (0.0, 400.0), 
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -98,7 +98,7 @@ AddBox!(model;  xlim    = (0.0, 400.0),
 
                                                     
 # Overriding plate craton
-AddBox!(model;  xlim    = (400.0, 1500.0), 
+addBox!(model;  xlim    = (400.0, 1500.0), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -107,7 +107,7 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
                                                     Tmantle     = Tmantle,
                                                     Age         = 120      ) )
 #   Add pre-subducted slab                                                  
-AddBox!(model;  xlim    = (0.0, 300), 
+addBox!(model;  xlim    = (0.0, 300), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=30,

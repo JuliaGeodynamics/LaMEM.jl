@@ -266,10 +266,10 @@ model.Grid.Phases[model.Grid.Grid.Z .> 0.0 ] .= 5;
 ```
 
 ##### Add left oceanic plate
-An oceanic plate can be added using the `AddBox!()` function of the `GeophysicalModelGenerator` package (see `?GeophysicalModelGenerator.AddBox!` for more information, or check out the online [help](https://juliageodynamics.github.io/GeophysicalModelGenerator.jl/dev/man/lamem/) of the package). The lithosphere to asthenosphere temperature is set to 1250°C. If temperature of the plate is > 1250°C then the material is turned to asthenosphere. The temperature profile of the plate is set using a half space cooling temperature and a spreading rate velocity of 0.5 cm/yr with the ridge prescribed to be at the "left" of the box.
+An oceanic plate can be added using the `addBox!()` function of the `GeophysicalModelGenerator` package (see `?GeophysicalModelGenerator.addBox!` for more information, or check out the online [help](https://juliageodynamics.github.io/GeophysicalModelGenerator.jl/dev/man/lamem/) of the package). The lithosphere to asthenosphere temperature is set to 1250°C. If temperature of the plate is > 1250°C then the material is turned to asthenosphere. The temperature profile of the plate is set using a half space cooling temperature and a spreading rate velocity of 0.5 cm/yr with the ridge prescribed to be at the "left" of the box.
 
 ```julia
-AddBox!(model;  xlim    = (-2000.0, 0.0), 
+addBox!(model;  xlim    = (-2000.0, 0.0), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -286,7 +286,7 @@ AddBox!(model;  xlim    = (-2000.0, 0.0),
 Same for the plate on the right:
 
 ```julia
-AddBox!(model;  xlim    = (1500, 2000), 
+addBox!(model;  xlim    = (1500, 2000), 
                 ylim    = (model.Grid.coord_y..., ), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -303,7 +303,7 @@ AddBox!(model;  xlim    = (1500, 2000),
 For the overriding plate margin the age is fixed to 90 Ma using `HalfspaceCoolingTemp()`.
 
 ```julia
-AddBox!(model;  xlim    = (0.0, 400.0), 
+addBox!(model;  xlim    = (0.0, 400.0), 
                 ylim    = (model.Grid.coord_y[1], model.Grid.coord_y[2]), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -316,7 +316,7 @@ AddBox!(model;  xlim    = (0.0, 400.0),
 ##### Add overriding plate craton
 
 ```julia
-AddBox!(model;  xlim    = (400.0, 1500.0), 
+addBox!(model;  xlim    = (400.0, 1500.0), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=0,
@@ -330,7 +330,7 @@ AddBox!(model;  xlim    = (400.0, 1500.0),
 Here we change the dip angle of the box to 30° to initiates subduction:
 
 ```julia
-AddBox!(model;  xlim    = (0.0, 300), 
+addBox!(model;  xlim    = (0.0, 300), 
                 ylim    = (model.Grid.coord_y...,), 
                 zlim    = (-660.0, 0.0),
                 Origin  = nothing, StrikeAngle=0, DipAngle=30,

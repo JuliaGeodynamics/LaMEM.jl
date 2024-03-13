@@ -47,7 +47,7 @@ julia> add_phase!(model, sphere, matrix)
 
 Create an initial geometry using the [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl/tree/main) interface:
 ```Julia
-julia> AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+julia> addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 ```
 and run the simulation with:
 ```julia

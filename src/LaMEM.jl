@@ -35,7 +35,7 @@ export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
         add_vbox!, rm_vbox!, rm_last_vbox!, 
         add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!, add_phaseaggregate!,
         add_phasetransition!, add_dike!, add_geom!, rm_geom!, set_air, copy_phase,
-        add_topography!, AboveSurface!, BelowSurface!,
+        add_topography!, aboveSurface!, belowSurface!,
         prepare_lamem, isdefault, hasplasticity,
         add_geoparams_rheologies,
         stress_strainrate_0D    

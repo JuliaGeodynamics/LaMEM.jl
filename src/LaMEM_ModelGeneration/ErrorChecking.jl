@@ -19,7 +19,7 @@ function Check_LaMEM_Model(m::Model)
     end
 
     if (m.ModelSetup.msetup=="files") && diff([extrema(m.Grid.Phases)...])[1]==0 && diff([extrema(m.Grid.Temp)...])[1]==0
-        @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `AddSphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
+        @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
     end
 
     if (m.Solver.SolverType!="direct") &&  (m.Solver.SolverType!="multigrid")

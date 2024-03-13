@@ -8,7 +8,7 @@ pkg_dir = pkgdir(LaMEM)
 # Load LaMEM particles grid
 ParamFile_2 =   "input_files/Subduction2D_FreeSlip_Particles_Linear_DirectSolver.dat"
 ParamFile_2 =   joinpath(pkg_dir,"test", ParamFile_2);
-Grid_LaMEM  =   ReadLaMEM_InputFile(ParamFile_2)
+Grid_LaMEM  =   readLaMEM_InputFile(ParamFile_2)
 
 # Specify slab parameters
 Trench_x_location   = -500;     # trench location
@@ -43,7 +43,7 @@ addBox!(Phases,Temp,Grid_LaMEM,
 
 # Save julia setup 
 Model3D     =   CartData(Grid_LaMEM, (Phases=Phases,Temp=Temp))   # Create LaMEM model:
-Write_Paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
+write_Paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
 
 # Save LaMEM markers
 dir =   joinpath(pkg_dir,"test","input_files");
@@ -56,5 +56,5 @@ cd(dir)
 
 
 @show pwd(), dir
-Save_LaMEMMarkersParallel(Model3D)                          # Create LaMEM marker input on 1 core
+save_LaMEMMarkersParallel(Model3D)                          # Create LaMEM marker input on 1 core
 cd(cur_dir)

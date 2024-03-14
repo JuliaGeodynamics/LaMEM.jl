@@ -28,7 +28,7 @@ using .LaMEM_Model
 export  LaMEM_Model, Model, write_LaMEM_inputFile, create_initialsetup,
         Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, BCBlock, VelCylinder, SolutionParams,
         Solver, ModelSetup, 
-        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder ,
+        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder,
         Output,
         Multigrid, print_short, 
         Materials, Phase, Softening, PhaseTransition, PhaseAggregate, Dike, PassiveTracers,

@@ -190,7 +190,7 @@ end
     geom_ellipsoid = GeomEllipsoid();
     geom_box = GeomBox();
     geom_layer = GeomLayer();
-    geom_cylinder = GeomCylinder ();
+    geom_cylinder = GeomCylinder();
     geom_ridge = GeomRidgeSeg();
     geom_hex = GeomHex();
 

@@ -1,7 +1,7 @@
 # Model Setup
 
 export ModelSetup, write_LaMEM_inputFile, 
-        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder ,
+        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder,
         set_geom!
 
 """
@@ -430,7 +430,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct GeomCylinder 
+Base.@kwdef struct GeomCylinder
     "phase"
     phase::Int64          = 1          
      
@@ -451,21 +451,21 @@ Base.@kwdef struct GeomCylinder
 
 end
 
-function show(io::IO, d::GeomCylinder )
+function show(io::IO, d::GeomCylinder)
     println(io, "Cylinder(ph=$(d.phase), radius=$(d.radius) base=$(d.base), cap=$(d.cap), T=$(d.Temperature)=$(d.cstTemp) )")
     return nothing
 end
 
 """
-    write_LaMEM_inputFile(io, d::GeomCylinder )
+    write_LaMEM_inputFile(io, d::GeomCylinder)
 """
-function write_LaMEM_inputFile(io, d::GeomCylinder )
+function write_LaMEM_inputFile(io, d::GeomCylinder)
     fields    = fieldnames(typeof(d))
     println(io, "    <CylinderStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(GeomCylinder , f)
+            comment = get_doc(GeomCylinder, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end

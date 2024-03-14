@@ -198,7 +198,7 @@ Currently available primitive geom objects are:
 - `GeomEllipsoid`
 - `GeomBox`
 - `GeomLayer`
-- `GeomCylinder `
+- `GeomCylinder`
 - `GeomRidgeSeg`
 - `GeomHex`
 

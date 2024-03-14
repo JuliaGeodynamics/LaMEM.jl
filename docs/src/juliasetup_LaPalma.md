@@ -27,7 +27,7 @@ CartData
 This shows the dimensions of our domain in kilometers. The issue is that this projected topography is not an orthogonal grid, but (slightly) distorted. In any case, we see the approximate dimensions of the grid (in horizontal directions), so we can create an orthogonal grid on which to project this:
 
 ```julia
-julia> Topo_LaMEM = CartData(xyzGrid(-70:.2:70,-60:.2:70,0));
+julia> Topo_LaMEM = CartData(xyz_grid(-70:.2:70,-60:.2:70,0));
 julia> Topo_LaMEM = ProjectCartData(Topo_LaMEM, Topo, proj)
 ```
 

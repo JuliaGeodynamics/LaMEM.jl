@@ -174,10 +174,10 @@ function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, c
     zn, z = GeophysicalModelGenerator.Create1D_grid_vector(coord_z, nel_z, nmark_z, nseg_z, bias_z)
     
     # node grid
-    Xn,Yn,Zn = GeophysicalModelGenerator.xyzGrid(xn, yn, zn); 
+    Xn,Yn,Zn = GeophysicalModelGenerator.xyz_grid(xn, yn, zn); 
 
     # marker grid
-    X,Y,Z    = GeophysicalModelGenerator.xyzGrid(x, y, z);
+    X,Y,Z    = GeophysicalModelGenerator.xyz_grid(x, y, z);
 
     # finish Grid (using a routine of GeophysicalModelGenerator)
     Grid_LaMEM    =  LaMEM_grid(  nmark_x,    nmark_y,    nmark_z,

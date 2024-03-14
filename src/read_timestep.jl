@@ -3,7 +3,7 @@
 # 
                   
 # Make these routines easily available outside the module:
-using GeophysicalModelGenerator: CartData, xyzGrid
+using GeophysicalModelGenerator: CartData, xyz_grid
 using Glob, ReadVTK, WriteVTK, LightXML
 
 export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
@@ -240,7 +240,7 @@ function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=not
         z = (z[1:end-1] + z[2:end])/2
     end
 
-    X,Y,Z = xyzGrid(x,y,z)
+    X,Y,Z = xyz_grid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)
     return data_output   
 end

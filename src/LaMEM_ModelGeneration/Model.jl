@@ -158,7 +158,7 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
 
     if d.Output.write_VTK_setup
         # If we want to write an input file 
-        write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
+        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
     
     if any(hasplasticity.(d.Materials.Phases))
@@ -293,9 +293,9 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
-            save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
         else
-            save_LaMEMMarkersParallel(Model3D, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, verbose=verbose)
         end
     end
 

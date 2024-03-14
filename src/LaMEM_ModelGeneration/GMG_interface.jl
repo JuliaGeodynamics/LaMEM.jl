@@ -3,7 +3,7 @@
 # Some wrappers around GMG routines
 
 import GeophysicalModelGenerator: add_box!, add_layer!, add_sphere!, add_ellipsoid!, add_cylinder!, above_surface, below_surface
-import GeophysicalModelGenerator: addPolygon!, addSlab!, addStripes!
+import GeophysicalModelGenerator: add_polygon!, add_slab!, add_stripes!
 export above_surface!, below_surface!
 
 """
@@ -65,7 +65,7 @@ add_ellipsoid!(model::Model; kwargs...) = add_ellipsoid!(model.Grid.Phases, mode
 
 
 """
-    addPolygon!(model::Model;                                 # required input
+    add_polygon!(model::Model;                                 # required input
                     xlim::Vector, 
                     ylim=Vector,
                     zlim=Vector(), 
@@ -75,11 +75,11 @@ add_ellipsoid!(model::Model; kwargs...) = add_ellipsoid!(model.Grid.Phases, mode
 See the documentation of the GMG routine
 
 """
-addPolygon!(model::Model; kwargs...) = addPolygon!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
+add_polygon!(model::Model; kwargs...) = add_polygon!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
 
 
 """
-    addSlab!(model::Model;                                 # required input
+    add_slab!(model::Model;                                 # required input
                     trench::Trench, 
                     phase = ConstantPhase(1),                 # Sets the phase number(s) in the box
                     T=nothing) 
@@ -87,10 +87,10 @@ addPolygon!(model::Model; kwargs...) = addPolygon!(model.Grid.Phases, model.Grid
 See the documentation of the GMG routine
 
 """
-addSlab!(model::Model; kwargs...) = addSlab!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
+add_slab!(model::Model; kwargs...) = add_slab!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
 
 """
-    addStripes!(Phase, Grid::AbstractGeneralGrid;
+    add_stripes!(Phase, Grid::AbstractGeneralGrid;
                 stripAxes       = (1,1,0),
                 stripeWidth     =  0.2,
                 stripeSpacing   =  1,
@@ -103,7 +103,7 @@ addSlab!(model::Model; kwargs...) = addSlab!(model.Grid.Phases, model.Grid.Temp,
 See the documentation of the GMG routine
 
 """
-addStripes!(model::Model; kwargs...) = addStripes!(model.Grid.Phases, model.Grid.Grid; kwargs...) 
+add_stripes!(model::Model; kwargs...) = add_stripes!(model.Grid.Phases, model.Grid.Grid; kwargs...) 
 
 
 

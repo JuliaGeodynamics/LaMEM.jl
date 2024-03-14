@@ -28,13 +28,13 @@ Phases      =   zeros(Int64, size(Grid_LaMEM.X));             # Rock numbers
 Temp        =   ones(Float64,size(Grid_LaMEM.X))*T_mantle;    # Temperature in C    
 
 # Create horizontal part of slab with crust & mantle lithosphere
-addBox!(Phases,Temp,Grid_LaMEM,
+add_box!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location, Trench_x_location+Length_Horiz_Slab), 
         zlim=(-ThicknessSlab   , 0.0),
         phase=LithosphericPhases(Layers=[ThicknessCrust ThicknessML], Phases=[1 2 0]) );               
 
 # Add inclined part of slab                            
-addBox!(Phases,Temp,Grid_LaMEM,
+add_box!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location-Length_Subduct_Slab, Trench_x_location), 
         zlim=(-ThicknessSlab   , 0.0),
         DipAngle=-SubductionAngle,

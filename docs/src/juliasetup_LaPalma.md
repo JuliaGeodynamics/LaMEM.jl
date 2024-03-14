@@ -89,16 +89,16 @@ julia> model.Grid.Phases .= 2;
 
 Now set points above the topography to zero (will be air later), the ones above the topography but below zero to 'water` and below 40 km to mantle (if we had a Moho surface we could use that):
 ```julia
- julia> aboveSurface!(model, Topo_LaMEM, phase=0, T=0)
+ julia> above_surface!(model, Topo_LaMEM, phase=0, T=0)
  julia> model.Grid.Phases[Z.<-0 .&& model.Grid.Phases .== 0] .= 1;
  julia> model.Grid.Phases[Z.<-40] .= 3;
 ```
 
 Finally, we define some magma chambers:
 ```julia 
-julia> addSphere!(model, cen=(0,0,-35), radius=5, phase=ConstantPhase(5), T=ConstantTemp(1200));
-julia> addEllipsoid!(model, cen=(-1,0,-11), axes=(3,3,8), StrikeAngle=225, DipAngle=45, phase=ConstantPhase(5), T=ConstantTemp(1200));
-julia> addEllipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngle=0, phase=ConstantPhase(5), T=ConstantTemp(1200));
+julia> add_sphere!(model, cen=(0,0,-35), radius=5, phase=ConstantPhase(5), T=ConstantTemp(1200));
+julia> add_ellipsoid!(model, cen=(-1,0,-11), axes=(3,3,8), StrikeAngle=225, DipAngle=45, phase=ConstantPhase(5), T=ConstantTemp(1200));
+julia> add_ellipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngle=0, phase=ConstantPhase(5), T=ConstantTemp(1200));
 ```
 
  We can plot a cross-section through the model:

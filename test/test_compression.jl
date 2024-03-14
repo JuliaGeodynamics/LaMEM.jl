@@ -17,7 +17,7 @@ using GeophysicalModelGenerator
         add_phase!(model, sphere, matrix)
 
         # Add an initial geometry (using GeophysicalModelGenerator routines)
-        addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+        add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
         # run the simulation on 4 core
         run_lamem(model, 4);

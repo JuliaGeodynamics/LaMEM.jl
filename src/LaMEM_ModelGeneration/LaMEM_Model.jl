@@ -64,7 +64,7 @@ include("Model.jl")                 # main LaMEM_Model
 export Model
 
 include("GMG_interface.jl")
-export aboveSurface!, belowSurface!
+export above_surface!, below_surface!
 
 include("Utils.jl")
 export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!, add_phaseaggregate!, 

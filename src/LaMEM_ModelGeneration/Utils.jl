@@ -247,7 +247,7 @@ function set_geom!(model::Model, d::geom_Sphere)
     end
 
     # call a GMG routine
-    addSphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
+    add_sphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
 
     return nothing
 end

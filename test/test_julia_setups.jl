@@ -20,7 +20,7 @@ using GeophysicalModelGenerator
     add_phase!(model, sphere, matrix)
 
     # Add an initial geometry (using GeophysicalModelGenerator routines)
-    addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+    add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # run the simulation on 1 core
     run_lamem(model, 1);
@@ -63,7 +63,7 @@ using GeophysicalModelGenerator
     add_phase!(model, sphere, matrix)
 
     # Add an initial geometry (using GeophysicalModelGenerator routines)
-    addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+    add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # Add a velocity box:
     vbox = VelocityBox(cenX=0, cenY=0, cenZ=0,
@@ -137,12 +137,12 @@ using GeophysicalModelGenerator
     Z=model.Grid.Grid.Z;
     
     # Define mantle and lithosphere 
-    addBox!(model, zlim=(-1000.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(3), T=HalfspaceCoolingTemp(Age=100))
+    add_box!(model, zlim=(-1000.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(3), T=HalfspaceCoolingTemp(Age=100))
 
     # Define oceanic crust (for Phase)
-    addBox!(model, zlim=(-10.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(1))
+    add_box!(model, zlim=(-10.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(1))
 
-    addSphere!(model, cen=(0.0,0.0,-550.0), radius=100.0,   phase=ConstantPhase(4), T=ConstantTemp(1400))
+    add_sphere!(model, cen=(0.0,0.0,-550.0), radius=100.0,   phase=ConstantPhase(4), T=ConstantTemp(1400))
     # -------------------------
 
     # run the simulation on 1 core

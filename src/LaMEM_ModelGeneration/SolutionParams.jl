@@ -3,7 +3,7 @@
 # Capture meta-data with:
 # Docs.meta(LaMEM.LaMEM_Model)[Docs.@var(LaMEM.LaMEM_Model.SolutionParams)].docs[Union{}].data
 
-export SolutionParams, Write_LaMEM_InputFile
+export SolutionParams, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM global solution parameters. 
@@ -167,10 +167,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::SolutionParams)
+    write_LaMEM_inputFile(io, d::SolutionParams)
 Writes the boundary conditions related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::SolutionParams)
+function write_LaMEM_inputFile(io, d::SolutionParams)
     Reference = SolutionParams();    # reference values
     fields    = fieldnames(typeof(d))
     

@@ -46,7 +46,7 @@ include("Solver.jl")                # solver options
 export Solver
 
 include("ModelSetup.jl")            # model setup options
-export ModelSetup, geom_Sphere, set_geom!
+export ModelSetup, GeomSphere, set_geom!
 
 include("Multigrid.jl")             # Multigrid options
 export Multigrid

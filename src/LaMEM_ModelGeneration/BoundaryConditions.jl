@@ -2,7 +2,7 @@
 #
 # WARNING: incomplete, more parameters to be added 
 
-export BoundaryConditions, VelocityBox, BCBlock, VelCylinder, Write_LaMEM_InputFile
+export BoundaryConditions, VelocityBox, BCBlock, VelCylinder, write_LaMEM_inputFile
 
 
 # -------
@@ -75,10 +75,10 @@ function show(d::VelocityBox)
     return str
 end
 """
-    Write_LaMEM_InputFile(io, d::geom_Sphere)
+    write_LaMEM_inputFile(io, d::GeomSphere)
 
 """
-function Write_LaMEM_InputFile(io, d::VelocityBox)
+function write_LaMEM_inputFile(io, d::VelocityBox)
     fields    = fieldnames(typeof(d))
     println(io, "    <VelBoxStart>")
     for f in fields
@@ -147,7 +147,7 @@ function show(io::IO, d::BCBlock)
     return nothing
 end
 
-function Write_LaMEM_InputFile(io, d::BCBlock)
+function write_LaMEM_inputFile(io, d::BCBlock)
     fields    = fieldnames(typeof(d))
     println(io, "    <BCBlockStart>")
     for f in fields
@@ -231,7 +231,7 @@ function show(io::IO, d::VelCylinder)
     return nothing
 end
 
-function Write_LaMEM_InputFile(io, d::VelCylinder)
+function write_LaMEM_inputFile(io, d::VelCylinder)
     fields    = fieldnames(typeof(d))
     println(io, "    <VelCylinderStart>")
     for f in fields
@@ -485,10 +485,10 @@ function show_short(io::IO, d::BoundaryConditions)
 end
 
 """
-    Write_LaMEM_InputFile(io, d::BoundaryConditions)
+    write_LaMEM_inputFile(io, d::BoundaryConditions)
 Writes the boundary conditions related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::BoundaryConditions)
+function write_LaMEM_inputFile(io, d::BoundaryConditions)
     Reference = BoundaryConditions();    # reference values
     fields    = fieldnames(typeof(d))
     
@@ -511,7 +511,7 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
         end
         
         #end        elseif f != :VelocityBoxes
-#            Write_LaMEM_InputFile(io, f)
+#            write_LaMEM_inputFile(io, f)
 
 
             #=
@@ -539,9 +539,9 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
             end
             =#
       #  elseif f != :VelCylinder
-      #      Write_LaMEM_InputFile(io, f)
+      #      write_LaMEM_inputFile(io, f)
       #  elseif f != :BCBlock
-      #      Write_LaMEM_InputFile(io, f)
+      #      write_LaMEM_inputFile(io, f)
 #
 #
       #  end
@@ -553,21 +553,21 @@ function Write_LaMEM_InputFile(io, d::BoundaryConditions)
         println(io, "")
         println(io, "# Velocity boxes: \n")
         for object in d.VelocityBoxes
-            Write_LaMEM_InputFile(io, object)
+            write_LaMEM_inputFile(io, object)
         end
     end
 
     if length(d.VelCylinders)>0
         println(io, "")
         for object in d.VelCylinders
-            Write_LaMEM_InputFile(io, object)
+            write_LaMEM_inputFile(io, object)
         end
     end
 
     if length(d.BCBlocks)>0
         println(io, "")
         for object in d.BCBlocks
-            Write_LaMEM_InputFile(io, object)
+            write_LaMEM_inputFile(io, object)
         end
     end
     

@@ -1,6 +1,6 @@
 # related to timestepping
 
-export Time, Write_LaMEM_InputFile
+export Time, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM timestepping information. An explanation of the paramneters is given in the struct `Time_info`
@@ -88,7 +88,7 @@ end
 """
 Writes the Time related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::Time)
+function write_LaMEM_inputFile(io, d::Time)
     Reference = Time();    # reference values
     fields    = fieldnames(typeof(d))
 

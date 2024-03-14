@@ -15,7 +15,7 @@ function Check_LaMEM_Model(m::Model)
 
     if (m.ModelSetup.msetup=="geom") && length(m.ModelSetup.geom_primitives) == 0
         error("If you use internal geometries to set phases, you need to at least specify one internal geometry object. 
-               Example: add_geom!(model, geom_Sphere())")
+               Example: add_geom!(model, GeomSphere())")
     end
 
     if (m.ModelSetup.msetup=="files") && diff([extrema(m.Grid.Phases)...])[1]==0 && diff([extrema(m.Grid.Temp)...])[1]==0

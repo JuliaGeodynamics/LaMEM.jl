@@ -29,7 +29,7 @@ using GeophysicalModelGenerator
     run_lamem(model, 1);
 
     # read last timestep
-    data,time = Read_LaMEM_timestep(model,last=true);
+    data,time = read_LaMEM_timestep(model,last=true);
 
     @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.3680135f0 # check Vz
     

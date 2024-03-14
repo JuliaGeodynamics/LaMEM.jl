@@ -2,7 +2,7 @@
 
 # related to timestepping
 
-export FreeSurface, Write_LaMEM_InputFile
+export FreeSurface, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM free surface information.
@@ -114,10 +114,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::FreeSurface)
+    write_LaMEM_inputFile(io, d::FreeSurface)
 Writes the free surface related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::FreeSurface)
+function write_LaMEM_inputFile(io, d::FreeSurface)
     Reference = FreeSurface();    # reference values
     fields    = fieldnames(typeof(d))
     surf_use  = d.surf_use

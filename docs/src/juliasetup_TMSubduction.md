@@ -106,7 +106,7 @@ If you want to see what each of these parameters mean, you can get some basic he
 
 ```julia
 help?> Time
-search: Time time Timer time_ns timedwait mtime ctime @time @timev @timed @time_imports @showtime optimize_ticks optimize_datetime_ticks Read_LaMEM_timestep
+search: Time time Timer time_ns timedwait mtime ctime @time @timev @timed @time_imports @showtime optimize_ticks optimize_datetime_ticks read_LaMEM_timestep
 
   Structure that contains the LaMEM timestepping information. An explanation of the paramneters is given in the struct `Time_info`
     •  time_end::Float64: simulation end time

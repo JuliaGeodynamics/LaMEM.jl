@@ -1,6 +1,6 @@
 # Solver options
 
-export Solver, Write_LaMEM_InputFile
+export Solver, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM solver options
@@ -71,10 +71,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::Solver)
+    write_LaMEM_inputFile(io, d::Solver)
 Writes the free surface related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::Solver)
+function write_LaMEM_inputFile(io, d::Solver)
     Reference = Solver();    # reference values
     fields    = fieldnames(typeof(d))
 
@@ -107,10 +107,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile_PETSc(io, d::Solver)
+    write_LaMEM_inputFile_PETSc(io, d::Solver)
 Writes the (optional) PETSc options to file
 """
-function Write_LaMEM_InputFile_PETSc(io, d::Solver)
+function write_LaMEM_inputFile_PETSc(io, d::Solver)
     PETSc_options = d.PETSc_options
 
     println(io, "#===============================================================================")

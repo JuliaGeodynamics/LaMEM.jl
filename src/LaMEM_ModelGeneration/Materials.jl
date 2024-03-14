@@ -1,6 +1,6 @@
 # Specify Material properties
 using GeoParams
-export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, Write_LaMEM_InputFile
+export Materials, Phase, Softening, PhaseAggregate, PhaseTransition, Dike, write_LaMEM_inputFile
 export add_geoparams_rheologies
 
 
@@ -786,10 +786,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::Output)
+    write_LaMEM_inputFile(io, d::Output)
 Writes the free surface related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::Materials)
+function write_LaMEM_inputFile(io, d::Materials)
 
     println(io, "#===============================================================================")
     println(io, "# Material phase parameters")

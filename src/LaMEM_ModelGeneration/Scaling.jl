@@ -1,4 +1,4 @@
-export Scaling, Write_LaMEM_InputFile 
+export Scaling, write_LaMEM_inputFile 
 
 """
     Scaling{T} is a structure that contains the scaling info, employed in the current simulation
@@ -29,7 +29,7 @@ function show_short(io::IO, d::Scaling{T}) where T
 end
 
 
-function Write_LaMEM_InputFile(io, d::Scaling) 
+function write_LaMEM_inputFile(io, d::Scaling) 
     println(io, "#===============================================================================")
     println(io, "# Scaling")
     println(io, "#===============================================================================")

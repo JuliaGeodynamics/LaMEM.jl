@@ -20,13 +20,13 @@ using GeophysicalModelGenerator
     add_phase!(model, sphere, matrix)
 
     # Add an initial geometry (using GeophysicalModelGenerator routines)
-    addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+    add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # run the simulation on 1 core
     run_lamem(model, 1);
 
     # read last timestep
-    data,time = Read_LaMEM_timestep(model,last=true);
+    data,time = read_LaMEM_timestep(model,last=true);
 
     @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10747005f0 rtol=1e-1 # check Vz
 #    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10866211f0 # check Vz
@@ -63,7 +63,7 @@ using GeophysicalModelGenerator
     add_phase!(model, sphere, matrix)
 
     # Add an initial geometry (using GeophysicalModelGenerator routines)
-    addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+    add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # Add a velocity box:
     vbox = VelocityBox(cenX=0, cenY=0, cenZ=0,
@@ -77,7 +77,7 @@ using GeophysicalModelGenerator
 
     # # read last timestep
     # read last timestep
-    data,time = Read_LaMEM_timestep(model,last=true);
+    data,time = read_LaMEM_timestep(model,last=true);
 
     @test  sum(data.fields.velocity[1][8, 8, 8]) ≈ 1
     
@@ -137,19 +137,19 @@ using GeophysicalModelGenerator
     Z=model.Grid.Grid.Z;
     
     # Define mantle and lithosphere 
-    addBox!(model, zlim=(-1000.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(3), T=HalfspaceCoolingTemp(Age=100))
+    add_box!(model, zlim=(-1000.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(3), T=HalfspaceCoolingTemp(Age=100))
 
     # Define oceanic crust (for Phase)
-    addBox!(model, zlim=(-10.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(1))
+    add_box!(model, zlim=(-10.0, 0.0),  xlim=(model.Grid.coord_x...,), phase=ConstantPhase(1))
 
-    addSphere!(model, cen=(0.0,0.0,-550.0), radius=100.0,   phase=ConstantPhase(4), T=ConstantTemp(1400))
+    add_sphere!(model, cen=(0.0,0.0,-550.0), radius=100.0,   phase=ConstantPhase(4), T=ConstantTemp(1400))
     # -------------------------
 
     # run the simulation on 1 core
     run_lamem(model, 1);
 
     # read last timestep
-    data,time = Read_LaMEM_timestep(model,last=true);
+    data,time = read_LaMEM_timestep(model,last=true);
 
     @test  sum(data.fields.phase) ≈ 29060.664f0
     
@@ -181,18 +181,18 @@ end
     sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
     add_phase!(model, sphere, matrix)
 
-    geom_sphere = geom_Sphere();
+    geom_sphere = GeomSphere();
     rm_geom!(model)
     add_geom!(model, geom_sphere)
     out = run_lamem(model)
     @test isnothing(out)
 
-    geom_ellipsoid = geom_Ellipsoid();
-    geom_box = geom_Box();
-    geom_layer = geom_Layer();
-    geom_cylinder = geom_Cylinder();
-    geom_ridge = geom_RidgeSeg();
-    geom_hex = geom_Hex();
+    geom_ellipsoid = GeomEllipsoid();
+    geom_box = GeomBox();
+    geom_layer = GeomLayer();
+    geom_cylinder = GeomCylinder();
+    geom_ridge = GeomRidgeSeg();
+    geom_hex = GeomHex();
 
     add_geom!(model, geom_ellipsoid, geom_box, geom_layer, geom_cylinder, geom_ridge, geom_hex)
     out = run_lamem(model)

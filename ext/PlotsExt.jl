@@ -2,7 +2,7 @@ module PlotsExt
 
 using Plots
 using GeophysicalModelGenerator, Statistics, DelimitedFiles
-import LaMEM: cross_section, Model, Read_LaMEM_timestep, Read_LaMEM_simulation, read_phase_diagram
+import LaMEM: cross_section, Model, read_LaMEM_timestep, read_LaMEM_simulation, read_phase_diagram
 import LaMEM: plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
 export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
 
@@ -24,7 +24,7 @@ function plot_cross_section(model::Union{Model,CartData}, args...; field::Symbol
 
     if !isnothing(timestep)
         # load a particular timestep
-        data_cart, time = Read_LaMEM_timestep(model,timestep)
+        data_cart, time = read_LaMEM_timestep(model,timestep)
         model = data_cart
     end
 
@@ -68,7 +68,7 @@ As `plot_cross_section`, but for the entire simulation instead of a single times
 function plot_cross_section_simulation(model::Union{Model,CartData}, args...; field::Symbol=:phase, 
         dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
 
-    Timesteps,_,_ = Read_LaMEM_simulation(model);
+    Timesteps,_,_ = read_LaMEM_simulation(model);
     for timestep_val in Timesteps
         plot_cross_section(model, args, field=field, timestep=timestep_val, dim=dim, x=x, y=y, z=z, aspect_ratio=aspect_ratio)
     end

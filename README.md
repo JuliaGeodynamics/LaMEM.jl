@@ -47,7 +47,7 @@ julia> add_phase!(model, sphere, matrix)
 
 Create an initial geometry using the [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl/tree/main) interface:
 ```Julia
-julia> addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 ```
 and run the simulation with:
 ```julia
@@ -127,19 +127,19 @@ julia> using LaMEM
 ```
 You can first read the `*.pvd` file in the directory to see which timesteps are available. If you used julia to run the simulation (as under 2 above ), this is done with:
 ```julia
-julia> julia> Timestep, Filenames, t = Read_LaMEM_simulation(model)
+julia> julia> Timestep, Filenames, t = read_LaMEM_simulation(model)
 ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], ["Timestep_00000000_0.00000000e+00/output.pvtr", "Timestep_00000001_4.40000000e-02/output.pvtr", "Timestep_00000002_9.24000000e-02/output.pvtr", "Timestep_00000003_1.45640000e-01/output.pvtr", "Timestep_00000004_2.04204000e-01/output.pvtr", "Timestep_00000005_2.68624400e-01/output.pvtr", "Timestep_00000006_3.39486840e-01/output.pvtr", "Timestep_00000007_4.17435524e-01/output.pvtr", "Timestep_00000008_5.03179076e-01/output.pvtr", "Timestep_00000009_5.97496984e-01/output.pvtr", "Timestep_00000010_7.01246682e-01/output.pvtr", "Timestep_00000011_8.15371351e-01/output.pvtr", "Timestep_00000012_9.40908486e-01/output.pvtr", "Timestep_00000013_1.07899933e+00/output.pvtr"], [0.0, 0.044, 0.0924, 0.14564, 0.204204, 0.2686244, 0.3394868, 0.4174355, 0.5031791, 0.597497, 0.7012467, 0.8153714, 0.9409085, 1.078999])
 ```
 
 If you instead have an existing LaMEM simulation, you can specify the `*.pvd` file:
 ```julia
 julia> pvdname="output.pvd"
-julia> Timestep, Filenames, t = Read_LaMEM_simulation(pvdname)
+julia> Timestep, Filenames, t = read_LaMEM_simulation(pvdname)
 ```
 
 We can read a particular timestep (say 1) with:
 ```julia
-julia> data, time = Read_LaMEM_timestep(model, 1)
+julia> data, time = read_LaMEM_timestep(model, 1)
 (CartData 
     size    : (17, 17, 17)
     x       ϵ [ -1.0 : 1.0]

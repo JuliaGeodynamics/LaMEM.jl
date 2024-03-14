@@ -91,7 +91,7 @@ We also need to specify an initial model geometry. The julia package `Geophysica
 """
 
 # ╔═╡ a3afc50b-2fcd-4067-895d-fde7fb7f8742
-addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
 # ╔═╡ e0411cc1-60ae-43cf-9500-93a246e62e1b
 md"""
@@ -129,7 +129,7 @@ We can read all timesteps of the simulation with:
 """
 
 # ╔═╡ 3040c159-7281-4971-80ad-8104abb3a6d9
-timesteps,_,_ = Read_LaMEM_simulation(model)
+timesteps,_,_ = read_LaMEM_simulation(model)
 
 # ╔═╡ b7ca7625-4910-4faf-919c-4b785438c574
 md"""
@@ -153,7 +153,7 @@ If you want to know which fields have been saved, you can read a timestep back i
 """
 
 # ╔═╡ c72ffd0d-dbf7-4b88-af5e-de4f76d5ec33
-data_cart, time = Read_LaMEM_timestep(model,1)
+data_cart, time = read_LaMEM_timestep(model,1)
 
 # ╔═╡ e73a3f02-c1f4-46d8-a0c2-c6f6058e1ca1
 md"""

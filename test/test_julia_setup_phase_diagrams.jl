@@ -37,7 +37,7 @@ run_lamem(model)
 
 
 # read back last timestep
-data,time = Read_LaMEM_timestep(model,last=true);
+data,time = read_LaMEM_timestep(model,last=true);
 
 ρ_num  =  data.fields.density[1,1,:];
 ϕ_num  =  data.fields.melt_fraction[1,1,:];

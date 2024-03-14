@@ -8,7 +8,7 @@ pkg_dir = pkgdir(LaMEM)
 # Load LaMEM particles grid
 ParamFile_2 =   "input_files/Subduction2D_FreeSlip_Particles_Linear_DirectSolver.dat"
 ParamFile_2 =   joinpath(pkg_dir,"test", ParamFile_2);
-Grid_LaMEM  =   readLaMEM_InputFile(ParamFile_2)
+Grid_LaMEM  =   read_LaMEM_inputfile(ParamFile_2)
 
 # Specify slab parameters
 Trench_x_location   = -500;     # trench location
@@ -28,13 +28,13 @@ Phases      =   zeros(Int64, size(Grid_LaMEM.X));             # Rock numbers
 Temp        =   ones(Float64,size(Grid_LaMEM.X))*T_mantle;    # Temperature in C    
 
 # Create horizontal part of slab with crust & mantle lithosphere
-addBox!(Phases,Temp,Grid_LaMEM,
+add_box!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location, Trench_x_location+Length_Horiz_Slab), 
         zlim=(-ThicknessSlab   , 0.0),
         phase=LithosphericPhases(Layers=[ThicknessCrust ThicknessML], Phases=[1 2 0]) );               
 
 # Add inclined part of slab                            
-addBox!(Phases,Temp,Grid_LaMEM,
+add_box!(Phases,Temp,Grid_LaMEM,
         xlim=(Trench_x_location-Length_Subduct_Slab, Trench_x_location), 
         zlim=(-ThicknessSlab   , 0.0),
         DipAngle=-SubductionAngle,
@@ -43,7 +43,7 @@ addBox!(Phases,Temp,Grid_LaMEM,
 
 # Save julia setup 
 Model3D     =   CartData(Grid_LaMEM, (Phases=Phases,Temp=Temp))   # Create LaMEM model:
-write_Paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
+write_paraview(Model3D,"LaMEM_ModelSetup")                  # Save model to paraview   (load with opening LaMEM_ModelSetup.vts in paraview)  
 
 # Save LaMEM markers
 dir =   joinpath(pkg_dir,"test","input_files");
@@ -56,5 +56,5 @@ cd(dir)
 
 
 @show pwd(), dir
-save_LaMEMMarkersParallel(Model3D)                          # Create LaMEM marker input on 1 core
+save_LaMEM_markers_parallel(Model3D)                          # Create LaMEM marker input on 1 core
 cd(cur_dir)

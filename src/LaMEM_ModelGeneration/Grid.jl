@@ -1,5 +1,5 @@
 # This is the data that stores LaMEM grid-related info
-export Grid, Write_LaMEM_InputFile, show_short
+export Grid, write_LaMEM_inputFile, show_short
 
 """
     Structure that contains the LaMEM grid information
@@ -174,10 +174,10 @@ function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, c
     zn, z = GeophysicalModelGenerator.Create1D_grid_vector(coord_z, nel_z, nmark_z, nseg_z, bias_z)
     
     # node grid
-    Xn,Yn,Zn = GeophysicalModelGenerator.xyzGrid(xn, yn, zn); 
+    Xn,Yn,Zn = GeophysicalModelGenerator.xyz_grid(xn, yn, zn); 
 
     # marker grid
-    X,Y,Z    = GeophysicalModelGenerator.xyzGrid(x, y, z);
+    X,Y,Z    = GeophysicalModelGenerator.xyz_grid(x, y, z);
 
     # finish Grid (using a routine of GeophysicalModelGenerator)
     Grid_LaMEM    =  LaMEM_grid(  nmark_x,    nmark_y,    nmark_z,
@@ -232,7 +232,7 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::Grid)
+    write_LaMEM_inputFile(io, d::Grid)
 
 This writes grid info to a LaMEM input file
 
@@ -241,12 +241,12 @@ Example
 ```julia
 julia> d=LaMEM.Grid(coord_x=[0.0, 0.7, 0.8, 1.0], bias_x=[0.3,1.0,3.0], nel_x=[10,4,2])
 julia> io = open("test.dat","w")
-julia> LaMEM.Write_LaMEM_InputFile(io, d)
+julia> LaMEM.write_LaMEM_inputFile(io, d)
 julia> close(io)
 ```
 
 """
-function Write_LaMEM_InputFile(io, d::Grid)
+function write_LaMEM_inputFile(io, d::Grid)
 
     println(io, "#===============================================================================")
     println(io, "# Grid & discretization parameters")

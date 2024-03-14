@@ -1,10 +1,10 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
 import LaMEM.Run: run_lamem, run_lamem_save_grid
-import LaMEM: PassiveTracer_Time
+import LaMEM: passivetracer_time
 using LaMEM.Run.LaMEM_jll
 
-export Model, Write_LaMEM_InputFile, create_initialsetup, run_lamem, prepare_lamem
+export Model, write_LaMEM_inputFile, create_initialsetup, run_lamem, prepare_lamem
 
 """
     Model
@@ -149,16 +149,16 @@ function show(io::IO, d::Model)
 end
 
 """
-    Write_LaMEM_InputFile(d::Model,fname::String; dir=pwd())
+    write_LaMEM_inputFile(d::Model,fname::String; dir=pwd())
 
 Writes a LaMEM input file based on the data stored in Model
 """
-function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
+function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd())
     Check_LaMEM_Model(d)    # check for mistakes in input
 
     if d.Output.write_VTK_setup
         # If we want to write an input file 
-        write_Paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
+        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
     end
     
     if any(hasplasticity.(d.Materials.Phases))
@@ -169,19 +169,19 @@ function Write_LaMEM_InputFile(d::Model, fname::String="input.dat"; dir=pwd())
 
     io = open(fname,"w")
 
-    Write_LaMEM_InputFile(io, d.Scaling)
-    Write_LaMEM_InputFile(io, d.Grid)
-    Write_LaMEM_InputFile(io, d.Time)
-    Write_LaMEM_InputFile(io, d.FreeSurface)
-    Write_LaMEM_InputFile(io, d.BoundaryConditions)
-    Write_LaMEM_InputFile(io, d.SolutionParams)
-    Write_LaMEM_InputFile(io, d.Solver)
-    Write_LaMEM_InputFile(io, d.ModelSetup)
-    Write_LaMEM_InputFile(io, d.Output)
-    Write_LaMEM_InputFile(io, d.PassiveTracers)
-    Write_LaMEM_InputFile(io, d.Materials)
+    write_LaMEM_inputFile(io, d.Scaling)
+    write_LaMEM_inputFile(io, d.Grid)
+    write_LaMEM_inputFile(io, d.Time)
+    write_LaMEM_inputFile(io, d.FreeSurface)
+    write_LaMEM_inputFile(io, d.BoundaryConditions)
+    write_LaMEM_inputFile(io, d.SolutionParams)
+    write_LaMEM_inputFile(io, d.Solver)
+    write_LaMEM_inputFile(io, d.ModelSetup)
+    write_LaMEM_inputFile(io, d.Output)
+    write_LaMEM_inputFile(io, d.PassiveTracers)
+    write_LaMEM_inputFile(io, d.Materials)
     
-    Write_LaMEM_InputFile_PETSc(io, d.Solver)   # add PETSc options last
+    write_LaMEM_inputFile_PETSc(io, d.Solver)   # add PETSc options last
 
     close(io)
 end
@@ -243,19 +243,19 @@ end
 
 """
 """
-function  PassiveTracer_Time(model::Model, cores::Int64=1, args::String=""; wait=true)
+function  passivetracer_time(model::Model, cores::Int64=1, args::String=""; wait=true)
 
 end
 
 """
-    PT = PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
+    PT = passivetracer_time(ID::Union{Vector{Int64},Int64}, model::Model)
 
 This reads passive tracers with `ID` from a LaMEM simulation specified by `model`, and returns a named tuple with the temporal 
 evolution of these passive tracers. We return `x`,`y`,`z` coordinates and all fields specified in `FileName` for particles number `ID`.
 
 """
-function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, model::Model)
-    return PassiveTracer_Time(ID, model.Output.out_file_name, model.Output.out_dir)
+function passivetracer_time(ID::Union{Vector{Int64},Int64}, model::Model)
+    return passivetracer_time(ID, model.Output.out_file_name, model.Output.out_dir)
 end
 
 """
@@ -279,7 +279,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         cd(model.Output.out_dir)
     end
 
-    Write_LaMEM_InputFile(model, model.Output.param_file_name)
+    write_LaMEM_inputFile(model, model.Output.param_file_name)
     
     
     if !isnothing(model.FreeSurface.Topography)
@@ -293,9 +293,9 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
-            save_LaMEMMarkersParallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
         else
-            save_LaMEMMarkersParallel(Model3D, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, verbose=verbose)
         end
     end
 

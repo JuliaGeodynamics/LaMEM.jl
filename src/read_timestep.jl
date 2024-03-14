@@ -3,12 +3,12 @@
 # 
                   
 # Make these routines easily available outside the module:
-using GeophysicalModelGenerator: CartData, xyzGrid
+using GeophysicalModelGenerator: CartData, xyz_grid
 using Glob, ReadVTK, WriteVTK, LightXML
 
-export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
-export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
-export PassiveTracer_Time
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
+export passivetracer_time
 export compress_vtr_file, compress_pvd
 
 """ 
@@ -174,7 +174,7 @@ end
 
 
 """
-    data_output = Read_LaMEM_PVTR_File(DirName, FileName; fields=nothing)
+    data_output = read_LaMEM_PVTR_file(DirName, FileName; fields=nothing)
 
 Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -182,7 +182,7 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=nothing)
+function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
 
     DirName, File = split_path_name(DirName_base, FileName)
@@ -240,7 +240,7 @@ function Read_LaMEM_PVTR_File(DirName_base::String, FileName::String; fields=not
         z = (z[1:end-1] + z[2:end])/2
     end
 
-    X,Y,Z = xyzGrid(x,y,z)
+    X,Y,Z = xyz_grid(x,y,z)
     data_output     =   CartData(X,Y,Z, data_fields)
     return data_output   
 end
@@ -282,7 +282,7 @@ end
 
 
 """
-    data_output = Read_LaMEM_PVTU_File(DirName, FileName; fields=nothing)
+    data_output = read_LaMEM_PVTU_file(DirName, FileName; fields=nothing)
 
 Reads a 3D LaMEM timestep from VTU file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -290,7 +290,7 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_LaMEM_PVTU_File(DirName_base, FileName; fields=nothing)
+function read_LaMEM_PVTU_file(DirName_base, FileName; fields=nothing)
     CurDir = pwd();
 
     DirName, File = split_path_name(DirName_base, FileName)
@@ -346,7 +346,7 @@ end
 
 
 """
-    data_output = Read_LaMEM_PVTS_File(DirName, FileName; field=nothing)
+    data_output = read_LaMEM_PVTS_file(DirName, FileName; field=nothing)
 
 Reads a 3D LaMEM timestep from VTS file `FileName`, located in directory `DirName`. Typically this is done to read passive tracers back into julia. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
@@ -354,7 +354,7 @@ By default, it will read all fields. If you want you can only read a specific `f
 It will return `data_output` which is a `CartData` output structure.
 
 """
-function Read_LaMEM_PVTS_File(DirName_base::String, FileName::String; fields=nothing)
+function read_LaMEM_PVTS_file(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
 
     DirName, File = split_path_name(DirName_base, FileName)
@@ -390,7 +390,7 @@ end
 
 
 """
-    data, time = Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=""; fields=nothing, phase=false, surf=false, last=false)
+    data, time = read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=""; fields=nothing, phase=false, surf=false, last=false)
 
 This reads a LaMEM timestep.
 
@@ -409,9 +409,9 @@ Output:
 - `time`: The time of the timestep
 
 """
-function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=pwd(); fields=nothing, phase=false, surf=false, passive_tracers=false, last=false)
+function read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::String=pwd(); fields=nothing, phase=false, surf=false, passive_tracers=false, last=false)
 
-    Timestep, FileNames, Time  = Read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf, passive_tracers=passive_tracers);
+    Timestep, FileNames, Time  = read_LaMEM_simulation(FileName, DirName; phase=phase, surf=surf, passive_tracers=passive_tracers);
     
     ind = findall(Timestep.==TimeStep)
     
@@ -420,11 +420,11 @@ function Read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::Strin
 
     # Read file
     if surf==true
-        data = Read_LaMEM_PVTS_File(DirName, FileNames[ind[1]], fields=fields)
+        data = read_LaMEM_PVTS_file(DirName, FileNames[ind[1]], fields=fields)
     elseif passive_tracers==true
-        data = Read_LaMEM_PVTU_File(DirName, FileNames[ind[1]], fields=fields)
+        data = read_LaMEM_PVTU_file(DirName, FileNames[ind[1]], fields=fields)
     else
-        data = Read_LaMEM_PVTR_File(DirName, FileNames[ind[1]], fields=fields)
+        data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
     end
 
     return data, Time[ind]
@@ -432,11 +432,11 @@ end
 
 
 """ 
-    Timestep, FileNames, Time = Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
+    Timestep, FileNames, Time = read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
 
 Reads a LaMEM simulation `FileName` in directory `DirName` and returns the timesteps, times and filenames of that simulation.
 """
-function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
+function read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false, surf=false, passive_tracers=false)
 
     if phase==true
         pvd_file=FileName*"_phase.pvd"
@@ -454,13 +454,13 @@ function Read_LaMEM_simulation(FileName::String, DirName::String=""; phase=false
 end
 
 """
-    Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
+    read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
 
 Returns the names of the datasets stored in `FileName`
 """
-function Read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
+function read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=false, surf=false, tracers=false)
 
-    _, FileNames, _  = Read_LaMEM_simulation(FileName, DirName_base; phase=phase, surf=surf);
+    _, FileNames, _  = read_LaMEM_simulation(FileName, DirName_base; phase=phase, surf=surf);
     
     # Read file
     DirName, File = split_path_name(DirName_base, FileNames[1])
@@ -489,21 +489,21 @@ end
 
 
 """
-    PT = PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
+    PT = passivetracer_time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
 
 This reads passive tracers with `ID` from a LaMEM simulation, and returns a named tuple with the temporal 
 evolution of these passive tracers. We return `x`,`y`,`z` coordinates and all fields specified in the `FileName` for particles number `ID`.
 
 """
-function PassiveTracer_Time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
-    Timestep, _, Time_Myrs  = Read_LaMEM_simulation(FileName, DirName,passive_tracers=true)
+function passivetracer_time(ID::Union{Vector{Int64},Int64}, FileName::String, DirName::String="")
+    Timestep, _, Time_Myrs  = read_LaMEM_simulation(FileName, DirName,passive_tracers=true)
 
     # read first timestep
-    data0, _ = Read_LaMEM_timestep(FileName, Timestep[1], DirName,  passive_tracers=true)
+    data0, _ = read_LaMEM_timestep(FileName, Timestep[1], DirName,  passive_tracers=true)
     
     nt = extract_passive_tracers_CartData(data0, ID );
     for timestep in Timestep
-        data, t = Read_LaMEM_timestep(FileName, timestep, DirName,  passive_tracers=true);
+        data, t = read_LaMEM_timestep(FileName, timestep, DirName,  passive_tracers=true);
 
         nt1 = extract_passive_tracers_CartData(data, ID );
         if timestep>Timestep[1]

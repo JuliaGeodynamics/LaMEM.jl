@@ -15,11 +15,11 @@ function Check_LaMEM_Model(m::Model)
 
     if (m.ModelSetup.msetup=="geom") && length(m.ModelSetup.geom_primitives) == 0
         error("If you use internal geometries to set phases, you need to at least specify one internal geometry object. 
-               Example: add_geom!(model, geom_Sphere())")
+               Example: add_geom!(model, GeomSphere())")
     end
 
     if (m.ModelSetup.msetup=="files") && diff([extrema(m.Grid.Phases)...])[1]==0 && diff([extrema(m.Grid.Temp)...])[1]==0
-        @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
+        @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
     end
 
     if (m.Solver.SolverType!="direct") &&  (m.Solver.SolverType!="multigrid")

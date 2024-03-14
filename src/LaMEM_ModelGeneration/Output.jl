@@ -1,7 +1,7 @@
 # Output options
 
 
-export Output, Write_LaMEM_InputFile
+export Output, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM output options
@@ -201,10 +201,10 @@ function show_short(io::IO, d::Output)
 end
 
 """
-    Write_LaMEM_InputFile(io, d::Output)
+    write_LaMEM_inputFile(io, d::Output)
 Writes the free surface related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::Output)
+function write_LaMEM_inputFile(io, d::Output)
     fields    = fieldnames(typeof(d))
 
     println(io, "#===============================================================================")

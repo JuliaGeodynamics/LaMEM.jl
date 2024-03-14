@@ -40,10 +40,10 @@ model = Model(
 # Next, we specify the geometry of the model, using the `AddBox!` function from `GeophysicalModelGenerator`.
 # We start with the horizontal part of the slab. The function `AddBox!` allows you to specify a layered lithosphere; here we have a crust and mantle. It also allows specifying a thermal structure. 
 # Since the current setup is only mechanical, we don't specify that here. 
-AddBox!(model, xlim=(-3000,-1000), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]))
+add_box!(model, xlim=(-3000,-1000), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]))
 
 # The inclined part of the slab is generate by giving it a dip:
-AddBox!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
+add_box!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
 
 # There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
 using Plots 

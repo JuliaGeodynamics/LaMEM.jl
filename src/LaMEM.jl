@@ -8,9 +8,9 @@ export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
 # Functions to read LaMEM output
 include("IO_functions.jl")
 using .IO_functions
-export Read_LaMEM_PVTR_File, Read_LaMEM_PVTS_File, Read_LaMEM_PVTU_File
-export Read_LaMEM_simulation, Read_LaMEM_timestep, Read_LaMEM_fieldnames
-export PassiveTracer_Time
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
+export passivetracer_time
 export clean_directory, changefolder, read_phase_diagram, read_LaMEM_logfile
 export compress_vtr_file, compress_pvd
 
@@ -25,17 +25,17 @@ include("DocUtils.jl")
 # Functions that help running LaMEM directly from julia
 include("LaMEM_ModelGeneration/LaMEM_Model.jl")
 using .LaMEM_Model
-export  LaMEM_Model, Model, Write_LaMEM_InputFile, create_initialsetup,
+export  LaMEM_Model, Model, write_LaMEM_inputFile, create_initialsetup,
         Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, BCBlock, VelCylinder, SolutionParams,
         Solver, ModelSetup, 
-        geom_Sphere, geom_Ellipsoid, geom_Box, geom_RidgeSeg, geom_Hex, geom_Layer, geom_Cylinder,
+        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder,
         Output,
         Multigrid, print_short, 
         Materials, Phase, Softening, PhaseTransition, PhaseAggregate, Dike, PassiveTracers,
         add_vbox!, rm_vbox!, rm_last_vbox!, 
         add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!, add_phaseaggregate!,
         add_phasetransition!, add_dike!, add_geom!, rm_geom!, set_air, copy_phase,
-        add_topography!, aboveSurface!, belowSurface!,
+        add_topography!, above_surface!, below_surface!,
         prepare_lamem, isdefault, hasplasticity,
         add_geoparams_rheologies,
         stress_strainrate_0D    

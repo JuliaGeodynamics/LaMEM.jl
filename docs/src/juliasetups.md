@@ -96,7 +96,7 @@ In order to run a simulation, we need to define at least 1 phase and heterogenei
 The easiest way to do that is to use routines from the `GeophyicalModelGenerator` package, for which we created simple interfaces to many of the relevant routines:
 ```julia
 julia> using GeophysicalModelGenerator
-julia> addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 ```
 
 For the sake of this example, lets add another phase:

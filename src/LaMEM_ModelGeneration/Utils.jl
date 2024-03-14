@@ -1,5 +1,5 @@
 # Contains a number of useful functions
-import LaMEM.IO_functions: Read_LaMEM_simulation, Read_LaMEM_timestep
+import LaMEM.IO_functions: read_LaMEM_simulation, read_LaMEM_timestep
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
@@ -194,13 +194,13 @@ end
 This adds an internal geometric primitive object `geom_object` to the LaMEM Model Setup `model`.
 
 Currently available primitive geom objects are:
-- `geom_Sphere`
-- `geom_Ellipsoid`
-- `geom_Box`
-- `geom_Layer`
-- `geom_Cylinder`
-- `geom_RidgeSeg`
-- `geom_Hex`
+- `GeomSphere`
+- `GeomEllipsoid`
+- `GeomBox`
+- `GeomLayer`
+- `GeomCylinder`
+- `GeomRidgeSeg`
+- `GeomHex`
 
 """
 function add_geom!(model::Model, geom_object)
@@ -236,7 +236,7 @@ end
 
 This sets the geometry 
 """
-function set_geom!(model::Model, d::geom_Sphere)
+function set_geom!(model::Model, d::GeomSphere)
    
     cen = (d.center...,)
     radius = d.radius
@@ -247,25 +247,25 @@ function set_geom!(model::Model, d::geom_Sphere)
     end
 
     # call a GMG routine
-    addSphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
+    add_sphere!(model.Grid.Phases,model.Grid.Temp,model.Grid.Grid, cen=cen, radius=radius, phase=phase, T=T)
 
     return nothing
 end
 
 
 """
-    Timestep, FileNames, Time = Read_LaMEM_simulation(model::Model; phase=false, surf=false, passive_tracers=false)
+    Timestep, FileNames, Time = read_LaMEM_simulation(model::Model; phase=false, surf=false, passive_tracers=false)
 
 Reads a LaMEM simulation as specified in `model` and returns the timesteps, times and filenames of that simulation once it is finished.
 """
-Read_LaMEM_simulation(model::Model; kwargs...) = Read_LaMEM_simulation(model.Output.out_file_name,model.Output.out_dir; kwargs...)
+read_LaMEM_simulation(model::Model; kwargs...) = read_LaMEM_simulation(model.Output.out_file_name,model.Output.out_dir; kwargs...)
 
 """
-    data, time = Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; fields=nothing, phase=false, surf=false, last=true)
+    data, time = read_LaMEM_timestep(model::Model, TimeStep::Int64=0; fields=nothing, phase=false, surf=false, last=true)
 
 Reads a specific `Timestep` from a simulation specified in `model`
 """
-function Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...) 
+function read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...) 
     FileName    = model.Output.out_file_name
 
     cur_dir = pwd(); 
@@ -273,7 +273,7 @@ function Read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...)
         cd(model.Output.out_dir)
     end
 
-    data, time = Read_LaMEM_timestep(FileName,TimeStep; kwargs...)
+    data, time = read_LaMEM_timestep(FileName,TimeStep; kwargs...)
     
     cd(cur_dir)
 
@@ -465,7 +465,7 @@ function stress_strainrate_0D(rheology, ε_vec::Vector; n=8, T=700, nstep_max=2,
         model.Output.out_dir="0D_$i"
         model.BoundaryConditions.exx_strain_rates = [ε]
         run_lamem(model, 1); #run
-        data,_ = Read_LaMEM_timestep(model, last=true) # read
+        data,_ = read_LaMEM_timestep(model, last=true) # read
         
         @show extrema(data.fields.j2_dev_stress)
 

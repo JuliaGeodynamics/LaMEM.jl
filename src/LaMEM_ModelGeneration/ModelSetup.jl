@@ -1,7 +1,7 @@
 # Model Setup
 
-export ModelSetup, Write_LaMEM_InputFile, 
-        geom_Sphere, geom_Ellipsoid, geom_Box, geom_RidgeSeg, geom_Hex, geom_Layer, geom_Cylinder,
+export ModelSetup, write_LaMEM_inputFile, 
+        GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder,
         set_geom!
 
 """
@@ -58,7 +58,7 @@ Base.@kwdef mutable struct ModelSetup
     "max number of same phase markers per subcell (subgrid marker control)"
     nmark_sub::Int64                = 3        
 
-    "Different geometric primitives that can be selected if we `msetup``=`geom`; see `geom_Sphere`"
+    "Different geometric primitives that can be selected if we `msetup``=`geom`; see `GeomSphere`"
     geom_primitives::Vector    = []
 end
 
@@ -112,7 +112,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Sphere
+Base.@kwdef struct GeomSphere
     "phase"
     phase::Int64          = 1          
      
@@ -130,22 +130,22 @@ Base.@kwdef struct geom_Sphere
 end
 
 
-function show(io::IO, d::geom_Sphere)
+function show(io::IO, d::GeomSphere)
     println(io, "Sphere(ph=$(d.phase), radius=$(d.radius), center=$(d.center), Temperature=$(d.Temperature),  cstTemp = $(d.cstTemp))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Sphere)
+    write_LaMEM_inputFile(io, d::GeomSphere)
 
 """
-function Write_LaMEM_InputFile(io, d::geom_Sphere)
+function write_LaMEM_inputFile(io, d::GeomSphere)
     fields    = fieldnames(typeof(d))
     println(io, "    <SphereStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Sphere, f)
+            comment = get_doc(GeomSphere, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -161,7 +161,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Ellipsoid
+Base.@kwdef struct GeomEllipsoid
     "phase"
     phase::Int64          = 1          
      
@@ -179,21 +179,21 @@ Base.@kwdef struct geom_Ellipsoid
 end
 
 
-function show(io::IO, d::geom_Ellipsoid)
+function show(io::IO, d::GeomEllipsoid)
     println(io, "Ellipsoid(ph=$(d.phase), axes=$(d.axes), cen=$(d.center), T=$(d.Temperature)=$(d.cstTemp))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Ellipsoid)
+    write_LaMEM_inputFile(io, d::GeomEllipsoid)
 """
-function Write_LaMEM_InputFile(io, d::geom_Ellipsoid)
+function write_LaMEM_inputFile(io, d::GeomEllipsoid)
     fields    = fieldnames(typeof(d))
     println(io, "    <EllipsoidStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Ellipsoid, f)
+            comment = get_doc(GeomEllipsoid, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -209,7 +209,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Box
+Base.@kwdef struct GeomBox
     "phase"
     phase::Int64          = 1          
      
@@ -232,21 +232,21 @@ Base.@kwdef struct geom_Box
     thermalAge::Union{Float64,Nothing}     = nothing   
 end
 
-function show(io::IO, d::geom_Box)
+function show(io::IO, d::GeomBox)
     println(io, "Box(ph=$(d.phase), bounds=$(d.bounds), T=$(d.Temperature)=$(d.cstTemp), [top,box]=[$(d.topTemp), $(d.botTemp)], thermalAge=$(d.thermalAge))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Box)
+    write_LaMEM_inputFile(io, d::GeomBox)
 """
-function Write_LaMEM_InputFile(io, d::geom_Box)
+function write_LaMEM_inputFile(io, d::GeomBox)
     fields    = fieldnames(typeof(d))
     println(io, "    <BoxStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Box, f)
+            comment = get_doc(GeomBox, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -262,7 +262,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_RidgeSeg
+Base.@kwdef struct GeomRidgeSeg
     "phase"
     phase::Int64          = 1          
      
@@ -294,21 +294,21 @@ Base.@kwdef struct geom_RidgeSeg
     v_spread::Union{Float64,Nothing}    = nothing
 end
 
-function show(io::IO, d::geom_RidgeSeg)
+function show(io::IO, d::GeomRidgeSeg)
     println(io, "RidgeSeg(ph=$(d.phase), bounds=$(d.bounds), ridgeseg_x=$(d.ridgeseg_x),ridgeseg_y=$(d.ridgeseg_y),  T=$(d.Temperature) = [top,box]=[$(d.topTemp), $(d.botTemp)], age0=$(d.age0)), maxAge=$(d.maxAge), v_spread=$(d.v_spread))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_RidgeSeg)
+    write_LaMEM_inputFile(io, d::GeomRidgeSeg)
 """
-function Write_LaMEM_InputFile(io, d::geom_RidgeSeg)
+function write_LaMEM_inputFile(io, d::GeomRidgeSeg)
     fields    = fieldnames(typeof(d))
     println(io, "    <RidgeSegStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_RidgeSeg, f)
+            comment = get_doc(GeomRidgeSeg, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -324,7 +324,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Hex
+Base.@kwdef struct GeomHex
     "phase"
     phase::Int64          = 1          
      
@@ -335,21 +335,21 @@ Base.@kwdef struct geom_Hex
     coord::Vector{Float64}      = [0.25, 0.25, 0.25,   0.5, 0.2, 0.2,   0.6, 0.7, 0.25,   0.3, 0.5, 0.3,   0.2, 0.3, 0.75,   0.6, 0.15, 0.75,   0.5, 0.6, 0.80,   0.2, 0.4, 0.75]
 end
 
-function show(io::IO, d::geom_Hex)
+function show(io::IO, d::GeomHex)
     println(io, "Hex(ph=$(d.phase), coord=$(d.coord))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Hex)
+    write_LaMEM_inputFile(io, d::GeomHex)
 """
-function Write_LaMEM_InputFile(io, d::geom_Hex)
+function write_LaMEM_inputFile(io, d::GeomHex)
     fields    = fieldnames(typeof(d))
     println(io, "    <HexStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Hex, f)
+            comment = get_doc(GeomHex, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -365,7 +365,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Layer
+Base.@kwdef struct GeomLayer
     "phase"
     phase::Int64          = 1          
      
@@ -400,21 +400,21 @@ Base.@kwdef struct geom_Layer
     thermalAge::Union{Float64,Nothing}  = nothing   
 end
 
-function show(io::IO, d::geom_Layer)
+function show(io::IO, d::GeomLayer)
     println(io, "Layer(ph=$(d.phase), bot/top=[$(d.bot),$(d.top)], T=$(d.Temperature)=$(d.cstTemp), [Ttop,Tbot]=[$(d.topTemp), $(d.botTemp)], thermalAge=$(d.thermalAge), cosine perturbation=$(d.cosine), wavelength=$(d.wavelength), amplitude=$(d.amplitude))")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Layer)
+    write_LaMEM_inputFile(io, d::GeomLayer)
 """
-function Write_LaMEM_InputFile(io, d::geom_Layer)
+function write_LaMEM_inputFile(io, d::GeomLayer)
     fields    = fieldnames(typeof(d))
     println(io, "    <LayerStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Layer, f)
+            comment = get_doc(GeomLayer, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -430,7 +430,7 @@ end
     
     $(TYPEDFIELDS)
 """
-Base.@kwdef struct geom_Cylinder
+Base.@kwdef struct GeomCylinder
     "phase"
     phase::Int64          = 1          
      
@@ -451,21 +451,21 @@ Base.@kwdef struct geom_Cylinder
 
 end
 
-function show(io::IO, d::geom_Cylinder)
+function show(io::IO, d::GeomCylinder)
     println(io, "Cylinder(ph=$(d.phase), radius=$(d.radius) base=$(d.base), cap=$(d.cap), T=$(d.Temperature)=$(d.cstTemp) )")
     return nothing
 end
 
 """
-    Write_LaMEM_InputFile(io, d::geom_Cylinder)
+    write_LaMEM_inputFile(io, d::GeomCylinder)
 """
-function Write_LaMEM_InputFile(io, d::geom_Cylinder)
+function write_LaMEM_inputFile(io, d::GeomCylinder)
     fields    = fieldnames(typeof(d))
     println(io, "    <CylinderStart>")
     for f in fields
         if !isnothing(getfield(d,f))
             name = rpad(String(f),15)
-            comment = get_doc(geom_Cylinder, f)
+            comment = get_doc(GeomCylinder, f)
             data = getfield(d,f) 
             println(io,"        $name  = $(write_vec(data))     # $(comment)")
         end
@@ -480,10 +480,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::ModelSetup)
+    write_LaMEM_inputFile(io, d::ModelSetup)
 Writes options related to the Model Setup to disk
 """
-function Write_LaMEM_InputFile(io, d::ModelSetup)
+function write_LaMEM_inputFile(io, d::ModelSetup)
     Reference = ModelSetup();    # reference values
     fields    = fieldnames(typeof(d))
 
@@ -521,7 +521,7 @@ function Write_LaMEM_InputFile(io, d::ModelSetup)
         println(io, "")
         println(io, "# Geometric primitives: \n")
         for object in d.geom_primitives
-            Write_LaMEM_InputFile(io, object)
+            write_LaMEM_inputFile(io, object)
         end
     end
 

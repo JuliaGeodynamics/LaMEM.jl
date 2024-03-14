@@ -23,13 +23,13 @@ using GeophysicalModelGenerator
     add_phase!(model, sphere, matrix)
 
     # Add an initial geometry (using GeophysicalModelGenerator routines)
-    addSphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+    add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
 
     # run the simulation on 1 core
     run_lamem(model, 1);
 
     # read last timestep
-    data,time = Read_LaMEM_timestep(model,last=true);
+    data,time = read_LaMEM_timestep(model,last=true);
 
     @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.3680135f0 # check Vz
     

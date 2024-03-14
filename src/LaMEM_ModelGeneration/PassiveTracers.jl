@@ -3,7 +3,7 @@
 # Capture meta-data with:
 # Docs.meta(LaMEM.LaMEM_Model)[Docs.@var(LaMEM.LaMEM_Model.PassiveTracers)].docs[Union{}].data
 
-export PassiveTracers, Write_LaMEM_InputFile
+export PassiveTracers, write_LaMEM_inputFile
 
 """
     Structure that contains the LaMEM passive tracers parameters. 
@@ -76,10 +76,10 @@ end
 
 
 """
-    Write_LaMEM_InputFile(io, d::PassiveTracers)
+    write_LaMEM_inputFile(io, d::PassiveTracers)
 Writes the boundary conditions related parameters to file
 """
-function Write_LaMEM_InputFile(io, d::PassiveTracers)
+function write_LaMEM_inputFile(io, d::PassiveTracers)
     Reference = PassiveTracers();    # reference values
     fields    = fieldnames(typeof(d))
     

@@ -46,7 +46,7 @@ include("Solver.jl")                # solver options
 export Solver
 
 include("ModelSetup.jl")            # model setup options
-export ModelSetup, geom_Sphere, set_geom!
+export ModelSetup, GeomSphere, set_geom!
 
 include("Multigrid.jl")             # Multigrid options
 export Multigrid
@@ -64,7 +64,7 @@ include("Model.jl")                 # main LaMEM_Model
 export Model
 
 include("GMG_interface.jl")
-export aboveSurface!, belowSurface!
+export above_surface!, below_surface!
 
 include("Utils.jl")
 export  add_phase!, rm_phase!, rm_last_phase!, add_petsc!, add_softening!, add_phaseaggregate!, 

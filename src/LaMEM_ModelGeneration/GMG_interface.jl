@@ -3,7 +3,7 @@
 # Some wrappers around GMG routines
 
 import GeophysicalModelGenerator: add_box!, add_layer!, add_sphere!, add_ellipsoid!, add_cylinder!, above_surface, below_surface
-import GeophysicalModelGenerator: add_polygon!, add_slab!, add_stripes!
+import GeophysicalModelGenerator: add_polygon!, add_slab!, add_stripes!, Trench
 export above_surface!, below_surface!
 
 """
@@ -80,14 +80,14 @@ add_polygon!(model::Model; kwargs...) = add_polygon!(model.Grid.Phases, model.Gr
 
 """
     add_slab!(model::Model;                                 # required input
-                    trench::Trench, 
+                    trench::Trench; 
                     phase = ConstantPhase(1),                 # Sets the phase number(s) in the box
                     T=nothing) 
 
 See the documentation of the GMG routine
 
 """
-add_slab!(model::Model; kwargs...) = add_slab!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid; kwargs...) 
+add_slab!(model::Model, trench::Trench; kwargs...) = add_slab!(model.Grid.Phases, model.Grid.Temp, model.Grid.Grid, trench; kwargs...) 
 
 """
     add_stripes!(Phase, Grid::AbstractGeneralGrid;

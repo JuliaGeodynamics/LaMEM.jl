@@ -1,9 +1,15 @@
-cff-version: 1.1.0
-message: "If you use this software, please cite it as below."
+cff-version: 1.2.0
+title: LaMEM.jl - julia interface to the Lithosphere and Mantle Evolution Model
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
 authors:
-- family-names: Boris
-  given-names: Kaus
-orcid: https://orcid.org/0000-0002-0247-8660
-title:
-version: v0.3.0
-date-released: 2024-03-14
+  - given-names: Boris
+    family-names: Kaus
+    orcid: 'https://orcid.org/0000-0002-0247-8660'
+    affiliation: Johannes Gutenberg University Mainz
+keywords:
+  - computational geodynamics
+license: MIT
+

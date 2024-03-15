@@ -3,7 +3,7 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliageodynamics.github.io/LaMEM.jl/dev/)
 [![DOI](https://zenodo.org/badge/531427568.svg)](https://zenodo.org/doi/10.5281/zenodo.10211627)
 
-This is the Julia interface to [LaMEM](https://github.com/UniMainzGeo/LaMEM/)) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system. It allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing.
+This is the Julia interface to [LaMEM](https://github.com/UniMainzGeo/LaMEM/)) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system. It allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing. Below we give some brief steps in how to use it. More examples can be found in tyhe [user guide](https://juliageodynamics.github.io/LaMEM.jl/dev/).
 
 ### 1. Installation
 Go to the package manager & install it with:

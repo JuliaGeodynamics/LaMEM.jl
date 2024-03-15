@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: LaMEM.jl - Julia interface to the Lithosphere and Mantle Evolution Model
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Boris
+    family-names: Kaus
+    email: kaus@uni-mainz.de
+    orcid: 'https://orcid.org/0000-0002-0247-8660'
+    affiliation: Johannes Gutenberg University Mainz
+keywords:
+  - computational geosciences
+  - high-performance computing
+license: GPL-3.0

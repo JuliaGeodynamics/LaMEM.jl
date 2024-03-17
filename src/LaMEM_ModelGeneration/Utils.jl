@@ -306,7 +306,7 @@ function cross_section(cart::CartData, field::Symbol=:phase; x=nothing, y=nothin
     if !isnothing(x); Lon_level = x; else Lon_level=nothing; end
     if !isnothing(y); Lat_level = y; else Lat_level=nothing; end
     
-    Cross = CrossSectionVolume(cart, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
+    Cross = cross_section_volume(cart, Depth_level=Depth_level, Lat_level=Lat_level, Lon_level=Lon_level)
 
     data_tuple, axes_str = flatten(Cross, field,x,y,z)
     return data_tuple, axes_str

@@ -283,7 +283,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
     
     
     if !isnothing(model.FreeSurface.Topography)
-        Save_LaMEMTopography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
+        save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
     end
 
     if model.ModelSetup.msetup=="files"

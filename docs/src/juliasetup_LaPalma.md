@@ -22,7 +22,6 @@ CartData
     y       ϵ [ -63.5531883197492 : 73.28446155584604]
     z       ϵ [ -4.38352685546875 : 2.414]
     fields  : (:Topography,)
-  attributes: ["note"]
 ```
 This shows the dimensions of our domain in kilometers. The issue is that this projected topography is not an orthogonal grid, but (slightly) distorted. In any case, we see the approximate dimensions of the grid (in horizontal directions), so we can create an orthogonal grid on which to project this:
 

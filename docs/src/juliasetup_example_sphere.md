@@ -145,7 +145,7 @@ Alternatively, you can visualize the results with Paraview.
 Change to the directory where you did the simulation:
 ```julia
 julia> cd(model.Output.out_dir)
-julia> julia> readdir()
+julia> readdir()
 25-element Vector{String}:
  "Model3D.vts"
  "Timestep_00000000_0.00000000e+00"

@@ -13,9 +13,9 @@ adding Plots.jl plotting extensions for LaMEM
 
 Load the topography, choose a projection point & project the topography to cartesian coordinates:
 ```julia
-julia> Topo = ImportTopo(lon = [-18.7, -17.1], lat=[28.0, 29.2], file="@earth_relief_03s.grd");
+julia> Topo = import_topo(lon = [-18.7, -17.1], lat=[28.0, 29.2], file="@earth_relief_03s.grd");
 julia> proj = ProjectionPoint(Lon=-17.84, Lat=28.56);
-julia> Topo_cart = Convert2CartData(Topo, proj)
+julia> Topo_cart = convert2CartData(Topo, proj)
 CartData 
     size    : (1921, 1441, 1)
     x       ϵ [ -86.09445705828863 : 73.67229892155609]
@@ -27,7 +27,7 @@ This shows the dimensions of our domain in kilometers. The issue is that this pr
 
 ```julia
 julia> Topo_LaMEM = CartData(xyz_grid(-70:.2:70,-60:.2:70,0));
-julia> Topo_LaMEM = ProjectCartData(Topo_LaMEM, Topo, proj)
+julia> Topo_LaMEM = project_CartData(Topo_LaMEM, Topo, proj)
 ```
 
 We can plot it with:

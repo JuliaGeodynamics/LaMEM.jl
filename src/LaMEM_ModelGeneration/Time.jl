@@ -101,9 +101,9 @@ function write_LaMEM_inputFile(io, d::Time)
         if getfield(d,f) != getfield(Reference,f) ||
             (f == :dt_max)  ||  
             (f == :time_end) ||
-            (f == :nstep_max)
+            (f == :nstep_max) ||
+            (f == :nstep_rdb)
             
-
             # only print if value differs from reference value
             name = rpad(String(f),15)
             comment = get_doc(Time, f)

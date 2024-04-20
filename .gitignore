@@ -2,3 +2,6 @@ test/*.pvd
 test/Timestep_*
 .CondaPkg
 /.vscode
+*.vts
+*.pvd
+*.vtr

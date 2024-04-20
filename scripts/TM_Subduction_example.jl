@@ -210,8 +210,7 @@ add_softening!( model,softening)
 # Set solver options
 model.Solver = Solver(  SolverType      = "multigrid",
                         MGLevels        = 3,
-                        MGCoarseSolver 	= "superlu_dist",
-                        DirectSolver 	= "superlu_dist",
+                        MGCoarseSolver 	= "mumps",
                         PETSc_options   = [ "-snes_ksp_ew",
                                             "-snes_ksp_ew_rtolmax 1e-4",
                                             "-snes_rtol 5e-3",			

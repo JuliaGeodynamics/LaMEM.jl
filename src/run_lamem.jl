@@ -45,6 +45,7 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         cores=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end
+    @show cores
     if cores==1
         # Run LaMEM on a single core, which does not require a working MPI
         cmd = `$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`

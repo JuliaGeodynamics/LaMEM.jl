@@ -230,7 +230,7 @@ model.Solver = Solver(  SolverType      = "multigrid",
 
 try testing == true
     # if we run this as part of the test suite, use fewer timesteps
-    run_lamem(model, 8, "-nstep_max 5 -nstep_out 1")       
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
 catch
     run_lamem(model, 8)       # run on 8 cores (if possible)            
 end

@@ -228,5 +228,8 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-
-run_lamem(model, 8)                    
+if  Sys.iswindows()
+    run_lamem(model, 1)                    
+else
+    run_lamem(model, 8)                    
+end

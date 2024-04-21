@@ -77,6 +77,10 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
+	if iswindows() & cores>1
+        cores=1;
+        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    end
 	cur_dir = pwd();
 	cd(directory)
 

@@ -1,5 +1,5 @@
 # 2D Thermomechanical subduction example
-using LaMEM, GeophysicalModelGenerator, Plots
+using LaMEM, GeophysicalModelGenerator
 
 model = Model(Grid( x   = [-2000.,2000.],
                     y   = [-2.5, 2.5],          # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
@@ -13,7 +13,7 @@ model = Model(Grid( x   = [-2000.,2000.],
                                         stress          = 1e9Pa,
                                         length          = 1km,
                                         viscosity       = 1e20Pa*s) ),
-                    Time(nstep_max=20) )  
+                    Time(nstep_max=200) )  
 
 # Set timestepping parameters
 model.Time = Time(  time_end  = 2000.0,
@@ -228,8 +228,9 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-if  Sys.iswindows()
-    run_lamem(model, 1)                    
-else
-    run_lamem(model, 8)                    
+try testing == true
+    # if we run this as part of the test suite, use fewer timesteps
+    run_lamem(model, 8, "-nstep_max 5 -nstep_out 1")       
+catch
+    run_lamem(model, 8)       # run on 8 cores (if possible)            
 end

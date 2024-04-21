@@ -79,7 +79,12 @@ model
 
 # ## 4. Run the model 
 # Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores: 
-run_lamem(model, 8)
+try testing == true
+    # if we run this as part of the test suite, use fewer timesteps
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
+catch
+    run_lamem(model, 8)       # run on 8 cores (if possible)            
+end
 
 # The results looks like this with paraview:
 # ![3D subduction paraview](assets/Subduction_3D_pv.png)

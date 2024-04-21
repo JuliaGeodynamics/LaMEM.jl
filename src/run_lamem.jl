@@ -41,12 +41,13 @@ julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
 """
 function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
+    cores_compute = cores
     if iswindows() & cores>1
-        cores=1;
+        cores_compute=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end
-    @show cores
-    if cores==1
+    @show cores_compute
+    if cores_compute==1
         # Run LaMEM on a single core, which does not require a working MPI
         cmd = `$(LaMEM_jll.LaMEM()) -ParamFile $(ParamFile) $args`
         if deactivate_multithreads
@@ -59,7 +60,7 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
 
         # create command-line object
-        cmd = `$(mpirun) -n $cores $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args`
+        cmd = `$(mpirun) -n $cores_compute $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args`
         if deactivate_multithreads
             cmd = deactivate_multithreading(cmd)
         end

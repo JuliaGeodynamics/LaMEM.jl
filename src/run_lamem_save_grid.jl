@@ -7,7 +7,7 @@ using Base.Sys
 
 
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
-    if iswindows() & cores>1
+    if iswindows() && cores>1
         cores=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end
@@ -77,7 +77,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
-	if iswindows() & cores>1
+	if iswindows() && cores>1
         cores=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end

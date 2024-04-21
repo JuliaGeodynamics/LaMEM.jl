@@ -42,7 +42,7 @@ julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 """
 function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
     cores_compute = cores
-    if iswindows() & cores>1
+    if iswindows() && cores>1
         cores_compute=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end

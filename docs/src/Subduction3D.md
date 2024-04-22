@@ -44,8 +44,8 @@ model = Model(
 ```
 
 ## 2. Define geometry
-Next, we specify the geometry of the model, using the `add_box!` function from `GeophysicalModelGenerator`.
-We start with the horizontal part of the slab. The function `add_box!` allows you to specify a layered lithosphere; here we have a crust and mantle. It also allows specifying a thermal structure.
+Next, we specify the geometry of the model, using the `AddBox!` function from `GeophysicalModelGenerator`.
+We start with the horizontal part of the slab. The function `AddBox!` allows you to specify a layered lithosphere; here we have a crust and mantle. It also allows specifying a thermal structure.
 Since the current setup is only mechanical, we don't specify that here.
 
 ```julia
@@ -104,10 +104,28 @@ LaMEM Model setup
 ```
 
 ## 4. Run the model
+
+on windows MPI + mumps currently does not work
+
+```julia
+if Sys.iswindows()
+    model.Solver.MGCoarseSolver = "direct"
+end
+```
+
 Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores:
 
 ```julia
-run_lamem(model, 8)
+try testing == true
+```
+
+if we run this as part of the test suite, use fewer timesteps
+
+```julia
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")
+catch
+    run_lamem(model, 8)       # run on 8 cores (if possible)
+end
 ```
 
 The results looks like this with paraview:

@@ -228,16 +228,9 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-if Sys.iswindows()
-    model.Solver.MGCoarseSolver = "direct"  # on windows MPI + mumps does not work
-    ncores = 1;        
-else
-    ncores = 8
-end
-
 try testing == true
     # if we run this as part of the test suite, use fewer timesteps
-    run_lamem(model, ncores, "-nstep_max 2 -nstep_out 1")       
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
 catch
-    run_lamem(model, ncores)       
+    run_lamem(model, 8)       
 end

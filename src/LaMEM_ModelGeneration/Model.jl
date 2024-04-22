@@ -281,6 +281,8 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
 
     write_LaMEM_inputFile(model, model.Output.param_file_name)
     
+    # corrections for certain platforms (e.g., windows):
+    model, cores = adjust_for_platforms(model, cores) 
     
     if !isnothing(model.FreeSurface.Topography)
         save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
@@ -290,11 +292,6 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         # write marker files to disk before running LaMEM
         Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
 
-        if Sys.iswindows()
-            cores=1;
-            println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
-        end
-        
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
@@ -308,3 +305,19 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
     return nothing
 end
 
+
+"""
+    model, cores =  adjust_for_platforms(model, cores::Int64)
+
+On certain platforms we have restrictions (MPI is broken on windows currently, so we need to adjust things accordingly)
+"""
+function adjust_for_platforms(model, cores::Int64)
+
+    if Sys.iswindows()
+        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+        model.Solver.MGCoarseSolver = "direct"  # on windows MPI + mumps does not work
+        model.Solver.DirectSolver = "direct"
+    end
+
+    return model, cores
+end

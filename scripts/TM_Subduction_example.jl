@@ -228,9 +228,17 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-try testing == true
-    # if we run this as part of the test suite, use fewer timesteps
-    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
-catch
-    run_lamem(model, 8)       # run on 8 cores (if possible)            
+if Sys.iswindows()
+    model.Solver.MGCoarseSolver = "direct"  # on windows MPI + mumps does not work
+    ncores = 1;        
+else
+    ncores = 8
 end
+
+try testing == true
+    args = "-nstep_max 2 -nstep_out 1"      # if we test, only do 2 timesteps
+catch
+    args = ""
+end
+
+run_lamem(model, ncores, args)       # run 

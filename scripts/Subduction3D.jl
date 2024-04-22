@@ -78,6 +78,12 @@ model
 # ```
 
 # ## 4. Run the model 
+
+# on windows MPI + mumps currently does not work
+if Sys.iswindows()
+    model.Solver.MGCoarseSolver = "direct" 
+end
+
 # Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores: 
 try testing == true
     # if we run this as part of the test suite, use fewer timesteps

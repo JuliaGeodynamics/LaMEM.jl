@@ -236,9 +236,8 @@ else
 end
 
 try testing == true
-    args = "-nstep_max 2 -nstep_out 1"      # if we test, only do 2 timesteps
+    # if we run this as part of the test suite, use fewer timesteps
+    run_lamem(model, ncores, "-nstep_max 2 -nstep_out 1")       
 catch
-    args = ""
+    run_lamem(model, ncores)       
 end
-
-run_lamem(model, ncores, args)       # run 

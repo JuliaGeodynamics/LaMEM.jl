@@ -12,6 +12,7 @@ Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 MPICH_jll = "7cb0a576-ebde-5e09-9194-50597f1243b4"
+MUMPS_jll = "ca64183c-ec4f-5579-95d5-17e128c21291"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
@@ -31,6 +32,7 @@ GeophysicalModelGenerator = "0.7"
 Glob = "1"
 LightXML = "0.9"
 MPICH_jll = "4.1 - 4.1.2"
+MUMPS_jll = "5.5 - 5.6"
 Plots = "1"
 ReadVTK = "0.1, 0.2"
 Statistics = "1.0"
@@ -39,8 +41,8 @@ julia = "1.9"
 
 [extras]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "CairoMakie", "Plots"]

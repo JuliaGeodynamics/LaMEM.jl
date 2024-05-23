@@ -6,7 +6,7 @@ const testing = true
 
 
     # Subduction example
-    if !iswindows()
+    if !Sys.iswindows()
         @testset "TM_Subduction_example" begin
             clean_directory()
             include("../scripts/TM_Subduction_example.jl")
@@ -18,7 +18,7 @@ const testing = true
     end
 
     # 3D subduction example
-    if !iswindows()
+    if !Sys.iswindows()
         @testset "Subduction3D" begin
             clean_directory()
             include("../scripts/Subduction3D.jl")

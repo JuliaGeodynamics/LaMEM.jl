@@ -8,6 +8,9 @@ model = Model(Grid( x   = [-2000.,2000.],
                     nel = (256,1,64)
                          
                     ),
+                    
+                    ## Output filename
+                    Output(out_file_name="TMSubduction_2D", out_dir="TMSubduction_2D"),        
 
                     BoundaryConditions( temp_bot        = 1565.0,
                                         temp_top        = 20.0,

@@ -13,7 +13,9 @@ using LaMEM, GeophysicalModelGenerator
 # Note that a range of default values will be set, depending on the parameters you specify.
 model = Model(  
                 ## Define the grid
-                Grid(nel=(128,32,64), x=[-3960, 500], y=[0,2640], z=[-660 ,0]), 
+                Grid(   #nel=(128,32,64), 
+                        nel=(64,16,32),         # reduce resolution for CI
+                        x=[-3960, 500], y=[0,2640], z=[-660 ,0]), 
                 
                 ## No slip lower boundary; the rest is free slip
                 BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]), 
@@ -29,7 +31,8 @@ model = Model(
                 Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),        
 
                 ## Timestepping etc
-                Time(nstep_max=200, nstep_out=5, time_end=100, dt_min=1e-5),           
+                Time(   nstep_max=200, 
+                        nstep_out=5, time_end=100, dt_min=1e-5),           
 
                 ## Scaling:
                 Scaling(GEO_units(length=1km, stress=1e9Pa) )       
@@ -46,8 +49,8 @@ add_box!(model, xlim=(-3000,-1000), ylim=(0,1000), zlim=(-80,0), phase=Lithosphe
 add_box!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
 
 # There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
-using Plots 
-plot_cross_section(model, y=100, field=:phase)
+#using Plots 
+#plot_cross_section(model, y=100, field=:phase)
 
 # Which will give the following plot:
 # ![2D cross section](assets/SubductionSetup_3D.png)

@@ -4,7 +4,10 @@ using LaMEM, GeophysicalModelGenerator
 model = Model(Grid( x   = [-2000.,2000.],
                     y   = [-2.5, 2.5],          # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
                     z   = [-660,40] ,
-                    nel = (512,1,128)     ),
+                    #nel = (512,1,128)
+                    nel = (256,1,64)
+                         
+                    ),
 
                     BoundaryConditions( temp_bot        = 1565.0,
                                         temp_top        = 20.0,

@@ -197,7 +197,4 @@ end
     add_geom!(model, geom_ellipsoid, geom_box, geom_layer, geom_cylinder, geom_ridge, geom_hex)
     out = run_lamem(model)
     @test isnothing(out)
-
-
-    
 end

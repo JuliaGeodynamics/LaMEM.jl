@@ -234,9 +234,14 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-try testing == true
+
+try testing == true 
     # if we run this as part of the test suite, use fewer timesteps
-    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
+    if !Sys.iswindows()
+        run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
+    else
+        run_lamem(model, 1, "-nstep_max 2 -nstep_out 1")       
+    end
 catch
     run_lamem(model, 8)       
 end

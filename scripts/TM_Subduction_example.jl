@@ -236,6 +236,8 @@ model.Solver = Solver(  SolverType      = "multigrid",
 
 
 try testing == true 
+    @show pwd()
+
     # if we run this as part of the test suite, use fewer timesteps
     if !Sys.iswindows()
         run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       

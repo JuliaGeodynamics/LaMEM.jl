@@ -3,8 +3,10 @@ using Test
 
 const testing = true
 @testset "examples in /scripts" begin
-
-
+    curdir = pwd()
+    pkg_dir = pkgdir(LaMEM)
+    cd(joinpath(pkg_dir,"test"))
+    
     # 3D subduction example
     if !Sys.iswindows()
         @testset "Subduction3D" begin
@@ -38,5 +40,6 @@ const testing = true
     
     end
 
+    cd(curdir)
 
 end

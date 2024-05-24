@@ -234,6 +234,9 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
+if Sys.iswindows()
+    model.Solver.MGCoarseSolver = "direct" 
+end
 
 try testing == true 
     @show pwd()

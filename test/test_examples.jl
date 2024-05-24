@@ -5,7 +5,8 @@ const testing = true
 @testset "examples in /scripts" begin
     curdir = pwd()
     pkg_dir = pkgdir(LaMEM)
-    cd(joinpath(pkg_dir,"test"))
+    cd(pkg_dir)
+    #cd(joinpath(pkg_dir,"test"))
     
     # 3D subduction example
     if !Sys.iswindows()

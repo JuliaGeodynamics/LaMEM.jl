@@ -238,7 +238,7 @@ model.Solver = Solver(  SolverType      = "multigrid",
 try testing == true 
     curdir = pwd()
     pkg_dir = pkgdir(LaMEM)
-    cd(joinpath(pkg_dir,"test"))
+    cd(joinpath(pkg_dir))
     
     # if we run this as part of the test suite, use fewer timesteps
     if !Sys.iswindows()

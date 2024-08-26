@@ -4,7 +4,13 @@ using LaMEM, GeophysicalModelGenerator
 model = Model(Grid( x   = [-2000.,2000.],
                     y   = [-2.5, 2.5],          # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
                     z   = [-660,40] ,
-                    nel = (512,1,128)     ),
+                    #nel = (512,1,128)
+                    nel = (256,1,64)
+                         
+                    ),
+                    
+                    ## Output filename
+                    Output(out_file_name="TMSubduction_2D", out_dir="TMSubduction_2D"),        
 
                     BoundaryConditions( temp_bot        = 1565.0,
                                         temp_top        = 20.0,
@@ -228,9 +234,17 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-try testing == true
+if Sys.iswindows()
+    model.Solver.MGCoarseSolver = "direct" 
+end
+
+try testing == true 
     # if we run this as part of the test suite, use fewer timesteps
-    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
+    if !Sys.iswindows()
+        run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
+    else
+        run_lamem(model, 1, "-nstep_max 2 -nstep_out 1")       
+    end
 catch
     run_lamem(model, 8)       
 end

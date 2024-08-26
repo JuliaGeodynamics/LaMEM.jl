@@ -449,6 +449,7 @@ continentalLithosphere = copy_phase(    dryPeridotite,
 ```                           
 
 *Sticky air*
+
 Finally, the "air" in our model is a layer with low density and low viscosity, such that it essentially gives very low stresses compared to those within the lithosphere. We cannot give it the viscosity of real air, as this results in a too large viscosity jump at the surface (geodynamic codes cannot handle that). We therefore also often call this "sticky air". Note that we also give it a very high thermal conductivity to ensure that the temperature within the air layer remains more or less constant throughout a simulation (and equal to the temperature at the upper boundary of the model):
 
 ```julia

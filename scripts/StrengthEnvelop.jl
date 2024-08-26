@@ -1,4 +1,4 @@
-using LaMEM
+using LaMEM, CairoMakie
 
 model  = Model(Grid(nel=(4,32), x=[-1,1], z=[-30,1]), 
                Time(nstep_max=25, dt_min=1e-4, dt=1e-3, dt_max=10, time_end=100), 
@@ -24,11 +24,8 @@ run_lamem(model,1)
 
 data,_ = read_LaMEM_timestep(model, last=true)
 
-if 1==0
-    #Create plot
-    fig1 = Figure(size=(800,800))
-    ax = Axis(fig1[1,1], xlabel = "τII [MPa]", ylabel = "Depth [km]",title="Geotherm=$(Tgradient)°C/km")
-
-    lines!(ax, data.fields.j2_dev_stress[1,1,:], data.z.val[1,1,:], label="t=$time")
-    display(fig1)
-end
+#Create plot
+fig1 = Figure(size=(800,800))
+ax = Axis(fig1[1,1], xlabel = "τII [MPa]", ylabel = "Depth [km]",title="Geotherm=$(Tgradient)°C/km")
+lines!(ax, data.fields.j2_dev_stress[1,1,:], data.z.val[1,1,:], label="t=$time")
+display(fig1)

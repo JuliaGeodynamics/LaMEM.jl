@@ -10,7 +10,7 @@ Luckily there is a solution thanks to the great work of `@eschnett` and colleagu
 
 It essentially consists of two steps: 
     1) compile a small package ([MPIwrapper](https://github.com/eschnett/MPIwrapper)) 
-    2) make sure that you download the version of `MAGEMin` that was compiled versus `MPItrampoline`.
+    2) make sure that you download the version of `LaMEM` that was compiled versus `MPItrampoline`.
 
 Here step-by-step instructions (for Linux, as that is what essentially all HPC systems use):
 

@@ -25,6 +25,7 @@ makedocs(;
                                                   ],
         "Run LaMEM" => "runlamem.md",
         "Reading timesteps" => "readtimesteps.md",
+        "Passive tracers" => "readpassivetracers.md",
         "List of functions" => "listfunctions.md",
     ],
     pagesonly=true,

@@ -69,7 +69,7 @@ Key: Temperature, Size: (489, 4)
 Key: Pressure, Size: (489, 4)
 Key: Time_Myrs, Size: (4,)
 ```
-The `passive_tracers` contains spatial cooridiates and P, T, Phase properties and also the assocated temporal information for all 4 time steps in matrixes. Now let plot the position of selected tracer at t=0.
+The `passive_tracers` contains spatial cooridiates and P, T, Phase properties and also the assocated temporal information for all 4 time steps in matrixes. Now let's plot the position of selected tracer at t=0.
 
 ```julia
 using Plots

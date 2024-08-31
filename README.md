@@ -155,7 +155,7 @@ More details are given in the [documentation](https://juliageodynamics.github.io
 ### 5. Dependencies
 We rely on the following packages:
 - [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.
-- [LaMEM_jll](https://github.com/JuliaBinaryWrappers/LaMEM_jll.jl) - this contains the LaMEM binaries, precompiled for most systems. Note that on windows, the MUMPS parallel direct solver is not available.
+- [LaMEM_jll](https://github.com/JuliaBinaryWrappers/LaMEM_jll.jl) - this contains the LaMEM binaries, precompiled for most systems. It also contains a precompiled version of PETSc, along with MPI. Note that on windows, MPI does not work, so you can only use one processor.
 - [ReadVTK](https://github.com/JuliaVTK/ReadVTK.jl) - This reads the LaMEM `*.vtk` files (or the rectilinear and structured grid versions of it)  baxck into julia. 
 
 

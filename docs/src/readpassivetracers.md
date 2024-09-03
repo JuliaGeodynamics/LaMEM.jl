@@ -2,7 +2,7 @@
 Passive tracers are useful to track the evolutions of the temperature, pressure and their spatial positions of moving materials during the simulation. Passive tracers can be initiated when you start a new model, and they are the Lagrangian points that move with the materials. The initiation and extraction of information from passive tracers can be easily done using the following methods.
 
 ### Initiate passive tracers in the model
-Let's use a simple model of a "falling sphere" as the example. We initiate the passive tracer by turning on the flag: `Passive_Tracer=1` and assign a spatial range to populate tracers in the entire simulation box `PassiveTracer_Box=[-1,1,-1,1,-1,1])`. The default tracer density is 100 x 1 x 100 along x, y, z axes. 
+Let's use a simple model of a "falling sphere" as the example. We initiate the passive tracers by turning on the flag: `Passive_Tracer=1` and assign a spatial range to populate tracers in the entire simulation box `PassiveTracer_Box=[-1,1,-1,1,-1,1])`. The default tracer density is 100 x 1 x 100 along x, y, z axes. 
 ```julia
 using LaMEM, GeophysicalModelGenerator, Plots
 
@@ -35,14 +35,14 @@ It returns:
 ```
 The `data.x`, `data.y`, and `data.z` are structures that contain spatial information of tracers while parameters such like `data.fields.Phase` contain the phase, temperature, pressure and index (ID) of tracers.
 
-Sometime we want to select tracers in a smaller region for further investigation. For example, to track the P-T-t evolution of a subducting slab, we can specify a region of interest (e.g., the upper crust portion of the slab) therefore select tracers within that region only.
+Sometimes we want to select tracers in a smaller region for further investigation. For example, to track the P-T-t evolution of a subducting slab, we can specify a region of interest (e.g., the upper crust portion of the slab) therefore select tracers within that region only.
 
 In the "falling sphere" example, let's find all the "sphere phase" tracers in the 1st quadrant (x>0, and z>0) of the sphere.
 
 ```julia
 ID = findall(data.x.val .> 0 .&& data.z.val .> 0 .&& data.fields.Phase .== 1)
 ```
-The `ID` parameter records the indices of these tracers. Note we need to do `data.x.val` to get the numerical value of the x-coordinate because `data.x` is a structure also containing `unit`, and `isdimensional` information. The dot in front of `>` and `&&`  implies that it is applied to every point the array data.
+The `ID` parameter records the indices of these tracers. Note we need to do `data.x.val` to get the numerical value of the x-coordinate because `data.x` is a `GeoUnit` structure also containing `unit`, and `isdimensional` information. The dot in front of `>` and `&&`  implies that it is applied to every point the array data.
 
 Once we select the tracers of interest (we now know the ID of these tracers), we can read their information.
 ```julia
@@ -69,7 +69,7 @@ Key: Temperature, Size: (489, 4)
 Key: Pressure, Size: (489, 4)
 Key: Time_Myrs, Size: (4,)
 ```
-The `passive_tracers` contains spatial cooridiates and P, T, Phase properties and also the assocated temporal information for all 4 time steps in matrixes. Now let's plot the position of selected tracer at t=0.
+The `passive_tracers` contains spatial coordinates and P, T, Phase properties and also the associated temporal information for all 4 time steps in matrixes. Now let's plot the position of selected tracer at t=0.
 
 ```julia
 using Plots

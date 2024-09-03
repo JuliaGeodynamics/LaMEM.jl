@@ -1,5 +1,5 @@
 ```@meta
-EditURL = "../../scripts/Subduction3D.jl"
+EditURL = "../../example_scripts/Subduction3D.jl"
 ```
 
 # 3D Subduction example

@@ -1,6 +1,6 @@
-# This is .jl version of the PassiveTracers example. 
-# We use this .jl file to run the test but you can also run the code independently.
-# The ipynb file of this code with additional notes for initiation and plotting tracers is located in the same directory: "PassiveTracers.ipynb".
+# This is a .jl version of the PassiveTracers example. 
+# We use this .jl file to run the test but you can also run it independently.
+# The ipynb file of this code with additional notes for initiating tracers and extracting their information is located in the same directory: "PassiveTracers.ipynb".
 
 using LaMEM, GeophysicalModelGenerator, Plots
 
@@ -11,4 +11,3 @@ add_phase!(model, sphere, matrix)
 add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5,))
 
 run_lamem(model,1)
-

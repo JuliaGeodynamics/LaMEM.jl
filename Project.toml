@@ -11,7 +11,9 @@ GeophysicalModelGenerator = "3700c31b-fa53-48a6-808a-ef22d5a84742"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 LaMEM_jll = "15d6fa20-f789-5486-b71b-22b4ac8eb1c1"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
+MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 MPICH_jll = "7cb0a576-ebde-5e09-9194-50597f1243b4"
+MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
 ReadVTK = "dc215faf-f008-4882-a9f7-a79a826fadc3"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 WriteVTK = "64499a7a-5c06-52f2-abe2-ccb03c286192"
@@ -28,15 +30,16 @@ DocStringExtensions = "0.9"
 GeoParams = "0.4, 0.5, 0.6"
 GeophysicalModelGenerator = "0.7"
 Glob = "1"
+LaMEM_jll = "~2.1.4"
 LightXML = "0.9"
 MPICH_jll = "4.1 - 4.1.2"
-LaMEM_jll = "~2.1.4"
+MPIPreferences = "0.1"
+MPI = "0.20"
 Plots = "1"
 ReadVTK = "0.1, 0.2"
 Statistics = "1.0"
 WriteVTK = "1"
 julia = "1.10"
-
 
 [extras]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
@@ -44,4 +47,4 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "CairoMakie","Plots"]
+test = ["Test", "CairoMakie", "Plots"]

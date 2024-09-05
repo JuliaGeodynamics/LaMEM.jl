@@ -24,7 +24,7 @@ model.Grid.Temp[ind] .+= 2
 
 pkg_dir = joinpath(pkgdir(LaMEM),"test")
 
-pd_path = joinpath(pkg_dir,"input_files","Rhyolite")
+pd_path = joinpath(pkg_dir,"Rhyolite")
 
 matrix = Phase(ID=0,Name="matrix",eta=1e23,rho_ph=pd_path);
 inclus = Phase(ID=1,Name="heter", eta=1e23,rho_ph=pd_path)
@@ -50,7 +50,9 @@ P_num =   data.fields.pressure[1,1,:]
 ParamFile = "Rhyolite.in";
 
 pkg_dir = pkgdir(LaMEM)
-PD = read_phase_diagram(joinpath(pkg_dir,"test","input_files",ParamFile));
+#PD = read_phase_diagram(joinpath(pkg_dir,"test","input_files",ParamFile));
+PD = read_phase_diagram(joinpath(pkg_dir,"test",ParamFile));
+
 
 @test sum(ϕ_num) ≈ 2.5262098f0
 

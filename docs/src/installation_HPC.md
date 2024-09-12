@@ -91,3 +91,11 @@ Linux x86_64 {cxxstring_abi=cxx11, julia_version=1.8.1, libc=glibc, libgfortran_
 ```
 
 At this stage the precompiled version of `LaMEM` should be useable on that system.
+
+* Run LaMEM
+you can run LaMEM on 2 cores, for example with [this](https://github.com/UniMainzGeo/LaMEM/blob/master/input_models/ScalingTests/FallingSpheres.dat) example file, with:
+```julia
+julia> using LaMEM
+julia> run_lamem("FallingSpheres.dat", 2)
+```
+ 

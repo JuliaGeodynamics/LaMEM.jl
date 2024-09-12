@@ -17,27 +17,44 @@ Here step-by-step instructions (for Linux, as that is what essentially all HPC s
 
 * Download [MPIwrapper](https://github.com/eschnett/MPIwrapper): 
 ```bash
-$git clone https://github.com/eschnett/MPIwrapper.git 
-$cd MPIwrapper
+git clone https://github.com/eschnett/MPIwrapper.git 
+cd MPIwrapper
 ```
 
 * Install it after making sure that `mpiexec` points to the one you want (you may have to load some modules, depending on your system):
 ```bash
-$cmake -S . -B build -DMPIEXEC_EXECUTABLE=mpiexec -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$HOME/mpiwrapper
-$cmake --build build
-$cmake --install build
+cmake -S . -B build -DMPIEXEC_EXECUTABLE=/full/path/to/mpiexec -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$HOME/mpiwrapper
+cmake --build build
+cmake --install build
 ```
+> [!IMPORTANT]  
+> You need to specify the full path to `mpiexec` (or equivalent) and not just the name. If you don't know that, you can determine this with
+> `which mpiexec`
+ 
 At this stage, `MPItrampoline` is installed in `$HOME/mpiwrapper`
 
-* Set the correct wrapper:
+* Set the correct wrappers:
 ```
-$export MPITRAMPOLINE_LIB=$HOME/mpiwrapper/lib64/libmpiwrapper.so
+export MPITRAMPOLINE_LIB=$HOME/mpiwrapper/lib64/libmpiwrapper.so
+export MPITRAMPOLINE_MPIEXEC=$HOME/MPIwrapper/mpiwrapper/bin/mpiwrapperexec 
 ```
 Depending on the system it may be called `lib` instead of `lib64` (check!).
 
-* Start julia and install the `MPI` and `MPIPreferences` packages:
+* Start julia and install the correct versuion of `MPItrampoline_jll`
+Since `LaMEM_jll` and `PETSc_jll` are compiled versus a specific version of `MPItrampoline_jll`, this step is important.
+You can see which one we currently use [here](https://github.com/JuliaPackaging/Yggdrasil/blob/master/L/LaMEM/build_tarballs.jl).
+At the time of writting this was version 5.2.1:
 ```julia
-$julia
+julia
+julia> ]
+pkg>add MPItrampoline_jll@5.2.1
+```
+
+
+
+* Install the `MPI` and `MPIPreferences` packages:
+```julia
+julia
 julia> ]
 pkg>add MPI, MPIPreferences
 ```
@@ -56,6 +73,15 @@ julia> MPI.Get_library_version()
 "MPIwrapper 2.10.3, using MPIABI 2.9.0, wrapping:\nOpen MPI v4.1.4, package: Open MPI boris@Pluton Distribution, ident: 4.1.4, repo rev: v4.1.4, May 26, 2022"
 ```
 After this, restart julia (this only needs to be done once, next time all is fine).
+
+If you want you can run a test case with:
+```julia
+julia> using MPI
+julia> mpiexec(cmd -> run(`$cmd -n 3 echo hello world`));
+hello world
+hello world
+hello world
+```
 
 * Now load `LaMEM` and check that it uses the `mpitrampoline` version:
 ```julia

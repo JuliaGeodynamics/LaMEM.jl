@@ -18,6 +18,14 @@ function deactivate_multithreading(cmd::Cmd)
     return cmd
 end
 
+# Shamelessly stolen from the tests of LBT 
+if Sys.iswindows()
+    pathsep = ';'
+elseif Sys.isapple()
+    pathsep = ':'
+else
+    pathsep = ':'
+end
 
 """ 
     run_lamem(ParamFile::String, cores::Int64=1, args:String=""; wait=true, deactivate_multithreads=true)
@@ -56,7 +64,10 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         run(cmd, wait=wait);
     else
         # set correct environment
-        mpirun = setenv(mpiexec,  LaMEM_jll.LaMEM().env);
+        #mpirun = setenv(mpiexec,  LaMEM_jll.LaMEM().env);
+        key = LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env
+        mpirun = addenv(mpiexec, key=>join((LaMEM_jll.LIBPATH[], MPI_LIBPATH[]), pathsep));
+    
 
         # create command-line object
         cmd = `$(mpirun) -n $cores_compute $(LaMEM_jll.LaMEM().exec) -ParamFile $(ParamFile) $args`

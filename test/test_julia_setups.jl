@@ -12,7 +12,7 @@ using GeophysicalModelGenerator
     model  = Model(Grid(nel=(16,16,16), x=[-2,2], coord_y=[-1,1], coord_z=[-1,1]),
                    Time(nstep_max=2, dt=1, dt_max=10), 
                    Solver(SolverType="multigrid", MGLevels=2),
-                   Output(out_dir="example_1"))
+                   Output(out_dir="example_1", out_dev_stress=1))
     
     # Specify material properties
     matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000)
@@ -27,7 +27,7 @@ using GeophysicalModelGenerator
 
     # read last timestep
     data,time = read_LaMEM_timestep(model,last=true);
-
+    
     @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10747005f0 rtol=1e-1 # check Vz
 #    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10866211f0 # check Vz
 

@@ -30,10 +30,10 @@ LaMEM Model setup
 |-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
-|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Solver options      :  direct solver; mumps; penalty term=10000.0
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
-|-- Materials           :  0 phases; 
+|-- Materials           :  0 phases;  
 ```
 Add materials to the setup:
 ```Julia
@@ -47,7 +47,7 @@ julia> add_phase!(model, sphere, matrix)
 
 Create an initial geometry using the [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl/tree/main) interface:
 ```Julia
-julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 ```
 and run the simulation with:
 ```julia

@@ -71,7 +71,7 @@ Once the simulation is done, you can open it with Paraview, or directly plot it 
 
 
 ### 3. Starting a simulation
-If you have an existing LaMEM (`*.dat`) input file, you can run that in parallel (here on 4 cores) with:
+The julia way of running LaMEM simulations, described above, is the preferred way (see also the documentation). In the background it will create a LaMEM (`*.dat`) input file, along with an initial marker setup. If you have such as in input file already, you can run that in parallel (here on 4 cores) with:
 ```julia
 julia> using LaMEM
 julia> ParamFile="input_files/FallingBlock_Multigrid.dat";

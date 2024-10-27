@@ -69,7 +69,7 @@ julia> add_phase!(model, sphere, matrix)
 #### 1.3 Set initial model geometry
 We also need to specify an initial model geometry. The julia package `GeophysicalModelGenerator` has a number of functions for that, which can be used here. For the current setup, we just add a sphere: 
 ```julia
-julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5, ))
+julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 ```
 It is often useful to plot the initial model setup. You can do this with the `heatmap` function from the `Plots.jl` package, for which we provide a LaMEM plugin that allows you to specify a cross-section through a 3D LaMEM setup:
 

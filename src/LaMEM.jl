@@ -12,7 +12,7 @@ export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
 export passivetracer_time
 export clean_directory, changefolder, read_phase_diagram, read_LaMEM_logfile
-export compress_vtr_file, compress_pvd
+export compress_vtr_file, compress_pvd, project_onto_crosssection
 
 # Functions 
 include("Run.jl")

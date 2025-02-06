@@ -161,5 +161,3 @@ function project_onto_crosssection(simulation_name::String, Cross::CartData)
 
     return nothing
 end
-
-project_onto_crosssection(model::Model, Cross::CartData) = project_onto_crosssection(model.Output.out_file_name, Cross)

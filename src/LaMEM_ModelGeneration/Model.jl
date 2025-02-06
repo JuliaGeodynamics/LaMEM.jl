@@ -1,10 +1,10 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
-import LaMEM.Run: run_lamem, run_lamem_save_grid
+import LaMEM.Run: run_lamem, run_lamem_save_grid, project_onto_crosssection
 import LaMEM: passivetracer_time
 using LaMEM.Run.LaMEM_jll
 
-export Model, write_LaMEM_inputFile, create_initialsetup, run_lamem, prepare_lamem
+export Model, write_LaMEM_inputFile, create_initialsetup, run_lamem, prepare_lamem, project_onto_crosssection
 
 """
     Model
@@ -321,3 +321,7 @@ function adjust_for_platforms(model, cores::Int64)
 
     return model, cores
 end
+
+
+
+project_onto_crosssection(model::Model, Cross::CartData) = project_onto_crosssection(model.Output.out_file_name, Cross)

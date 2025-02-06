@@ -1,6 +1,6 @@
-using Glob, DelimitedFiles
+using Glob, DelimitedFiles, WriteVTK, Interpolations, GeophysicalModelGenerator, LaMEM
 
-export clean_directory, changefolder, read_phase_diagram
+export clean_directory, changefolder, read_phase_diagram, project_onto_crosssection
 
 """ 
     clean_directory(DirName)
@@ -112,3 +112,52 @@ function read_phase_diagram(name::String)
     return (;T_K,P_bar,ρ_melt,ρ_solid,ϕ, ρ)
 end
 
+
+"""
+    data_projected = project_onto_crosssection(data::CartData, Cross::CartData)
+
+This function is helpful if you used the `cross_section` routine of the `GeophysicalModelGenerator` package to create a 2D cross-section through a 3D model, which "flattens" the cross-section to a 2D model.    
+If you later want to visualize the LaMEM model results in the original 3D context (along with topography, for example), you need to project the 2D model back onto the 3D model. This function does that.
+"""
+function project_onto_crosssection(data::CartData, Cross::CartData)
+
+    data_projected = deepcopy(data)
+    
+    # Create interpolation object from x-y data in cross-section
+    x_vec        = [Cross.fields.FlatCrossSection[1], Cross.fields.FlatCrossSection[end]]
+
+    interp_linear_x = linear_interpolation(x_vec, [Cross.x.val[1], Cross.x.val[end]], extrapolation_bc=Line())
+    interp_linear_y = linear_interpolation(x_vec, [Cross.y.val[1], Cross.y.val[end]], extrapolation_bc=Line())
+
+    # interpolate coordinates
+    data_projected.x.val .= interp_linear_x.(data.x.val)
+    data_projected.y.val .= interp_linear_y.(data.x.val)
+
+    return data_projected
+end
+
+
+"""
+    project_onto_crosssection(simulation_name::String, Cross::CartData)
+
+Reads the output of a LaMEM simulation and 
+"""
+function project_onto_crosssection(simulation_name::String, Cross::CartData)
+
+    # read LaMEM simulation
+    Timestep, FileNames, _   = read_LaMEM_simulation(model.Output.out_file_name)
+
+    pvd_filename = simulation_name*"_project.pvd"
+
+    pvd = paraview_collection(pvd_filename)
+    for (i,it) in enumerate(Timestep)
+        data, t = read_LaMEM_timestep(model, it)
+        data_p = project_onto_crosssection(data, Cross)
+        write_paraview(data_p, FileNames[i][1:end-5], pvd=pvd, time=t[1])
+        
+    end
+    close(pvd)
+    println("Created new file $(pvd_filename).pvd with projected 2D data")
+
+    return nothing
+end

@@ -156,7 +156,7 @@ function project_onto_crosssection(simulation_name::String, Cross::CartData)
         write_paraview(data_p, FileNames[i][1:end-5], pvd=pvd, time=t[1])
     end
     close(pvd)
-    println("Created new file $(pvd_filename).pvd with projected 2D data")
+    println("Created new file $(pvd_filename) with projected 2D data")
 
     return nothing
 end

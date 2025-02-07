@@ -151,7 +151,7 @@ function project_onto_crosssection(simulation_name::String, Cross::CartData)
 
     pvd = paraview_collection(pvd_filename)
     for (i,it) in enumerate(Timestep)
-        data, t = read_LaMEM_timestep(FileNames[i], it)
+        data, t = read_LaMEM_timestep(simulation_name, it)
         data_p  = project_onto_crosssection(data, Cross)
         write_paraview(data_p, FileNames[i][1:end-5], pvd=pvd, time=t[1])
     end

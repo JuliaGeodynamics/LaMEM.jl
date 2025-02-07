@@ -145,7 +145,7 @@ Reads the output of a LaMEM simulation and projects it onto a 2D cross-section `
 function project_onto_crosssection(simulation_name::String, Cross::CartData)
 
     # read LaMEM simulation
-    Timestep, FileNames, _   = read_LaMEM_simulation(model.Output.out_file_name)
+    Timestep, FileNames, _   = read_LaMEM_simulation(simulation_name)
 
     pvd_filename = simulation_name*"_project.pvd"
 

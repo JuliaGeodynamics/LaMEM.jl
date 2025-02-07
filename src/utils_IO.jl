@@ -1,6 +1,6 @@
-using Glob, DelimitedFiles
+using Glob, DelimitedFiles, WriteVTK, Interpolations, GeophysicalModelGenerator, LaMEM
 
-export clean_directory, changefolder, read_phase_diagram
+export clean_directory, changefolder, read_phase_diagram, project_onto_crosssection
 
 """ 
     clean_directory(DirName)

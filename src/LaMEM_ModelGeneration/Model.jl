@@ -4,7 +4,7 @@ import LaMEM.Run: run_lamem, run_lamem_save_grid
 import LaMEM: passivetracer_time, project_onto_crosssection
 using LaMEM.Run.LaMEM_jll
 
-export Model, write_LaMEM_inputFile, create_initialsetup, run_lamem, prepare_lamem
+export Model, write_LaMEM_inputFile, create_initialsetup, run_lamem, prepare_lamem, project_onto_crosssection
 
 """
     Model

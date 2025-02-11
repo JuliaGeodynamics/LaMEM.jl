@@ -27,7 +27,7 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
         mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
 
         # create command-line object
-        cmd = `$(mpirun) -n $cores $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args`
+        cmd = `$(mpirun) -n $cores $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args --map-by :OVERSUBSCRIBE `
         if deactivate_multithreads
             cmd = deactivate_multithreading(cmd)
         end

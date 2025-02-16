@@ -76,7 +76,7 @@ function plot_cross_section(data::CartData , args...; field::Symbol=:phase,
         x = mean(extrema(data.x.val))
     end
     
-    data_tuple, axes_str = cross_section(data, field; x=x, y=y, z=z, surf=surf)
+    data_tuple, axes_str = cross_section(data, field; x=x, y=y, z=z)
     
     if isa(data_tuple.data, Array)
         data_field = data_tuple.data

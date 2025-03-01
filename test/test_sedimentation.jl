@@ -45,7 +45,7 @@ using GeophysicalModelGenerator
         # read last timestep
         data,time = read_LaMEM_timestep(model,last=true);
 
-        @test  sum(data.fields.phase[32,1,:]) ≈ 25.683678f0 # check sum of phase along a vertical profile
+        @test  sum(data.fields.phase[50,1,:]) ≈ 25.683678f0 # check sum of phase along a vertical profile
         
         # cleanup the directory
         rm(model.Output.out_dir, force=true, recursive=true)

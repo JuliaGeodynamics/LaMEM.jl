@@ -4,7 +4,7 @@ using Test
 using LaMEM
 using GeophysicalModelGenerator
 
-@testset "sedimentation erosion" begin
+@testset "sedimentation test" begin
     if !Sys.iswindows()
         # Main model setup
         model = Model(Grid(nel=(50,1,50), x=[-50,50], z=[-50,50], y=[-1,1] ), 

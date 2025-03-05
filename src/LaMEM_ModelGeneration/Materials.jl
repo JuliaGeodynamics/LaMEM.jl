@@ -566,7 +566,10 @@ Base.@kwdef mutable struct PhaseTransition
     P0_clapeyron::Union{Float64, Nothing}   =   nothing   
     
     "[optional] T0_clapeyron [C]"
-    T0_clapeyron::Union{Float64, Nothing}   =   nothing   
+    T0_clapeyron::Union{Float64, Nothing}   =   nothing
+    
+    "Number of phase transition equations. Must be 1 or 2 for Clapeyron phase transitions [default=0]"
+    numberofequation::Int64   =   0
     
 end
 

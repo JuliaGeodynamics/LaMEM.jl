@@ -6,10 +6,10 @@
 using GeophysicalModelGenerator: CartData, xyz_grid
 using Glob, ReadVTK, WriteVTK, LightXML
 
-export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file, read_LaMEM_VTR_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
 export passivetracer_time
-export compress_vtr_file, compress_pvd
+export compress_vtr_file, compress_pvd, has_point_data, has_cell_data
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -176,7 +176,7 @@ end
 """
     data_output = read_LaMEM_PVTR_file(DirName, FileName; fields=nothing)
 
-Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
+Reads a 3D LaMEM timestep from a parallel VTR file `FileName`, located in directory `DirName`. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
 
 It will return `data_output` which is a `CartData` output structure.
@@ -245,6 +245,91 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
     return data_output   
 end
 
+
+has_point_data(vtk) = !isnothing(ReadVTK.LightXML.find_element(ReadVTK.piece(vtk),"PointData")) 
+has_cell_data(vtk) = !isnothing(ReadVTK.LightXML.find_element(ReadVTK.piece(vtk),"CellData")) 
+
+
+"""
+    data_output = read_LaMEM_VTR_file(DirName, FileName; fields=nothing, verbose=false)
+
+Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
+
+It will return `data_output` which is a `CartData` output structure.
+
+"""
+function read_LaMEM_VTR_file(DirName_base::String, FileName::String; fields=nothing, verbose=false)
+    CurDir = pwd();
+
+    DirName, File = split_path_name(DirName_base, FileName)
+    
+    # change to directory
+    cd(DirName)
+
+    # read data from parallel rectilinear grid
+    vtk        = VTKFile(File)
+
+    # Fields stored in this data file:    
+    if has_point_data(vtk)
+        names_ = keys(get_point_data(vtk))
+    elseif has_cell_data(vtk)
+        names_ = keys(get_cell_data(vtk))
+    end
+  
+    isCell  = true
+    if isnothing(fields)
+        # read all data in the file
+        data_fields = NamedTuple();
+
+        for FieldName in names_
+            if verbose
+                println("Reading field $FieldName")
+            end
+            dat, isCell = LaMEM.IO_functions.ReadField_3D_pVTR(vtk, FieldName);
+            data_fields = merge(data_fields,dat)
+        end
+
+    else
+        # read the data sets specified
+        data_fields = NamedTuple();
+        for field in fields
+            ind = findall(contains.(names_,field))
+            # check that it exists
+            if isempty(ind)
+                error("the field $field does not exist in the data file")
+            else
+                field_name = names_[ind[1]]
+                dat, isCell = ReadField_3D_pVTR(pvtk, field_name)
+            end
+            data_fields = merge(data_fields,dat)
+        end
+    end
+    cd(CurDir)
+
+    coords_read = get_coordinates(vtk)
+
+    # Read coordinates
+    if isa(coords_read[1],Vector)
+        x = Vector(coords_read[1])
+        y = Vector(coords_read[2])
+        z = Vector(coords_read[3])
+
+        if isCell 
+            # In case we have cell data , coordinates are center of cell
+            x = (x[1:end-1] + x[2:end])/2
+            y = (y[1:end-1] + y[2:end])/2
+            z = (z[1:end-1] + z[2:end])/2
+        end
+
+        X,Y,Z = xyz_grid(x,y,z)
+    else
+        X,Y,Z = coords_read[1], coords_read[2], coords_read[3]
+    end
+
+    data_output     =   CartData(X,Y,Z, data_fields)
+    return data_output   
+end
 
 """
 

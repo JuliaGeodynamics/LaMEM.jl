@@ -5,6 +5,7 @@
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, xyz_grid
 using Glob, ReadVTK, WriteVTK, LightXML
+import ReadVTK: piece
 
 export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file, read_LaMEM_VTR_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
@@ -184,7 +185,7 @@ It will return `data_output` which is a `CartData` output structure.
 """
 function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
-
+    
     DirName, File = split_path_name(DirName_base, FileName)
     
     # change to directory
@@ -193,9 +194,10 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
     # read data from parallel rectilinear grid
     pvtk        = PVTKFile(File)
 
-    # Fields stored in this data file:    
-    names = keys(get_point_data(pvtk))
-    if isempty(names)
+    # Fields stored in this data file:
+    if has_point_data(pvtk)
+        names = keys(get_point_data(pvtk))
+    elseif has_cell_data(pvtk)
         names = keys(get_cell_data(pvtk))
     end
 
@@ -246,9 +248,25 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
 end
 
 
-has_point_data(vtk) = !isnothing(ReadVTK.LightXML.find_element(ReadVTK.piece(vtk),"PointData")) 
-has_cell_data(vtk) = !isnothing(ReadVTK.LightXML.find_element(ReadVTK.piece(vtk),"CellData")) 
+has_point_data(vtk::ReadVTK.PVTKFile) = has_data_type(vtk, "PPointData", "PDataArray") 
+has_cell_data(vtk::ReadVTK.PVTKFile)  = has_data_type(vtk, "PCellData",  "PDataArray") 
+has_cell_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk,  "CellData",   "DataArray") 
+has_point_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk, "PointData",  "DataArray") 
 
+function has_data_type(vtk, main_data="PPointData", sub_data="PDataArray")  
+    hasdata = false;
+    tmp = ReadVTK.LightXML.root(vtk.xml_file)[vtk.file_type][1][main_data]
+    if length(tmp)>0
+        if length(tmp[1][sub_data])>0
+            hasdata = true
+        end
+    end
+    return hasdata
+end
+
+function piece(vtk_file::ReadVTK.PVTKFile)
+    return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
+end
 
 """
     data_output = read_LaMEM_VTR_file(DirName, FileName; fields=nothing, verbose=false)
@@ -334,7 +352,6 @@ function read_LaMEM_VTR_file(DirName_base::String, FileName::String; fields=noth
             x = (x[1:end-1] + x[2:end])/2
             y = (y[1:end-1] + y[2:end])/2
             z = (z[1:end-1] + z[2:end])/2
-            @show x,y,z
             X,Y,Z = xyz_grid(x,y,z)
         end
     end
@@ -531,9 +548,9 @@ function read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::Strin
     elseif passive_tracers==true
         data = read_LaMEM_PVTU_file(DirName, FileNames[ind[1]], fields=fields)
     else
-        if contains(FileNames[ind[1]],".vtr")
+        if      contains(FileNames[ind[1]],".vtr")
             data = read_LaMEM_VTR_file(DirName, FileNames[ind[1]], fields=fields)
-        elseif contains(FileNames[ind[1]],".pvtr")
+        elseif  contains(FileNames[ind[1]],".pvtr")
             data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
         else
             error("not sure about the filetype: ")

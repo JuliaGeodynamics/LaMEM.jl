@@ -29,9 +29,8 @@ function ReadField_3D_pVTR(pvtk, FieldName)
     isCell          =   false;
 
     # first try to get point data 
-    data_f = get_point_data(pvtk)
     # if empty then load cell data
-    if isempty(keys(data_f)) 
+    if !has_point_data(pvtk) 
         data_f      = get_cell_data(pvtk)
         data_Field  = get_data_reshaped(data_f[FieldName], cell_data=true)
 
@@ -44,6 +43,7 @@ function ReadField_3D_pVTR(pvtk, FieldName)
         data_Tuple  = (data_Field,)
         isCell      =   true;
     else
+        data_f     = get_point_data(pvtk)
         data_Field = get_data_reshaped(data_f[FieldName]);
         
         data_Field = ArrayToTuple(data_Field);
@@ -253,7 +253,7 @@ has_cell_data(vtk) = !isnothing(ReadVTK.LightXML.find_element(ReadVTK.piece(vtk)
 """
     data_output = read_LaMEM_VTR_file(DirName, FileName; fields=nothing, verbose=false)
 
-Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
+Reads a 3D LaMEM timestep from VTR or VTS file `FileName`, located in directory `DirName`. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
 
 It will return `data_output` which is a `CartData` output structure.
@@ -310,7 +310,7 @@ function read_LaMEM_VTR_file(DirName_base::String, FileName::String; fields=noth
     coords_read = get_coordinates(vtk)
 
     # Read coordinates
-    if isa(coords_read[1],Vector)
+    if  length(size(coords_read[1]))==1
         x = Vector(coords_read[1])
         y = Vector(coords_read[2])
         z = Vector(coords_read[3])
@@ -325,6 +325,18 @@ function read_LaMEM_VTR_file(DirName_base::String, FileName::String; fields=noth
         X,Y,Z = xyz_grid(x,y,z)
     else
         X,Y,Z = coords_read[1], coords_read[2], coords_read[3]
+
+        if isCell 
+            x = X[:,1,1]
+            y = Y[1,:,1]
+            z = Z[1,1,:]
+            # In case we have cell data , coordinates are center of cell
+            x = (x[1:end-1] + x[2:end])/2
+            y = (y[1:end-1] + y[2:end])/2
+            z = (z[1:end-1] + z[2:end])/2
+            @show x,y,z
+            X,Y,Z = xyz_grid(x,y,z)
+        end
     end
 
     data_output     =   CartData(X,Y,Z, data_fields)
@@ -340,16 +352,18 @@ This reads a PVD file & returns the `FileNames`, `Time` and `Timesteps`
 function readPVD(FileName::String)
 
     lines = readlines(FileName)
-    start_line = findall(lines .== "<Collection>")[1] + 1
-    end_line   = findall(lines .== "</Collection>")[1] - 1
+    lines = strip.(lines)
+    start_line = findfirst(lines .== "<Collection>") + 1
+    end_line   = findfirst(lines .== "</Collection>") - 1
     
     FileNames = Vector{String}()
     Time      = Vector{Float64}()
     Timestep  = Vector{Int64}()
     for i=start_line:end_line
         line = lines[i]
-        time = split(line)[2]; time = parse(Float64,time[11:end-1])
-        file = split(line)[3]; file = String.(file[7:end-3]);
+        time = parse(Float64,extract_data_string(line, "timestep"))
+        file = extract_data_string(line, "file")
+
 
         FileNames = push!(FileNames, file)
         Time = push!(Time, time)
@@ -365,6 +379,14 @@ function readPVD(FileName::String)
     return FileNames, Time, Timestep
 end
 
+# extracts data from a string
+function extract_data_string(line::AbstractString, keyword)
+    line_data = split(split(line,"$(keyword)=")[2])[1]
+    line_strip = replace(line_data, "/>"=>"")
+    line_strip = replace(line_strip, "\""=>"")
+    
+    return line_strip
+end
 
 """
     data_output = read_LaMEM_PVTU_file(DirName, FileName; fields=nothing)
@@ -509,7 +531,13 @@ function read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::Strin
     elseif passive_tracers==true
         data = read_LaMEM_PVTU_file(DirName, FileNames[ind[1]], fields=fields)
     else
-        data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
+        if contains(FileNames[ind[1]],".vtr")
+            data = read_LaMEM_VTR_file(DirName, FileNames[ind[1]], fields=fields)
+        elseif contains(FileNames[ind[1]],".pvtr")
+            data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
+        else
+            error("not sure about the filetype: ")
+        end
     end
 
     return data, Time[ind]

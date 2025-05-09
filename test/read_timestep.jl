@@ -17,9 +17,22 @@ pkg_dir = pkgdir(LaMEM)
     FileName="FB_multigrid"
     DirName = "Timestep_00000001_6.72970343e+00"
     Timestep = 1
-    data, time = read_LaMEM_timestep(FileName,Timestep, phase=true)
+    data2, time = read_LaMEM_timestep(FileName,Timestep, phase=true)
     
-    @test data.fields.phase[1000] == 0
+    @test data2.fields.phase[1000] == 0
+
+    # now save the data back to a file
+    write_paraview(data, "test_data")
+    write_paraview(data2, "test_data_phase")
+
+    # read back the data
+    data_1      = read_LaMEM_PVTR_file("Timestep_00000000_0.00000000e+00","FB_multigrid.pvtr")
+    data_reread = read_LaMEM_VTR_file(pwd(), "test_data.vts")
+    @test  data_reread.fields.phase[1000] ≈ 0.0f0
+
+    data2_reread = read_LaMEM_VTR_file(pwd(), "test_data_phase.vts")
+    @test data2_reread.fields.phase[1000] == 0
+
     #=
     # read subduction setup
     data, time = read_LaMEM_timestep("Subduction2D_FreeSlip_direct",1)

@@ -248,12 +248,12 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
 end
 
 
-has_point_data(vtk::ReadVTK.PVTKFile) = has_data_type(vtk, "PPointData", "PDataArray") 
-has_cell_data(vtk::ReadVTK.PVTKFile)  = has_data_type(vtk, "PCellData",  "PDataArray") 
-has_cell_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk,  "CellData",   "DataArray") 
-has_point_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk, "PointData",  "DataArray") 
+has_point_data(vtk::ReadVTK.PVTKFile) = has_data_type_parallel(vtk, "PPointData", "PDataArray") 
+has_cell_data(vtk::ReadVTK.PVTKFile)  = has_data_type_parallel(vtk, "PCellData",  "PDataArray") 
+has_cell_data(vtk::ReadVTK.VTKFile)   = has_data_type(vtk, "CellData") 
+has_point_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk, "PointData") 
 
-function has_data_type(vtk, main_data="PPointData", sub_data="PDataArray")  
+function has_data_type_parallel(vtk, main_data="PPointData", sub_data="PDataArray")  
     hasdata = false;
     tmp = ReadVTK.LightXML.root(vtk.xml_file)[vtk.file_type][1][main_data]
     if length(tmp)>0
@@ -264,7 +264,19 @@ function has_data_type(vtk, main_data="PPointData", sub_data="PDataArray")
     return hasdata
 end
 
+function has_data_type(vtk, main_data="PointData")  
+    hasdata = false;
+    tmp = piece(vtk)
+    if  length(get_elements_by_tagname(tmp, main_data))>0
+        hasdata = true
+    end
+    return hasdata
+end
+
 function piece(vtk_file::ReadVTK.PVTKFile)
+    return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
+end
+function piece(vtk_file::ReadVTK.VTKFile)
     return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
 

@@ -12,19 +12,31 @@ println("Adding Plots.jl plotting extensions for LaMEM")
 """
     plot_cross_section(model::Model, args...; field::Symbol=:phase,  
                         timestep::Union{Nothing, Int64}=nothing,
-                        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+                        dim=1, x=nothing, y=nothing, z=nothing, 
+                        aspect_ratio::Union{Real, Symbol}=:equal,
+                        surf=false)
    
 This plots a cross-section through the LaMEM `model`, of the field  `field`. If that is a vector or tensor field, specify `dim` to indicate which of the fields you want to see.
 If the keyword `timestep` is specified, it will load a timestep 
 """
 function plot_cross_section(model::Model, args...; field::Symbol=:phase, 
-        timestep::Union{Nothing, Int64}=0, dim=1, 
-        x=nothing, y=nothing, z=nothing, 
-        aspect_ratio::Union{Real, Symbol}=:equal)
+        timestep::Union{Nothing, Int64}=nothing, 
+        dim=1, 
+        x=nothing, 
+        y=nothing, 
+        z=nothing, 
+        aspect_ratio::Union{Real, Symbol}=:equal,
+        surf=false)
 
-    # load a particular timestep
-    data_cart, time_val = read_LaMEM_timestep(model,timestep)
-
+    if !isnothing(timestep)
+        # load a particular timestep
+        data_cart, time_val = read_LaMEM_timestep(model,timestep, surf=surf)
+    else
+        # Create a CartData set from initial model setup
+        data_cart = CartData(model.Grid.Grid.X, model.Grid.Grid.Y, model.Grid.Grid.Z, 
+                                (phase=model.Grid.Phases,temperature=model.Grid.Temp))
+    end
+    
     if isnothing(x) && isnothing(y) && isnothing(z)
         x = mean(extrema(model.Grid.Grid.X))
     end
@@ -42,16 +54,22 @@ end
 """
     plot_cross_section(data::CartData, args...; field::Symbol=:phase,  
                         title_str="",
-                        dim=1, x=nothing, y=nothing, z=nothing, aspect_ratio::Union{Real, Symbol}=:equal)
+                        dim=1, 
+                        x=nothing, 
+                        y=nothing, 
+                        z=nothing, 
+                        aspect_ratio::Union{Real, Symbol}=:equal
+                        surf=false)
    
 This plots a cross-section through a `CartData` dataset `data` of the field  `field`, typically read in from a LaMEM simulation.
 If that is a vector or tensor field, specify `dim` to indicate which of the fields you want to see.
 """
-function plot_cross_section(data::CartData, args...; field::Symbol=:phase, 
+function plot_cross_section(data::CartData , args...; field::Symbol=:phase, 
         dim=1, 
         x=nothing, y=nothing, z=nothing, 
         title_str="",
-        aspect_ratio::Union{Real, Symbol}=:equal)
+        aspect_ratio::Union{Real, Symbol}=:equal,
+        surf=false)
 
    
     if isnothing(x) && isnothing(y) && isnothing(z)
@@ -99,19 +117,21 @@ end
 
 
 """
-    plot_topo(topo::CartData, args...)
+    plot_topo(topo::CartData; kwargs...)
 
 Simple function to plot the topography 
 """
 function plot_topo(topo::CartData; kwargs...)
    
-    hm = Plots.heatmap(topo.x.val[:,1,1], topo.y.val[1,:,1], topo.fields.Topography[:,:,1]'; 
-                aspect_ratio=:equal, 
-                xlabel="x",
-                ylabel="y",
-                title="topography [km]",
-                colormap=:oleron,
-                kwargs...)
+    hm = Plots.heatmap( topo.x.val[:,1,1], 
+                        topo.y.val[1,:,1], 
+                        topo.fields.topography[:,:,1]'; 
+                        aspect_ratio=:equal, 
+                        xlabel="x",
+                        ylabel="y",
+                        title="topography [km]",
+                        colormap=:oleron,
+                        kwargs...)
                 
     return hm
 end

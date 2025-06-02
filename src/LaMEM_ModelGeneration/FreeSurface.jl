@@ -44,7 +44,7 @@ Base.@kwdef mutable struct FreeSurface
     er_levels::Vector{Int64}    = [1,   2,   1]     
 
     "sedimentation model [0-none (dafault), 1-prescribed rate with given level, 2-cont. margin]"
-    sediment_model::Int64       = 1                 
+    sediment_model::Int64       = 0                 
 
     "number of sediment layers"
     sed_num_layers::Int64       = 3                 

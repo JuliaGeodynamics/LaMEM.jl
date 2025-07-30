@@ -1,7 +1,7 @@
 name = "LaMEM"
 uuid = "2e889f3d-35ce-4a77-8ea2-858aecb630f7"
 authors = ["Boris Kaus <kaus@uni-mainz.de>"]
-version = "0.4.5"
+version = "0.4.7"
 
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
@@ -28,10 +28,10 @@ PlotsExt = "Plots"
 [compat]
 DelimitedFiles = "1"
 DocStringExtensions = "0.9"
-GeoParams = "0.4, 0.5, 0.6, 0.7"
+GeoParams = "0.4, 0.5, 0.6, 0.7, 0.8"
 GeophysicalModelGenerator = "0.7"
 Glob = "1"
-Interpolations = "0.10 - 0.15"
+Interpolations = "0.10 - 0.15, 0.16"
 LaMEM_jll = "~2.1.4"
 LightXML = "0.9"
 MPI = "0.20"

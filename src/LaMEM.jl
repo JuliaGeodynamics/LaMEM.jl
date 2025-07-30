@@ -8,7 +8,7 @@ export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
 # Functions to read LaMEM output
 include("IO_functions.jl")
 using .IO_functions
-export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file, read_LaMEM_VTR_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
 export passivetracer_time
 export clean_directory, changefolder, read_phase_diagram, read_LaMEM_logfile

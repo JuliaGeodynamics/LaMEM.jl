@@ -290,7 +290,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
 
     if model.ModelSetup.msetup=="files"
         # write marker files to disk before running LaMEM
-        Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
+        Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp,APS=model.Grid.APS));
 
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)

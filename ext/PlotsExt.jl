@@ -34,7 +34,7 @@ function plot_cross_section(model::Model, args...; field::Symbol=:phase,
     else
         # Create a CartData set from initial model setup
         data_cart = CartData(model.Grid.Grid.X, model.Grid.Grid.Y, model.Grid.Grid.Z, 
-                                (phase=model.Grid.Phases,temperature=model.Grid.Temp))
+                                (phase=model.Grid.Phases,temperature=model.Grid.Temp,plast_strain=model.Grid.APS))
     end
     
     if isnothing(x) && isnothing(y) && isnothing(z)

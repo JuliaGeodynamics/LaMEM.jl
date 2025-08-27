@@ -158,7 +158,7 @@ function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd())
 
     if d.Output.write_VTK_setup
         # If we want to write an input file 
-        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
+        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp,APS=d.Grid.APS)),"Model3D")
     end
     
     if any(hasplasticity.(d.Materials.Phases))

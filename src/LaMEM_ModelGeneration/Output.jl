@@ -168,6 +168,9 @@ Base.@kwdef mutable struct Output
     "temperature"
     out_ptr_Temperature  = 0    
 
+    "accumulated plastic strain"
+    out_ptr_APS  = 0    
+
     "melt fraction computed using P-T of the marker"
     out_ptr_MeltFraction = 0    
 

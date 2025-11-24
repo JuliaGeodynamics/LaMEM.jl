@@ -125,7 +125,7 @@ function plot_topo(topo::CartData; kwargs...)
    
     hm = Plots.heatmap( topo.x.val[:,1,1], 
                         topo.y.val[1,:,1], 
-                        topo.fields.topography[:,:,1]'; 
+                        topo.fields.Topography[:,:,1]'; 
                         aspect_ratio=:equal, 
                         xlabel="x",
                         ylabel="y",

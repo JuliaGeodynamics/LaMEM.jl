@@ -266,17 +266,17 @@ end
 
 function has_data_type(vtk, main_data="PointData")  
     hasdata = false;
-    tmp = piece(vtk)
+    tmp = LaMEM_piece(vtk)
     if  length(get_elements_by_tagname(tmp, main_data))>0
         hasdata = true
     end
     return hasdata
 end
 
-function piece(vtk_file::ReadVTK.PVTKFile)
+function LaMEM_piece(vtk_file::ReadVTK.PVTKFile)
     return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
-function piece(vtk_file::ReadVTK.VTKFile)
+function LaMEM_piece(vtk_file::ReadVTK.VTKFile)
     return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
 

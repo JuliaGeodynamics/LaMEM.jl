@@ -26,7 +26,7 @@ jobs:
           #- 'nightly'
         os:
           - ubuntu-latest
-          - macos-13
+          - macOS-15-intel        # with intel processors 
           - windows-latest
         arch:
           - x64

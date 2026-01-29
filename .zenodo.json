@@ -1,6 +1,6 @@
 {
   "title": "LaMEM.jl: a Julia interface to LaMEM",
-  "description": "LaMEM.jl provides a Julia interface to the LaMEM geodynamics code and comes with precompiuled (parallel) libraries. It uses the GeophysicalModelGenerator.jl to create initial model setups and provides functionality to read LaMEM output files back into Julia for further analysis.",
+  "description": "LaMEM.jl provides a Julia interface to the LaMEM geodynamics code and comes with precompiled (parallel) libraries. It uses the GeophysicalModelGenerator.jl to create initial model setups and provides functionality to read LaMEM output files back into Julia for further analysis.",
   "creators": [
     {
       "name": "Kaus, Boris J.P.",

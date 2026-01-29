@@ -165,10 +165,8 @@ Routine that splits the name in a directory `DirName_base` and a filename `FileN
 """
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)
-    id       = findlast("/", FullName)[1];
-    
-    DirName  = FullName[1:id-1]
-    File     = FullName[id+1:end]
+    DirName  = dirname(FullName)
+    File     = basename(FullName)
 
     return DirName, File
 end

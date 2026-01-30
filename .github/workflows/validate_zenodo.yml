@@ -1,19 +1,13 @@
-# This is a basic workflow to help you get started with Actions
-
-name: validate-zenodo
-
-# Controls when the workflow will run
+# Note: this workflow is copied from the Trixi.jl package
+name: Validate_Zenodo_Metadata
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - 'main'
+    tags: '*'
   pull_request:
-    branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-  jobs:
+jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
@@ -23,5 +17,4 @@ on:
       - name: 🛡️ Validate Zenodo Metadata
         uses: vsoch/zenodo-validator@main 
         with:
-          path: '.zenodo.json'# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-    
+          path: '.zenodo.json'

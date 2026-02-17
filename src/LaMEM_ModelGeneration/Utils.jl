@@ -288,7 +288,7 @@ end
 This creates a cross-section through the initial model setup & returns a 2D array
 """
 function cross_section(model::Model, field::Symbol=:phase; x=nothing, y=nothing, z=nothing)
-    Model3D = CartData(model.Grid.Grid, (phase=model.Grid.Phases,temperature=model.Grid.Temp));
+    Model3D = CartData(model.Grid.Grid, (phase=model.Grid.Phases,temperature=model.Grid.Temp,plast_strain=model.Grid.APS));
     
     data_tuple, axes_str = cross_section(Model3D, field; x=x, y=y, z=z)
     

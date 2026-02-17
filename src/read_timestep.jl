@@ -165,10 +165,8 @@ Routine that splits the name in a directory `DirName_base` and a filename `FileN
 """
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)
-    id       = findlast("/", FullName)[1];
-    
-    DirName  = FullName[1:id-1]
-    File     = FullName[id+1:end]
+    DirName  = dirname(FullName)
+    File     = basename(FullName)
 
     return DirName, File
 end
@@ -266,17 +264,17 @@ end
 
 function has_data_type(vtk, main_data="PointData")  
     hasdata = false;
-    tmp = piece(vtk)
+    tmp = LaMEM_piece(vtk)
     if  length(get_elements_by_tagname(tmp, main_data))>0
         hasdata = true
     end
     return hasdata
 end
 
-function piece(vtk_file::ReadVTK.PVTKFile)
+function LaMEM_piece(vtk_file::ReadVTK.PVTKFile)
     return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
-function piece(vtk_file::ReadVTK.VTKFile)
+function LaMEM_piece(vtk_file::ReadVTK.VTKFile)
     return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
 end
 

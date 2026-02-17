@@ -20,12 +20,13 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.10'
+          - '1'
           - '1.11'
+          - 'lts'
           #- 'nightly'
         os:
           - ubuntu-latest
-          - macos-13
+          - macOS-15-intel        # with intel processors 
           - windows-latest
         arch:
           - x64

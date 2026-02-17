@@ -27,6 +27,7 @@ function UpdateDefaultParameters(model::Model)
         model.Output.out_ptr_phase=1
         model.Output.out_ptr_Pressure=1
         model.Output.out_ptr_Temperature=1
+        model.Output.out_ptr_APS=0
     end
 
     if  model.BoundaryConditions.open_top_bound==0

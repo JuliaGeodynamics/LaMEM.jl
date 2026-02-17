@@ -1,0 +1,52 @@
+{
+  "title": "LaMEM.jl: a Julia interface to LaMEM",
+  "description": "LaMEM.jl provides a Julia interface to the LaMEM geodynamics code and comes with precompiled (parallel) libraries. It uses the GeophysicalModelGenerator.jl to create initial model setups and provides functionality to read LaMEM output files back into Julia for further analysis.",
+  "creators": [
+    {
+      "name": "Kaus, Boris J.P.",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0000-0002-0247-8660"
+    },
+    {
+      "name": "Riel, Nicolas",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0000-0002-5037-5519"
+    },
+    {
+      "name": "Cao, Wenrong",
+      "affiliation": "University of Nevada Reno, USA",
+      "orcid": "https://orcid.org/0000-0002-9303-2815"
+    },
+    {
+      "name": "Ibragimov, Iskander",
+      "affiliation": "Johannes Gutenberg University Mainz, Germany",
+      "orcid": "https://orcid.org/0009-0004-3085-5867"
+    },
+    {
+      "name": "McMillan, Mitchell",
+      "affiliation": "Georgia Institute of Technology, USA",
+      "orcid": "https://orcid.org/0000-0002-8590-488X"
+    }
+  ],
+  "keywords": [
+    "Julia",
+    "Geodynamics",
+    "Tectonics",
+    "MPI",
+    "Geomechanics"
+  ],
+  "grants": [
+    {"id": "10.13039/501100000780::771143"},
+    {"id": "10.13039/501100000780::101093038"}
+  ],
+  "license": {
+    "id": "gpl-3.0"
+  },
+  "upload_type": "software",
+  "access_right": "open",
+  "communities": [
+    {
+      "identifier": "juliapackage"
+    }
+  ]
+}

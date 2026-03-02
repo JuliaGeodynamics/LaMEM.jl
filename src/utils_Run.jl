@@ -97,7 +97,7 @@ function read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
  
     # Retrieve memory usage if we have system with slurm (use seff)
     if isnothing(ID)
-        ID = split(split(Filename,".")[1],"_")[end]
+        ID = split(split(basename(Filename),".")[1],"_")[end]
         ID = parse(Int64,ID)
     end
     lines_mem = execute_command(ID); # run code

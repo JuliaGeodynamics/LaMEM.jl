@@ -24,7 +24,8 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
 	else
 	
         # set correct environment
-        mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
+        key = LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env
+        mpirun = addenv(mpiexec, key=>join((LaMEM_jll.LIBPATH[], MPI_LIBPATH[]), pathsep));
 
         # create command-line object
         cmd = `$(mpirun) -n $cores --map-by :OVERSUBSCRIBE $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `
@@ -81,6 +82,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
         cores=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end
+	
 	cur_dir = pwd();
 	cd(directory)
 
@@ -88,17 +90,24 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	
 	arr          = JuliaStringToArray(logoutput)
-	foundline    = get_line_containing(arr,"Processor grid  [nx, ny, nz]         : ")
+	foundline    = get_line_containing(arr,"Processor grid")
+	if isnothing(foundline)
+		cd(cur_dir)
+		return nothing
+	end
 	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
-	
-	sprtlftbrkt  = split(foundline,"[")
-	sprtrghtbrkt = split(sprtlftbrkt[3],"]")
-	separatecoma = split(sprtrghtbrkt[1],",")
-	procnumbers  = parse.(Int, separatecoma)
-	Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
-	if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
-		Procpartname = nothing
+	Procpartname = nothing
+	if !isnothing(foundline)
+		sprtlftbrkt  = split(foundline,"[")
+		sprtrghtbrkt = split(sprtlftbrkt[3],"]")
+		separatecoma = split(sprtrghtbrkt[1],",")
+		procnumbers  = parse.(Int, separatecoma)
+		Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
+		if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
+			Procpartname = nothing
+		end
 	end
 	cd(cur_dir)
+	
 	return Procpartname
 end

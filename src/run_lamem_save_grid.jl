@@ -81,6 +81,7 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
         cores=1;
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
     end
+	
 	cur_dir = pwd();
 	cd(directory)
 
@@ -88,20 +89,22 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
 	
 	arr          = JuliaStringToArray(logoutput)
-	@show arr
 	foundline    = get_line_containing(arr,"Processor grid")
 	@show foundline
 	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
 	@show foundline
-	
-	sprtlftbrkt  = split(foundline,"[")
-	sprtrghtbrkt = split(sprtlftbrkt[3],"]")
-	separatecoma = split(sprtrghtbrkt[1],",")
-	procnumbers  = parse.(Int, separatecoma)
-	Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
-	if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
-		Procpartname = nothing
+	Procpartname = nothing
+	if !isnothing(foundline)
+		sprtlftbrkt  = split(foundline,"[")
+		sprtrghtbrkt = split(sprtlftbrkt[3],"]")
+		separatecoma = split(sprtrghtbrkt[1],",")
+		procnumbers  = parse.(Int, separatecoma)
+		Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
+		if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
+			Procpartname = nothing
+		end
 	end
 	cd(cur_dir)
+	
 	return Procpartname
 end

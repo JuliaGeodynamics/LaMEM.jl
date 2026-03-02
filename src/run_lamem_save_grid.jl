@@ -24,7 +24,8 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
 	else
 	
         # set correct environment
-        mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
+        key = LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env
+        mpirun = addenv(mpiexec, key=>join((LaMEM_jll.LIBPATH[], MPI_LIBPATH[]), pathsep));
 
         # create command-line object
         cmd = `$(mpirun) -n $cores --map-by :OVERSUBSCRIBE $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `

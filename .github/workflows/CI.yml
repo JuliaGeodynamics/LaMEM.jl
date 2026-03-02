@@ -57,6 +57,9 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
+      - name: Remove macOS quarantine from Julia artifacts
+        if: runner.os == 'macOS'
+        run: xattr -r -d com.apple.quarantine ~/.julia/artifacts/ || true
       - uses: julia-actions/julia-runtest@latest  
 #  build_docs:
 #    runs-on: ubuntu-latest

@@ -91,13 +91,11 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	
 	arr          = JuliaStringToArray(logoutput)
 	foundline    = get_line_containing(arr,"Processor grid")
-	@show foundline
 	if isnothing(foundline)
 		cd(cur_dir)
 		return nothing
 	end
 	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
-	@show foundline
 	Procpartname = nothing
 	if !isnothing(foundline)
 		sprtlftbrkt  = split(foundline,"[")

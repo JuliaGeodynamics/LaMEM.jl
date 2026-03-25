@@ -83,12 +83,18 @@ function write_LaMEM_inputFile(io, d::Solver)
     println(io, "#===============================================================================")
     println(io,"")
 
+    directsolver = false;
+    if d.SolverType=="direct"
+        directsolver = true;
+    end
+
     for f in fields
         # Note that some keywords should always be specified
         if (getfield(d,f) != getfield(Reference,f)) || 
             (f == :SolverType)  ||
-            (f == :DirectPenalty)
-
+            (f == :DirectPenalty) || 
+            (f == :DirectSolver && directsolver)    ||   # specify direct solver 
+            ((f == :MGLevels || f == :MGCoarseSolver || f == :MGSweeps || f == :MGSmoother || f == :MGJacobiDamp || f == :MGRedundantNum) && !directsolver)   # specify MG options if not using direct solver
 
             if (f != :PETSc_options)
                 # only print if value differs from reference value

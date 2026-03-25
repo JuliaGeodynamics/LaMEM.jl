@@ -242,6 +242,10 @@ end
 
 
 """
+    passivetracer_time(model::Model, cores::Int64=1, args::String=""; wait=true)
+
+Placeholder for passive tracer time evolution using the configuration in `model`.
+See the `passivetracer_time(ID, model::Model)` method to retrieve tracer data by particle ID.
 """
 function  passivetracer_time(model::Model, cores::Int64=1, args::String=""; wait=true)
 

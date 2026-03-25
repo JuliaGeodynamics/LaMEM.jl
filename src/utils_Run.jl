@@ -72,8 +72,16 @@ function show_paths_LaMEM()
 end
 
 """
-This reads a LaMEM logfile (provided it was run with "-log_view") and collects key results from it; 
-mostly for scalability tests on HPC machines. It returns a markdown summary
+    read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
+
+Reads a LaMEM logfile (provided it was run with `"-log_view"`) and collects key results from it;
+mostly for scalability tests on HPC machines. It prints a markdown summary table with grid sizes,
+core counts, multigrid levels, solver iterations, and timing information.
+
+You can also pass a vector of filenames to compare multiple runs:
+```julia
+julia> read_LaMEM_logfile(["logfile_64cpu_1234.out", "logfile_128cpu_5678.out"])
+```
 """
 function read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
     

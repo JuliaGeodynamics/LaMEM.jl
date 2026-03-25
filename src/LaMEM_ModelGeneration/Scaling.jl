@@ -29,6 +29,11 @@ function show_short(io::IO, d::Scaling{T}) where T
 end
 
 
+"""
+    write_LaMEM_inputFile(io, d::Scaling)
+
+Writes the scaling/units section to the LaMEM input file `io`.
+"""
 function write_LaMEM_inputFile(io, d::Scaling) 
     println(io, "#===============================================================================")
     println(io, "# Scaling")

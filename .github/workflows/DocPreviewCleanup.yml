@@ -12,6 +12,8 @@ jobs:
     #       the failed CI runs after merging a PR
     if: github.repository_owner == 'JuliaGeodynamics'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout gh-pages branch
         uses: actions/checkout@v4

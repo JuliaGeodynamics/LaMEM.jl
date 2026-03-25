@@ -17,9 +17,4 @@ Modules = [LaMEM.Run]
 Modules = [LaMEM.IO_functions]
 ```
 
-## LaMEM model generation within julia
-```@autodocs
-LaMEM.LaMEM_Model
-```
-
 

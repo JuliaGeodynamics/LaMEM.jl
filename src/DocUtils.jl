@@ -1,7 +1,7 @@
 # Auto-generate comments from the documentation
 
 using DocStringExtensions
-export get_doc
+
 """
     help_info::String = get_doc(structure, field::Symbol) 
 This returns a string with the documentation for a parameter `field` that is within the `structure`. 

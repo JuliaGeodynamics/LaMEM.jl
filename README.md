@@ -1,4 +1,5 @@
-# LaMEM.jl
+<img src="docs/src/assets/logo_LaMEM.png" alt="LaMEM.jl" width="250">
+
 [![Build Status](https://github.com/JuliaGeodynamics/LaMEM.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeodynamics/LaMEM.jl/actions)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliageodynamics.github.io/LaMEM.jl/dev/)
 [![DOI](https://zenodo.org/badge/531427568.svg)](https://zenodo.org/doi/10.5281/zenodo.10211627)

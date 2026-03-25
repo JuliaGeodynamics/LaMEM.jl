@@ -12,7 +12,8 @@ export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
 
 
 """
-add_vbox!(model::Model, vbox::VelocityBox)
+    add_vbox!(model::Model, vbox::VelocityBox)
+
 This adds a `vbox` (with its properties) to `model`
 """
 function add_vbox!(model::Model, vbox::VelocityBox) 
@@ -32,7 +33,8 @@ end
 
 
 """
-rm_last_vbox!(model::Model)
+    rm_last_vbox!(model::Model)
+
 This removes the last added `vbox` from `model`
 """
 function rm_last_vbox!(model::Model) 
@@ -233,8 +235,10 @@ function rm_geom!(model::Model)
 end
 
 """
+    set_geom!(model::Model, d::GeomSphere)
 
-This sets the geometry 
+Sets the geometry of the model using the `GeomSphere` geometric primitive `d`.
+This populates `model.Grid.Phases` and `model.Grid.Temp` using the GMG sphere primitive.
 """
 function set_geom!(model::Model, d::GeomSphere)
    
@@ -313,7 +317,10 @@ function cross_section(cart::CartData, field::Symbol=:phase; x=nothing, y=nothin
 end
 
 """
-Creates a 2D array out of a cross-section and a specified data field
+    data_tuple, axes_str = flatten(cross::CartData, field::Symbol, x, y, z)
+
+Creates a 2D array out of a cross-section `cross` for the specified data `field`.
+Returns a named tuple `(x, z, data)` and axis/title strings.
 """
 function flatten(cross::CartData, field::Symbol,x,y,z)
     dim     =   findall(size(cross.x.val) .== 1)[1]

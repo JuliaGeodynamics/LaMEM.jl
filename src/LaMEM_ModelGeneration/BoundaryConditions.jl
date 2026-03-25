@@ -7,7 +7,9 @@ export BoundaryConditions, VelocityBox, BCBlock, VelCylinder, write_LaMEM_inputF
 
 # -------
 """
-    Define velocity regions within the modelling region, by specifying its center point and width along the three axis.    
+    VelocityBox
+
+Defines a velocity region within the modelling domain by specifying its center point and width along the three axes.
 
     $(TYPEDFIELDS)
 
@@ -233,8 +235,10 @@ end
 
 
 """
-    Structure that contains the LaMEM boundary conditions information. 
-    
+    BoundaryConditions
+
+Structure that contains the LaMEM boundary conditions information.
+
     $(TYPEDFIELDS)
 
 """
@@ -261,40 +265,40 @@ Base.@kwdef mutable struct BoundaryConditions
     "strain rates for each interval          "
     exx_strain_rates::Vector{Float64} = [1e-15, 2e-15, 1e-15]   
 
-    "eyy_num_periods"
-    eyy_num_periods::Int64  = 2    
+    "number of intervals of constant background strain rate (y-axis)"
+    eyy_num_periods::Int64  = 2
 
-    "eyy_time_delims"
+    "time delimiters for eyy strain rate intervals (one less than number of intervals)"
     eyy_time_delims::Vector{Float64}  = [1.0]
-    
-    "eyy_strain_rates"
+
+    "background strain rates in yy-direction for each interval"
     eyy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
-    "exy_num_periods"
+    "number of intervals of constant background simple shear strain rate (xy-plane)"
     exy_num_periods::Int64  = 2                 # same for simple shear components in x/y direction
 
-    "exy_time_delims"
+    "time delimiters for exy strain rate intervals"
     exy_time_delims::Vector{Float64}  = [1.0]
-    
-    "exy_strain_rates"
+
+    "background simple shear strain rates in xy-direction for each interval"
     exy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
-    "exz_num_periods"
+    "number of intervals of constant background simple shear strain rate (xz-plane)"
     exz_num_periods::Int64  = 2                 # same for simple shear components in x/z direction
-    
-    "exz_time_delims"
+
+    "time delimiters for exz strain rate intervals"
     exz_time_delims::Vector{Float64}  = [1.0]
-    
-    "exz_strain_rates"
+
+    "background simple shear strain rates in xz-direction for each interval"
     exz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
-    "eyz_num_periods"
+    "number of intervals of constant background simple shear strain rate (yz-plane)"
     eyz_num_periods::Int64  = 2                 # same for simple shear components in y/z direction
 
-    "eyz_time_delims"
+    "time delimiters for eyz strain rate intervals"
     eyz_time_delims::Vector{Float64}  = [1.0]
-    
-    "eyz_strain_rates"
+
+    "background simple shear strain rates in yz-direction for each interval"
     eyz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
     "background strain rate reference point (fixed)"

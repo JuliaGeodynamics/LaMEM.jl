@@ -83,7 +83,7 @@ end
 
 deploydocs(;
     repo="github.com/JuliaGeodynamics/LaMEM.jl.git",
-    target="build",
+    target="build/1",
     branch="gh-pages",
     devbranch="main",
     push_preview=true,

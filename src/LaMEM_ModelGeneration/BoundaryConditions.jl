@@ -126,22 +126,6 @@ Base.@kwdef struct BCBlock
 
 end
 
-#=
-function show(io::IO, d::BCBlock)
-    println(io, "BCBlock: ")
-    fields    = fieldnames(typeof(d))
-
-    # print fields
-    for f in fields
-        if !isnothing(getfield(d,f)) 
-            printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
-        end
-    end
-
-    return nothing
-end
-=#
-
 function show(io::IO, d::BCBlock)
     print(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
     return nothing
@@ -499,7 +483,7 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
 
     for f in fields
 
-        if (f != :VelocityBoxes) && (f != :VelCylinder) && (f != :BCBlock) # Skip the velocity boxes
+        if (f != :VelocityBoxes) && (f != :VelCylinder) && (f != :BCBlocks) # Skip the velocity boxes
 
             if getfield(d, f) != getfield(Reference, f)
                 # only print if value differs from reference value
@@ -509,43 +493,6 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
                 println(io, "    $name  = $(write_vec(data))     # $(comment)")
             end
         end
-        
-        #end        elseif f != :VelocityBoxes
-#            write_LaMEM_inputFile(io, f)
-
-
-            #=
-            # Add the velocity boxes
-            if length(d.VelocityBoxes) != 0
-                println(io, "")
-                println(io, "   # Internal velocity box(es) \n")
-                for VB in d.VelocityBoxes
-
-                    println(io, "   <VelBoxStart>")
-
-                    vb_fields = fieldnames(typeof(VB))
-                    for vb in vb_fields
-                        if !isnothing(getfield(VB, vb))
-                            name = rpad(String(vb), 15)
-                            comment = get_doc(VelocityBox, vb)
-                            data = getfield(VB, vb)
-                            println(io, "        $name  = $(write_vec(data))     # $(comment)")
-                        end
-                    end
-
-                    println(io, "   <VelBoxEnd>")
-                    println(io, "")
-                end
-            end
-            =#
-      #  elseif f != :VelCylinder
-      #      write_LaMEM_inputFile(io, f)
-      #  elseif f != :BCBlock
-      #      write_LaMEM_inputFile(io, f)
-#
-#
-      #  end
-
     end
     println(io, "")
 
@@ -571,9 +518,6 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
         end
     end
     
-    
-
-
     println(io, "# temperature on the top & bottom boundaries [usually constant]")
     println(io, "    temp_top   = $(write_vec(d.temp_top))")
     println(io, "    temp_bot   = $(write_vec(d.temp_bot))")

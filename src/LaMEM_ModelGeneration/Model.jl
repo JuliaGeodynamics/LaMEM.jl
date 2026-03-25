@@ -264,7 +264,7 @@ end
 Creates the initial model setup of LaMEM from `model`, which includes:
 - Writing the LaMEM (*.dat) input file
 
-and in case we do not employt geometric primitives to create the setup:
+and in case we do not employ geometric primitives to create the setup:
 
 - Write the VTK file (if requested when `model.Output.write_VTK_setup=true`)
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)

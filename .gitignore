@@ -5,3 +5,4 @@ test/Timestep_*
 *.vts
 *.pvd
 *.vtr
+/debug

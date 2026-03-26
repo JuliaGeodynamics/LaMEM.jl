@@ -18,8 +18,10 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Installation" => "installation.md",
-        "Installation on HPC" => "installation_HPC.md",
+
+        "Installation" => ["Installation through Julia" => "installation.md",
+                           "Installation on HPC systems" => "installation_HPC.md"],
+        
         "Create & run LaMEM models from julia" => ["Overview" => "juliasetups.md",
                                                     "Example 1: Sphere" => "juliasetup_example_sphere.md",
                                                     "Example 2: Volcano" => "juliasetup_LaPalma.md",
@@ -63,7 +65,7 @@ if isfile(config_path)
     config_src = replace(config_src, "export default defineConfig({" =>
         "export default defineConfig({\n  ignoreDeadLinks: true,")
     config_src = replace(config_src, "themeConfig: {" =>
-        "themeConfig: {\n    logo: { light: '/assets/logo_LaMEM.png', dark: '/assets/logo_LaMEM_dark.png' },")
+        "themeConfig: {\n    logo: { light: '/assets/logo_LaMEM.png', dark: '/assets/logo_LaMEM_dark.png' },\n    siteTitle: false,")
     write(config_path, config_src)
 end
 

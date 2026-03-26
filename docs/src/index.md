@@ -17,7 +17,8 @@ hero:
       text: View on GitHub
       link: https://github.com/JuliaGeodynamics/LaMEM.jl
   image:
-    src: /assets/logo_LaMEM.png
+    light: /assets/logo_LaMEM.png
+    dark: /assets/logo_LaMEM_dark.png
     alt: LaMEM.jl logo
 
 features:

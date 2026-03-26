@@ -45,6 +45,8 @@ cp(joinpath(@__DIR__, "src", "assets", "SubductionSetup_3D.png"),
    joinpath(public_assets, "SubductionSetup_3D.png"); force=true)
 cp(joinpath(@__DIR__, "src", "assets", "logo_LaMEM.png"),
    joinpath(public_assets, "logo_LaMEM.png"); force=true)
+cp(joinpath(@__DIR__, "src", "assets", "logo_LaMEM_dark.png"),
+   joinpath(public_assets, "logo_LaMEM_dark.png"); force=true)
 
 # Overwrite the intermediate index.md with the original (which has proper Vitepress YAML
 # frontmatter). Julia's Markdown parser does not recognize YAML frontmatter, so makedocs
@@ -60,6 +62,8 @@ if isfile(config_path)
     config_src = read(config_path, String)
     config_src = replace(config_src, "export default defineConfig({" =>
         "export default defineConfig({\n  ignoreDeadLinks: true,")
+    config_src = replace(config_src, "themeConfig: {" =>
+        "themeConfig: {\n    logo: { light: '/assets/logo_LaMEM.png', dark: '/assets/logo_LaMEM_dark.png' },")
     write(config_path, config_src)
 end
 

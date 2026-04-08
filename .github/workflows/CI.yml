@@ -62,7 +62,8 @@ jobs:
       - name: Copy 7z into Julia libexec on Windows (GR build.jl hardcodes this path, removed in Julia 1.12)
         if: runner.os == 'Windows'
         run: |
-          $libexec = Join-Path (Split-Path $env:JULIA_BINDIR -Parent) "libexec"
+          $juliabin = (Get-Command julia).Source
+          $libexec = Join-Path (Split-Path (Split-Path $juliabin -Parent) -Parent) "libexec"
           New-Item -ItemType Directory -Force -Path $libexec | Out-Null
           Copy-Item "C:\Program Files\7-Zip\7z.exe" "$libexec\7z.exe"
       - uses: julia-actions/julia-buildpkg@latest

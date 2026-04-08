@@ -59,11 +59,14 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: Add 7-Zip to PATH on Windows (required for GR/Plots build, bundled 7z removed in Julia 1.12)
+        if: runner.os == 'Windows'
+        run: echo "C:\Program Files\7-Zip" >> $env:GITHUB_PATH
       - uses: julia-actions/julia-buildpkg@latest
       - name: Remove macOS quarantine from Julia artifacts
         if: runner.os == 'macOS'
         run: xattr -r -d com.apple.quarantine ~/.julia/artifacts/ || true
-      - uses: julia-actions/julia-runtest@latest  
+      - uses: julia-actions/julia-runtest@latest
 #  build_docs:
 #    runs-on: ubuntu-latest
 #    steps:

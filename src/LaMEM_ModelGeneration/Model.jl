@@ -195,9 +195,8 @@ Performs a LaMEM run for the parameters specified in `model`.
 - `cores`: number of MPI cores to use
 - `args`: additional command-line arguments passed to LaMEM
 - `wait`: if `true`, wait for the simulation to finish before returning
-- `add_APS`: if `true`, write accumulated plastic strain (APS) to the marker files.
-  Requires LaMEM ≥ 2.2.1 (uses marker file header 1211215).
-  Default is `false` (header 1211214, compatible with LaMEM ≥ 2.2.0).
+- `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files.
+  Requires LaMEM ≥ 2.2.1 (header 1211215). Default is `false` (LaMEM ≥ 2.2.0).
 """
 function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false)
 

@@ -44,6 +44,9 @@ export  LaMEM_Model, Model, write_LaMEM_inputFile, create_initialsetup,
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories
 
+using GeophysicalModelGenerator: write_paraview
+export write_paraview
+
 
 # Functions that will only be defined once "Plots" is loaded
 function plot_topo end 

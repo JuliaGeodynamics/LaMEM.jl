@@ -188,16 +188,23 @@ end
 
 
 """
-    run_lamem(model::Model, cores::Int64=1, args:String=""; wait=true)
+    run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false)
 
-Performs a LaMEM run for the parameters that are specified in `model`
+Performs a LaMEM run for the parameters specified in `model`.
+
+- `cores`: number of MPI cores to use
+- `args`: additional command-line arguments passed to LaMEM
+- `wait`: if `true`, wait for the simulation to finish before returning
+- `add_APS`: if `true`, write accumulated plastic strain (APS) to the marker files.
+  Requires LaMEM ≥ 2.2.1 (uses marker file header 1211215).
+  Default is `false` (header 1211214, compatible with LaMEM ≥ 2.2.0).
 """
-function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
+function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false)
 
-    cur_dir = pwd(); 
-    
+    cur_dir = pwd();
+
     #if !isdir(model.Output.out_dir); mkdir(model.Output.out_dir); end # create directory if needed
-    create_initialsetup(model, cores, args);    
+    create_initialsetup(model, cores, args; add_APS);
     
     if !isempty(model.Output.out_dir)
         cd(model.Output.out_dir)
@@ -211,22 +218,24 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
 end
 
 """
-    prepare_lamem(model::Model, cores::Int64=1, args:String=""; verbose=false)
+    prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false)
 
-Prepares a LaMEM run for the parameters that are specified in `model`, without running the simulation
+Prepares a LaMEM run for the parameters specified in `model`, without running the simulation:
     1) Create the `*.dat` file
     2) Write markers to disk in case we use a "files" setup
 
-This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster)
+This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster).
 
-Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup
+- `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files (requires LaMEM ≥ 2.2.1)
+
+Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup.
 """
-function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false)
+function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false)
 
     println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
-    cur_dir = pwd(); 
+    cur_dir = pwd();
 
-    create_initialsetup(model, cores, args,  verbose=verbose);    
+    create_initialsetup(model, cores, args; verbose, add_APS);
     
     cd(cur_dir)
 
@@ -274,7 +283,7 @@ and in case we do not employ geometric primitives to create the setup:
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
 
 """
-function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true)
+function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true, add_APS=false)
     
     # Move to the working directory
     cur_dir = pwd()
@@ -299,9 +308,9 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         if cores>1
             PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
 
-            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose, add_APS=add_APS)
         else
-            save_LaMEM_markers_parallel(Model3D, verbose=verbose)
+            save_LaMEM_markers_parallel(Model3D, verbose=verbose, add_APS=add_APS)
         end
     end
 

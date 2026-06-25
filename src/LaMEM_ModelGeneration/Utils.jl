@@ -471,7 +471,9 @@ function stress_strainrate_0D(rheology, ε_vec::Vector; n=8, T=700, nstep_max=2,
         # run the simulation on 1 core
         model.Output.out_dir="0D_$i"
         model.BoundaryConditions.exx_strain_rates = [ε]
-        run_lamem(model, 1); #run
+        # 0D rheology benchmark: a single phase at uniform T, so constant Phases/Temp
+        # grids are intentional - silence the constant-grid sanity warning.
+        run_lamem(model, 1; warn_constant_grid=false); #run
         data,_ = read_LaMEM_timestep(model, last=true) # read
         
         @show extrema(data.fields.j2_dev_stress)

@@ -3,22 +3,26 @@ export Check_LaMEM_Model
 
 
 """
-    Check_LaMEM_Model(m::Model)
+    Check_LaMEM_Model(m::Model; warn_constant_grid=true)
 
-Checks the LaMEM Setup Model `m` for errors
+Checks the LaMEM Setup Model `m` for errors.
+
+`warn_constant_grid` toggles the warning that is emitted when both the initial `Phases`
+and `Temp` grids are constant. Set it to `false` for intentionally uniform setups (e.g. the
+0D rheology benchmark in `stress_strainrate_0D`).
 """
-function Check_LaMEM_Model(m::Model)
-    
+function Check_LaMEM_Model(m::Model; warn_constant_grid=true)
+
     if length(m.Materials.Phases)==0
         error("You need to specify properties for the phases, with add_phase!(mode, Phase(ID=1,...))")
     end
 
     if (m.ModelSetup.msetup=="geom") && length(m.ModelSetup.geom_primitives) == 0
-        error("If you use internal geometries to set phases, you need to at least specify one internal geometry object. 
+        error("If you use internal geometries to set phases, you need to at least specify one internal geometry object.
                Example: add_geom!(model, GeomSphere())")
     end
 
-    if (m.ModelSetup.msetup=="files") && diff([extrema(m.Grid.Phases)...])[1]==0 && diff([extrema(m.Grid.Temp)...])[1]==0
+    if warn_constant_grid && (m.ModelSetup.msetup=="files") && diff([extrema(m.Grid.Phases)...])[1]==0 && diff([extrema(m.Grid.Temp)...])[1]==0
         @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
     end
 

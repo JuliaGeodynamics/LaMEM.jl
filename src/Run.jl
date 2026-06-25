@@ -19,9 +19,14 @@ elseif isdefined(LaMEM_jll,:MicrosoftMPI_jll)
 elseif isdefined(LaMEM_jll,:OpenMPI_jll) 
     const mpiexec = LaMEM_jll.OpenMPI_jll.mpiexec()
     const MPI_LIBPATH = LaMEM_jll.OpenMPI_jll.LIBPATH
-elseif isdefined(LaMEM_jll,:MPItrampoline_jll) 
+elseif isdefined(LaMEM_jll,:MPItrampoline_jll)
     const mpiexec = LaMEM_jll.MPItrampoline_jll.mpiexec()
     const MPI_LIBPATH = LaMEM_jll.MPItrampoline_jll.LIBPATH
+elseif isdefined(LaMEM_jll,:MPIABI_jll)
+    # MPIABI_jll has no bundled mpiexec; it expects MPIPreferences to point to a
+    # system MPI, so defer to MPI.jl's own mpiexec wrapper instead.
+    const mpiexec = MPI.mpiexec()
+    const MPI_LIBPATH = LaMEM_jll.MPIABI_jll.LIBPATH
 else
     println("Be careful! No MPI library detected; parallel runs won't work")
     const mpiexec = nothing

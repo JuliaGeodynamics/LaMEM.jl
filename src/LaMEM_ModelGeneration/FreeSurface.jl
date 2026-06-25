@@ -41,7 +41,19 @@ Base.@kwdef mutable struct FreeSurface
     er_rates::Vector{Float64}   = [0.2, 0.1, 0.2]   
 
     "levels above which we apply constant erosion rates in different time periods"
-    er_levels::Vector{Int64}    = [1,   2,   1]     
+    er_levels::Vector{Int64}    = [1,   2,   1]
+
+    "[only used if erosion_model=3] minimum x-coordinates of the spatially limited erosion zone, per erosion phase"
+    er_x_min::Union{Vector{Float64},Nothing}    = nothing
+
+    "[only used if erosion_model=3] maximum x-coordinates of the spatially limited erosion zone, per erosion phase"
+    er_x_max::Union{Vector{Float64},Nothing}    = nothing
+
+    "activate topographic diffusion of the free surface [0-none (default), 1-active]"
+    topo_diff::Int64            = 0
+
+    "topographic diffusivity used if topo_diff=1"
+    topo_diffusivity::Float64   = 1e-6
 
     "sedimentation model [0-none (dafault), 1-prescribed rate with given level, 2-cont. margin]"
     sediment_model::Int64       = 0                 

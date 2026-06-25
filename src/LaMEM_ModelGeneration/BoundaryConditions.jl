@@ -103,16 +103,19 @@ end
 """
 Base.@kwdef struct BCBlock
     "Number of path points of Bezier curve (path-points only!)"
-    npath::Int64 =  2      
+    npath::Int64 =  2
 
-    "# Orientation angles at path points (counter-clockwise positive)"    
-    theta::Vector{Float64} =  [0.0, 5.0]                      
-    
+    "Path dimension: 2 = x-y plane (default), 3 = full 3D (path then also moves bot/top z-coordinates)"
+    path_dim::Int64 = 2
+
+    "# Orientation angles at path points (counter-clockwise positive)"
+    theta::Vector{Float64} =  [0.0, 5.0]
+
     "Times at path points"
-    time::Vector{Float64}  =  [1.0, 2.0]                
-    
-    "Path points x-y coordinates"
-    path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]           
+    time::Vector{Float64}  =  [1.0, 2.0]
+
+    "Path points coordinates (x-y pairs if path_dim=2, x-y-z triplets if path_dim=3)"
+    path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]
     
     "Number of polygon vertices"
     npoly::Int64 =  4                                
@@ -129,7 +132,7 @@ Base.@kwdef struct BCBlock
 end
 
 function show(io::IO, d::BCBlock)
-    print(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
+    print(io, "BCBlock(npath=$(d.npath), path_dim=$(d.path_dim), theta=$(d.theta), time=$(d.time))")
     return nothing
 end
 

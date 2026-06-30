@@ -32,7 +32,12 @@ pkg_dir = pkgdir(LaMEM)
     out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
     @test isnothing(out)
 
-    if !Sys.iswindows()
+    # NOTE: the parallel MUMPS direct solver currently SEGVs on macOS with
+    # LaMEM_jll 2.2.1 (PETSc_jll 3.22.1), due to a SCALAPACK32_jll <-> MPI ABI
+    # mismatch in the parallel factorization (pdgetrf_). Single-core MUMPS and
+    # superlu_dist are unaffected. Skip the 2-core MUMPS run on macOS until a
+    # fixed PETSc_jll/SCALAPACK32_jll build is released.
+    if !Sys.iswindows() && !Sys.isapple()
         out = run_lamem(ParamFile, 2, "-nstep_max 5")    # 2 cores (mumps)
         @test isnothing(out)
     end

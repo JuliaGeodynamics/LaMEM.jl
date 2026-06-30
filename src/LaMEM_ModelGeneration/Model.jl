@@ -153,8 +153,8 @@ end
 
 Writes a LaMEM input file based on the data stored in Model
 """
-function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd())
-    Check_LaMEM_Model(d)    # check for mistakes in input
+function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd(), warn_constant_grid=true)
+    Check_LaMEM_Model(d; warn_constant_grid)    # check for mistakes in input
 
     if d.Output.write_VTK_setup
         # If we want to write an input file 
@@ -198,12 +198,12 @@ Performs a LaMEM run for the parameters specified in `model`.
 - `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files.
   Requires LaMEM ≥ 2.2.1 (header 1211215). Default is `false` (LaMEM ≥ 2.2.0).
 """
-function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false)
+function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, warn_constant_grid=true)
 
     cur_dir = pwd();
 
     #if !isdir(model.Output.out_dir); mkdir(model.Output.out_dir); end # create directory if needed
-    create_initialsetup(model, cores, args; add_APS);
+    create_initialsetup(model, cores, args; add_APS, warn_constant_grid);
     
     if !isempty(model.Output.out_dir)
         cd(model.Output.out_dir)
@@ -229,12 +229,12 @@ This is useful if you want to prepare a model on one machine but run it on anoth
 
 Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup.
 """
-function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false)
+function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false, warn_constant_grid=true)
 
     println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
     cur_dir = pwd();
 
-    create_initialsetup(model, cores, args; verbose, add_APS);
+    create_initialsetup(model, cores, args; verbose, add_APS, warn_constant_grid);
     
     cd(cur_dir)
 
@@ -282,8 +282,8 @@ and in case we do not employ geometric primitives to create the setup:
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
 
 """
-function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true, add_APS=false)
-    
+function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true, add_APS=false, warn_constant_grid=true)
+
     # Move to the working directory
     cur_dir = pwd()
     if !isempty(model.Output.out_dir)
@@ -291,7 +291,7 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
         cd(model.Output.out_dir)
     end
 
-    write_LaMEM_inputFile(model, model.Output.param_file_name)
+    write_LaMEM_inputFile(model, model.Output.param_file_name; warn_constant_grid)
     
     # corrections for certain platforms (e.g., windows):
     model, cores = adjust_for_platforms(model, cores) 

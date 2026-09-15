@@ -66,6 +66,13 @@ jobs:
           $libexec = Join-Path (Split-Path (Split-Path $juliabin -Parent) -Parent) "libexec"
           New-Item -ItemType Directory -Force -Path $libexec | Out-Null
           Copy-Item "C:\Program Files\7-Zip\7z.exe" "$libexec\7z.exe"
+      - name: Install the unregistered PETSc_jll 3.25.4 and LaMEM_jll 3.1.0 test builds
+        shell: bash
+        run: |
+          julia --project=. -e '
+            using Pkg
+            Pkg.add(url="https://github.com/boriskaus/PETSc_jll1.jl")
+            Pkg.add(url="https://github.com/boriskaus/LaMEM_jll.jl")'
       - uses: julia-actions/julia-buildpkg@latest
       - name: Remove macOS quarantine from Julia artifacts
         if: runner.os == 'macOS'

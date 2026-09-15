@@ -1,6 +1,6 @@
 module Run
 # module to run LaMEM_jll
-using LaMEM_jll,Glob, MPI
+using LaMEM_jll, Glob, MPI, OpenBLAS32_jll
 
 export run_lamem, run_lamem_save_grid
 export remove_popup_messages_mac, show_paths_LaMEM

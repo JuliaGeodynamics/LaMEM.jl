@@ -98,15 +98,15 @@ Allow to define a model setup by specifying some of the basic objects
 Example
 ===
 ```julia
-julia> d = Model(Grid(nel=(10,1,20)), Scaling(NO_units()))
+julia> d = Model(Grid(nel=(10,2,20)), Scaling(NO_units()))
 LaMEM Model setup
 |
 |-- Scaling             :  GeoParams.Units.GeoUnits{GeoParams.Units.NONE}
-|-- Grid                :  nel=(10, 1, 20); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Grid                :  nel=(10, 2, 20); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
 |-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  
-|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Solver options      :  coupled_direct; mumps; penalty=1000.0
 |-- Model setup options :  Type=geom; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  1 phases;  
@@ -327,8 +327,8 @@ function adjust_for_platforms(model, cores::Int64)
 
     if Sys.iswindows()
         println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
-        model.Solver.MGCoarseSolver = "direct"  # on windows MPI + mumps does not work
-        model.Solver.DirectSolver = "direct"
+        model.Solver.direct_solver_type = "default"  # PETSc's built-in LU (sequential); MUMPS needs MPI
+        model.Solver.coarse_solver = "direct"
     end
 
     return model, cores

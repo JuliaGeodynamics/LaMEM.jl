@@ -37,7 +37,7 @@ Next, we define a general model setup, in which we specify the units with which 
 # ╔═╡ 01b3370d-24b6-42a8-902b-b6b3d195d55e
 model  = Model(Grid(nel=(32,32,32), x=[-1,1], y=[-1,1], z=[-1,1]), 
   				 Time(nstep_max=20, dt_min=1e-3, dt=1, dt_max=10, time_end=100), 
-                 Solver(SolverType="multigrid", MGLevels=2),
+                 Solver(stokes_solver="coupled_mg", num_mg_levels=2),
   				 Output(out_dir="example_1"))
 
 # ╔═╡ b192e665-20f2-4f65-ace9-fe7fffd7b7c7

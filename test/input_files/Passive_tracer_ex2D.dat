@@ -33,7 +33,7 @@
 
 # Number of cells for all segments
 	nel_x 	= 	64
-	nel_y 	= 	1
+	nel_y 	= 	2
 	nel_z 	= 	32
 
 # Coordinates of all segments (including start and end points)
@@ -110,9 +110,12 @@
 #===============================================================================
 # Solver options
 #===============================================================================
-	SolverType 		=	direct 			# solver [direct or multigrid]
-	DirectSolver 	=	mumps			# mumps/superlu_dist/pastix	
-	DirectPenalty 	=	1e4
+<SolverOptionsStart>
+	monitor_solvers     = 1             # display how the inner iterations converge
+	stokes_solver       = block_direct  # direct velocity solve with penalty
+	direct_solver_type  = mumps         # mumps/superlu_dist/default
+	penalty             = 1e4
+<SolverOptionsEnd>
 
 #===============================================================================
 # Model setup & advection
@@ -389,7 +392,6 @@
 
 	
 	-js_ksp_type fgmres
-	-js_ksp_monitor 				# display how the inner iterations converge
 	-js_ksp_max_it 20				# inner
 	-js_ksp_atol 1e-8
 	-js_ksp_rtol 1e-5

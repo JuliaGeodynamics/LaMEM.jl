@@ -14,8 +14,8 @@ const testing = true
             clean_directory()
             include("../example_scripts/Subduction3D.jl")
             data,time = read_LaMEM_timestep(model,last=true);
-            @test time ≈ 0.05504613
-            @test sum(data.fields.velocity[3][:,:,:]) ≈ -51.314083f0 rtol=1e-4 # check Vz
+            @test time ≈ 0.0924
+            @test sum(data.fields.velocity[3][:,:,:]) ≈ -4.2464476f0 rtol=1e-4 # check Vz
         end
     end
 
@@ -25,7 +25,7 @@ const testing = true
         include("../example_scripts/StrengthEnvelop.jl")
         data,time = read_LaMEM_timestep(model,last=true);
         @test time ≈ 0.09834706
-        @test sum(data.fields.velocity[3][:,:,:]) ≈ 14.305277f0 rtol=1e-4 # check Vz
+        @test sum(data.fields.velocity[3][:,:,:]) ≈ 22.587292f0 rtol=1e-4 # check Vz
     end
 
     # Subduction example
@@ -35,7 +35,7 @@ const testing = true
             include("../example_scripts/TM_Subduction_example.jl")
             data,time = read_LaMEM_timestep(model,last=true);
             @test time ≈ 0.0021
-            @test sum(data.fields.velocity[3][:,:,:]) ≈ 420.10352f0 rtol=1e-4 # check Vz
+            @test sum(data.fields.velocity[3][:,:,:]) ≈ 596.7986f0 rtol=1e-4 # check Vz
         end
     
     end
@@ -47,7 +47,7 @@ const testing = true
             include("../example_scripts/PassiveTracers.jl")
             data,time = read_LaMEM_timestep(model,last=true);
             @test time ≈ 1.078999
-            @test sum(data.fields.velocity[3][:,:,:]) ≈ 0.1642956f0 rtol=1e-4 # check Vz
+            @test sum(data.fields.velocity[3][:,:,:]) ≈ 0.16775283f0 rtol=1e-4 # check Vz
         end
     
     end

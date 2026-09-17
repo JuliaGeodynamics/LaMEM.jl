@@ -26,11 +26,10 @@ model = Model(
                 BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]),
 
                 # We use a multigrid solver with 4 levels:
-                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",
-                        PETSc_options=[ "-snes_type ksponly",
-                                        "-js_ksp_rtol 1e-3",
-                                        "-js_ksp_atol 1e-4",
-                                        "-js_ksp_monitor"]),
+                Solver(stokes_solver="coupled_mg", num_mg_levels=4,
+                        coarse_solver="direct", direct_solver_type="mumps",
+                        set_linear_problem=1, monitor_solvers=1,
+                        linear_tolerances=[1e-3, 1e-4, 200]),
 
                 # Output filename
                 Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),
@@ -109,7 +108,7 @@ on windows MPI + mumps currently does not work
 
 ```julia
 if Sys.iswindows()
-    model.Solver.MGCoarseSolver = "direct"
+    model.Solver.direct_solver_type = "default"
 end
 ```
 

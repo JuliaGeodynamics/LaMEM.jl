@@ -7,7 +7,7 @@ using GeophysicalModelGenerator
 @testset "sedimentation test" begin
     if !Sys.iswindows()
         # Main model setup
-        model = Model(Grid(nel=(50,1,50), x=[-50,50], z=[-50,50], y=[-1,1] ), 
+        model = Model(Grid(nel=(50,2,50), x=[-50,50], z=[-50,50], y=[-1,1] ), 
         Scaling(GEO_units(stress=1000MPa, viscosity=1e20Pa*s)),
         Time(dt=1e-2, dt_min=1e-5, dt_max=1e-1, nstep_out=5, nstep_max=200, time_end=5),
         Output(out_dir="sedimentation_test_folder"))
@@ -45,7 +45,7 @@ using GeophysicalModelGenerator
         # read last timestep
         data,time = read_LaMEM_timestep(model,last=true);
 
-        @test  sum(data.fields.phase[50,1,:]) ≈ 25.683678f0 # check sum of phase along a vertical profile
+        @test  sum(data.fields.phase[50,1,:]) ≈ 25.647919f0 rtol=1e-4 # check sum of phase along a vertical profile
         
         # cleanup the directory
         rm(model.Output.out_dir, force=true, recursive=true)

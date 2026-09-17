@@ -35,7 +35,7 @@ The setup will include 6 different materials with the following ID's:
 model = Model(Grid( x   = [-2000.,2000.],
                     y   = [-2.5,2.5],                 # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
                     z   = [-660,40] ,
-                    nel = (512,1,128)     ),
+                    nel = (512,2,128)     ),
 
                     BoundaryConditions( temp_bot        = 1565.0,
                                         temp_top        = 20.0,
@@ -53,7 +53,7 @@ This initializes the initial LaMEM model setup with a number of default options.
 LaMEM Model setup
 |
 |-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
-|-- Grid                :  nel=(512, 1, 128); xϵ(-2000.0, 2000.0), yϵ(-8.0, 8.0), zϵ(-660.0, 40.0) 
+|-- Grid                :  nel=(512, 2, 128); xϵ(-2000.0, 2000.0), yϵ(-8.0, 8.0), zϵ(-660.0, 40.0) 
 |-- Time                :  nstep_max=20; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
@@ -493,9 +493,10 @@ add_softening!( model,
 The PETSc command ```-da_refine_y 1``` allow to run the model as 2D
 
 ```julia
-model.Solver = Solver(  SolverType      = "multigrid",
-                        MGLevels        = 3,
-                        MGCoarseSolver 	= "superlu_dist",
+model.Solver = Solver(  stokes_solver      = "coupled_mg",
+                        num_mg_levels      = 3,
+                        coarse_solver      = "direct",
+                        direct_solver_type = "superlu_dist",
                         PETSc_options   = [ "-snes_ksp_ew",
                                             "-snes_ksp_ew_rtolmax 1e-4",
                                             "-snes_rtol 5e-3",			

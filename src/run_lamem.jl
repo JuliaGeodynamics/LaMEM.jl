@@ -14,6 +14,7 @@ function deactivate_multithreading(cmd::Cmd)
     # multithreading of the BLAS libraries that is installed by default with the julia BLAS
     # does not work well. Switch that off:
     cmd = addenv(cmd,"OMP_NUM_THREADS"=>1)
+    cmd = addenv(cmd,"OPENBLAS_NUM_THREADS"=>1)
     cmd = addenv(cmd,"VECLIB_MAXIMUM_THREADS"=>1)
     return cmd
 end

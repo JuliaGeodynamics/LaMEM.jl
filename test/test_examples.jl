@@ -36,15 +36,12 @@ const testing = true
     end
 
     # PassiveTracers example
-    if !Sys.iswindows()
-        @testset "PassiveTracers" begin
-            clean_directory()
-            include("../example_scripts/PassiveTracers.jl")
-            data,time = read_LaMEM_timestep(model,last=true);
-            @test time ≈ 1.078999
-            @test sum(data.fields.velocity[3][:,:,:]) ≈ 0.16775283f0 rtol=1e-4 # check Vz
-        end
-    
+    @testset "PassiveTracers" begin
+        clean_directory()
+        include("../example_scripts/PassiveTracers.jl")
+        data,time = read_LaMEM_timestep(model,last=true);
+        @test time ≈ 1.078999
+        @test sum(data.fields.velocity[3][:,:,:]) ≈ 0.16775283f0 rtol=1e-4 # check Vz
     end
 
     cd(curdir)

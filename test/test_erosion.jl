@@ -5,7 +5,7 @@ using LaMEM
 using GeophysicalModelGenerator
 
 @testset "surface erosion" begin
-    if !Sys.iswindows()
+    begin   # runs on every platform since LaMEM_jll 3.1.0
         # Main model setup
         model = Model(Grid(nel=(32,2,32), x=[-50,50], z=[-50,20], y=[-1,1] ), 
                 Scaling(GEO_units(stress=1000MPa, viscosity=1e20Pa*s)),

@@ -12,13 +12,11 @@ pkg_dir = pkgdir(LaMEM)
         println("Falling Block test on 1 core failed")
     end
     
-    if !iswindows()
-        try
-            out = run_lamem(ParamFile, 4,"-nstep_max 2")       # 4 cores
-            @test isnothing(out)
-        catch 
-            println("Falling Block test on 4 cores failed")
-        end
+    try
+        out = run_lamem(ParamFile, 4,"-nstep_max 2")       # 4 cores
+        @test isnothing(out)
+    catch 
+        println("Falling Block test on 4 cores failed")
     end
 
     # Create a setup using GMG
@@ -32,10 +30,8 @@ pkg_dir = pkgdir(LaMEM)
     out = run_lamem(ParamFile, 1, "-nstep_max 2")    # 1 core
     @test isnothing(out)
 
-    if !Sys.iswindows()
-        out = run_lamem(ParamFile, 2, "-nstep_max 5")    # 2 cores (mumps)
-        @test isnothing(out)
-    end
+    out = run_lamem(ParamFile, 2, "-nstep_max 5")    # 2 cores (mumps)
+    @test isnothing(out)
 
     # Try free surface 
     ParamFile = "input_files/Subduction2D_FreeSurface_DirectSolver.dat";

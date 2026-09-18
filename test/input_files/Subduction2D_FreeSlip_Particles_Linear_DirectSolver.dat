@@ -70,9 +70,12 @@
 #===============================================================================
 # Solver options
 #===============================================================================
-	SolverType 		=	direct 			# solver [direct or multigrid]
-	DirectSolver 	=	mumps			# mumps/superlu_dist/pastix	
-	DirectPenalty 	=	1e5
+<SolverOptionsStart>
+	monitor_solvers     = 1             # display how the inner iterations converge
+	stokes_solver       = block_direct  # direct velocity solve with penalty
+	direct_solver_type  = mumps         # mumps/superlu_dist/default
+	penalty             = 1e5
+<SolverOptionsEnd>
 
 		
 #===============================================================================
@@ -165,15 +168,6 @@
 # PETSc options
 #===============================================================================
 
-<PetscOptionsStart>
-
-	# LINEAR & NONLINEAR SOLVER OPTIONS
-	#-snes_ksp_ew
-
-
-	-js_ksp_monitor # display how the inner iterations converge
-
-
-<PetscOptionsEnd>
+# (no PETSc options; the solver is configured in <SolverOptionsStart>)
 
 #===============================================================================

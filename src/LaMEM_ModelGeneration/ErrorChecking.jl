@@ -26,8 +26,26 @@ function Check_LaMEM_Model(m::Model; warn_constant_grid=true)
         @warn "Your initial `Temp` grid is constant, as is your initial `Phases` grid. \n Is that intended? \n In most cases, you would want to set some variability in the initial conditions, \n for example with the `GeophysicalModelGenerator` function `add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.15, ))` "
     end
 
-    if (m.Solver.SolverType!="direct") &&  (m.Solver.SolverType!="multigrid")
-        error("Unknown SolverType; choose either \"direct\" or \"multigrid\"!")
+    if !(m.Solver.stokes_solver in ("coupled_direct", "block_direct", "coupled_mg", "block_mg", "wbfbt"))
+        error("Unknown stokes_solver $(m.Solver.stokes_solver); choose one of \"coupled_direct\", \"block_direct\", \"coupled_mg\", \"block_mg\", \"wbfbt\"")
+    end
+    if !(m.Solver.direct_solver_type in ("mumps", "superlu_dist", "default"))
+        error("Unknown direct_solver_type $(m.Solver.direct_solver_type); choose one of \"mumps\", \"superlu_dist\", \"default\"")
+    end
+    if !(m.Solver.coarse_solver in ("direct", "hypre", "bjacobi", "asm"))
+        error("Unknown coarse_solver $(m.Solver.coarse_solver); choose one of \"direct\", \"hypre\", \"bjacobi\", \"asm\"")
+    end
+
+    # LaMEM >= 3.0 rejects fewer than two cells per direction and non-unit mesh bias
+    for (dir, nel) in zip(("x", "y", "z"), (m.Grid.nel_x, m.Grid.nel_y, m.Grid.nel_z))
+        if sum(nel) < 2
+            error("LaMEM requires at least two cells in every direction; nel_$dir = $(sum(nel)). Use e.g. Grid(nel=(nx,nz)) for 2D setups, which gives two cells in y.")
+        end
+    end
+    for (dir, bias) in zip(("x", "y", "z"), (m.Grid.bias_x, m.Grid.bias_y, m.Grid.bias_z))
+        if any(b -> !(b == 1.0 || b == 0.0), bias)
+            error("Non-unit mesh bias ratios (bias_$dir = $bias) are not supported by LaMEM >= 3.0; use uniform segments instead.")
+        end
     end
 
     

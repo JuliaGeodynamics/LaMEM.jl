@@ -180,7 +180,7 @@ julia> add_topography!(model, Topo_LaMEM)
 
 You will want to use a multigrid solver in this case:
 ```julia
-julia> model.Solver = Solver(SolverType="multigrid",  MGLevels=4)
+julia> model.Solver = Solver(stokes_solver="coupled_mg", num_mg_levels=4)
 ```
 
 ### 3. Run LaMEM

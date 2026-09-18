@@ -14,7 +14,7 @@ Next, we define a general model setup, in which we specify the units with which 
 ```julia
 julia> model  = Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]), 
           Time(nstep_max=20, dt_min=1e-3, dt=1, dt_max=10, time_end=100), 
-          Solver(SolverType="multigrid", MGLevels=2),
+          Solver(stokes_solver="coupled_mg", num_mg_levels=2),
           Output(out_dir="example_1"))
 LaMEM Model setup
 |

@@ -7,9 +7,9 @@ using Base.Sys
 
 
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
-    if iswindows() && cores>1
-        cores=1;
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    if cores > 1 && !mpi_available()
+        cores = 1
+        println("This LaMEM_jll has no MPI library; using 1 core instead")
     end
 	out = Pipe()
     if cores==1
@@ -28,7 +28,7 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
         mpirun = addenv(mpiexec, key=>join((LaMEM_jll.LIBPATH[], MPI_LIBPATH[]), pathsep));
 
         # create command-line object
-        cmd = `$(mpirun) -n $cores --map-by :OVERSUBSCRIBE $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `
+        cmd = `$(mpirun) -n $cores $(oversubscribe_args) $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `
         if deactivate_multithreads
             cmd = deactivate_multithreading(cmd)
         end
@@ -78,9 +78,9 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
-	if iswindows() && cores>1
-        cores=1;
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+	if cores > 1 && !mpi_available()
+        cores = 1
+        println("This LaMEM_jll has no MPI library; using 1 core instead")
     end
 	
 	cur_dir = pwd();

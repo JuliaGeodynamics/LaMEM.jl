@@ -4,8 +4,8 @@ using LaMEM, GeophysicalModelGenerator
 model = Model(Grid( x   = [-2000.,2000.],
                     y   = [-2.5, 2.5],          # <- model is 2D, size in y-direction is choosen to be close to a cube shape for the cell
                     z   = [-660,40] ,
-                    #nel = (512,1,128)
-                    nel = (256,1,64)
+                    #nel = (512,2,128)
+                    nel = (256,2,64)
                          
                     ),
                     
@@ -214,9 +214,10 @@ add_softening!( model,softening)
 
 
 # Set solver options
-model.Solver = Solver(  SolverType      = "multigrid",
-                        MGLevels        = 3,
-                        MGCoarseSolver 	= "mumps",
+model.Solver = Solver(  stokes_solver      = "coupled_mg",
+                        num_mg_levels      = 3,
+                        coarse_solver      = "direct",
+                        direct_solver_type = "mumps",
                         PETSc_options   = [ "-snes_ksp_ew",
                                             "-snes_ksp_ew_rtolmax 1e-4",
                                             "-snes_rtol 5e-3",			
@@ -234,17 +235,9 @@ model.Solver = Solver(  SolverType      = "multigrid",
                                         ]
                     )
 
-if Sys.iswindows()
-    model.Solver.MGCoarseSolver = "direct" 
-end
-
 try testing == true 
     # if we run this as part of the test suite, use fewer timesteps
-    if !Sys.iswindows()
-        run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
-    else
-        run_lamem(model, 1, "-nstep_max 2 -nstep_out 1")       
-    end
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
 catch
     run_lamem(model, 8)       
 end

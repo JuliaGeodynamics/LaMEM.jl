@@ -4,7 +4,7 @@
 
 using LaMEM, Test
 
-model  = Model(Grid(nel=(16,1,16), x=[-100,100], y=[-1,1], z=[-100,0]),
+model  = Model(Grid(nel=(16,2,16), x=[-100,100], y=[-1,1], z=[-100,0]),
                Time( nstep_max=4),
                Output(out_pressure=1, out_temperature=1, out_j2_dev_stress=1, 
                         out_dir="example_2", out_fluid_density=1, out_melt_fraction=1),

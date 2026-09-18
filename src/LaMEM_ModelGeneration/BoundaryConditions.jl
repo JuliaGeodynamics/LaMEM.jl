@@ -286,26 +286,11 @@ Base.@kwdef mutable struct BoundaryConditions
     "background simple shear strain rates in xy-direction for each interval"
     exy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
-    "number of intervals of constant background simple shear strain rate (xz-plane)"
-    exz_num_periods::Int64  = 2                 # same for simple shear components in x/z direction
-
-    "time delimiters for exz strain rate intervals"
-    exz_time_delims::Vector{Float64}  = [1.0]
-
-    "background simple shear strain rates in xz-direction for each interval"
-    exz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
-
-    "number of intervals of constant background simple shear strain rate (yz-plane)"
-    eyz_num_periods::Int64  = 2                 # same for simple shear components in y/z direction
-
-    "time delimiters for eyz strain rate intervals"
-    eyz_time_delims::Vector{Float64}  = [1.0]
-
-    "background simple shear strain rates in yz-direction for each interval"
-    eyz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
-
     "background strain rate reference point (fixed)"
     bg_ref_point::Vector{Float64}     = [0.0, 0.0, 0.0]      
+
+    "periodic grid topology in the x-direction (LaMEM >= 3.0; also activates periodic advection in x)"
+    periodic::Int64 = 0
 
     "List of added velocity boxes"
     VelocityBoxes::Vector{VelocityBox} = []

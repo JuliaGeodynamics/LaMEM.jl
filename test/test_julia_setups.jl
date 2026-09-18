@@ -11,7 +11,7 @@ using GeophysicalModelGenerator
     # Main model setup
     model  = Model(Grid(nel=(16,16,16), x=[-2,2], coord_y=[-1,1], coord_z=[-1,1]),
                    Time(nstep_max=2, dt=1, dt_max=10), 
-                   Solver(SolverType="multigrid", MGLevels=2),
+                   Solver(stokes_solver="coupled_mg", num_mg_levels=2),
                    Output(out_dir="example_1", out_dev_stress=1))
     
     # Specify material properties
@@ -53,7 +53,7 @@ using GeophysicalModelGenerator
     # Main model setup
     model  = Model(Grid(nel=(16,16,16), x=[-2,2], coord_y=[-1,1], coord_z=[-1,1]),
                     Time(nstep_max=3, nstep_out=1, dt=1, dt_max=10, dt_min=1e-5), 
-                    Solver(SolverType="multigrid", MGLevels=2),
+                    Solver(stokes_solver="coupled_mg", num_mg_levels=2),
                     BoundaryConditions(temp_bot=20),
                     Output(out_velocity=1, out_dir="example_1"))
 
@@ -98,7 +98,7 @@ using GeophysicalModelGenerator
 
     # Create a model setup with phase transitions; this corresponds to t16
     # Main model setup
-    model  = Model(Grid(nel=(64,1,64), x=[-500,500], coord_y=[-10,10], coord_z=[-1000,50]),
+    model  = Model(Grid(nel=(64,2,64), x=[-500,500], coord_y=[-10,10], coord_z=[-1000,50]),
                     Time(nstep_max=30, nstep_out=5, dt=0.01, dt_max=1, dt_min=1e-5), 
                     Scaling(GEO_units(length = 100km) ),
                     BoundaryConditions(temp_bot=1300, noslip=[0,0,0,0,1,0], open_top_bound=1),
@@ -151,7 +151,7 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.phase) ≈ 29060.664f0
+    @test  sum(data.fields.phase) ≈ 43593.035f0
     
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)
@@ -173,7 +173,7 @@ end
     # such as spheres, boxes, etc. as opoosed to doing this through the GeophysicalModelGenerator
     model  = Model(Grid(nel=(16,16), x=[-2,2], z=[-1,1]),
                     Time(nstep_max=2, dt=1, dt_max=10), 
-                    Solver(SolverType="direct"),
+                    Solver(stokes_solver="block_direct"),
                     Output(out_dir="example_1"))
 
     # Specify material properties

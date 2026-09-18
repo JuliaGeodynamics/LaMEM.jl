@@ -9,8 +9,9 @@ Note that this structure must be a help structure of the current one.
 """
 function get_doc(structure, field::Symbol) 
     alldocs       =   Docs.meta(LaMEM.LaMEM_Model);
-    
-    var           =   eval(Meta.parse("Docs.@var($structure)"))
+
+    # Docs.@var no longer lowers on Julia >= 1.13; the Binding it produced can be built directly
+    var           =   Docs.Binding(parentmodule(structure), nameof(structure))
     fields_local  =   alldocs[var].docs[Union{}].data[:fields]
     str = fields_local[field]
 

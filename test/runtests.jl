@@ -3,6 +3,7 @@ using LaMEM
 
 @testset verbose = true "LaMEM.jl" begin
 
+    include("test_solver.jl")
     include("test_julia_setups.jl")
     include("runLaMEM.jl")
     include("read_timestep.jl")

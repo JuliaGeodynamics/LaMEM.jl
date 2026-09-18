@@ -14,7 +14,7 @@ LaMEM Model setup
 |-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
-|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Solver options      :  coupled_direct; mumps; penalty=1000.0
 |-- Model setup options :  Type=files; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  0 phases;
@@ -139,6 +139,27 @@ Running a model is very simple:
 ```julia
 julia> run_lamem(model,1)
 ```
+
+### Upgrading to LaMEM 3.x
+
+LaMEM.jl 0.5 targets LaMEM >= 3.1 (`LaMEM_jll` 3.1.0, PETSc 3.25), which changed the input
+file in a few places; the Julia structures follow.
+
+- **Solver options.** LaMEM 3.0 replaced the `SolverType`/`DirectSolver`/`DirectPenalty`/`MG*`
+  parameters with a `<SolverOptionsStart>` block. `Solver` now mirrors that block:
+  `Solver(stokes_solver="coupled_mg", num_mg_levels=3)` or
+  `Solver(stokes_solver="block_direct", direct_solver_type="mumps", penalty=1e4)`; see `?Solver`
+  for all options. The old keywords are still accepted and translated (with a warning), so
+  existing scripts keep working, but LaMEM itself silently ignores the old parameters in a `.dat`
+  file - hand-written input files have to be migrated.
+- **Grid.** LaMEM requires at least two cells in every direction; `Grid(nel=(nx,nz))` therefore
+  gives two cells in `y`. Non-unit mesh bias ratios are no longer supported.
+- **Boundary conditions.** The out-of-plane background strain rates (`exz_*`, `eyz_*`) were
+  removed; `periodic=1` enables periodic boundaries in `x`.
+- **Solution parameters.** `FSSA_allVel` was removed.
+- **Passive tracer output.** LaMEM 3 writes the passive tracers as one `.vtu` file per time
+  step (LaMEM 2 wrote a parallel `.pvtu`); `read_LaMEM_timestep(...; passive_tracers=true)`
+  reads both.
 
 ### More examples
 More examples can be found on the left hand side menu.

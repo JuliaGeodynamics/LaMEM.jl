@@ -1,6 +1,6 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
-import LaMEM.Run: run_lamem, run_lamem_save_grid
+import LaMEM.Run: run_lamem, run_lamem_save_grid, mpi_available
 import LaMEM: passivetracer_time, project_onto_crosssection
 using LaMEM.Run.LaMEM_jll
 
@@ -321,12 +321,14 @@ end
 """
     model, cores =  adjust_for_platforms(model, cores::Int64)
 
-On certain platforms we have restrictions (MPI is broken on windows currently, so we need to adjust things accordingly)
+A `LaMEM_jll` without MPI cannot run in parallel and has no MUMPS, so the model falls back to
+PETSc's built-in sequential LU. Windows builds were the only such platform; they are MPI-enabled
+since LaMEM_jll 3.1.0 (PETSc_jll 3.25.4), so this now adjusts nothing there.
 """
 function adjust_for_platforms(model, cores::Int64)
 
-    if Sys.iswindows()
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    if !mpi_available()
+        println("This LaMEM_jll has no MPI library; using a sequential direct solver")
         model.Solver.direct_solver_type = "default"  # PETSc's built-in LU (sequential); MUMPS needs MPI
         model.Solver.coarse_solver = "direct"
     end

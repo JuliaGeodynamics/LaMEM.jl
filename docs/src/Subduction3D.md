@@ -104,14 +104,6 @@ LaMEM Model setup
 
 ## 4. Run the model
 
-on windows MPI + mumps currently does not work
-
-```julia
-if Sys.iswindows()
-    model.Solver.direct_solver_type = "default"
-end
-```
-
 Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores:
 
 ```julia

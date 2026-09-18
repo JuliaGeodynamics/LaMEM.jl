@@ -235,17 +235,9 @@ model.Solver = Solver(  stokes_solver      = "coupled_mg",
                                         ]
                     )
 
-if Sys.iswindows()
-    model.Solver.direct_solver_type = "default"
-end
-
 try testing == true 
     # if we run this as part of the test suite, use fewer timesteps
-    if !Sys.iswindows()
-        run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
-    else
-        run_lamem(model, 1, "-nstep_max 2 -nstep_out 1")       
-    end
+    run_lamem(model, 8, "-nstep_max 2 -nstep_out 1")       
 catch
     run_lamem(model, 8)       
 end

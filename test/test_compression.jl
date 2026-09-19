@@ -4,11 +4,11 @@ using Test
 using GeophysicalModelGenerator
 
 @testset "filesize compression" begin
-    if !Sys.iswindows()
+    begin   # runs on 4 cores; Windows LaMEM_jll is MPI-enabled since 3.1.0
         # Main model setup
         model  = Model(Grid(nel=(8,16,32), x=[-2,2], coord_y=[-1,1], coord_z=[-3,3]),
         Time(nstep_max=5, dt=1, dt_max=1, time_end=100), 
-        Solver(SolverType="multigrid", MGLevels=2),
+        Solver(stokes_solver="coupled_mg", num_mg_levels=2),
         Output(out_dir="example_1", out_avd=1, out_avd_pvd=1, out_avd_ref=3))
 
         # Specify material properties

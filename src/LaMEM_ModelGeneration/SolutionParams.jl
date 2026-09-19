@@ -20,11 +20,6 @@ Base.@kwdef mutable struct SolutionParams
     """
     FSSA::Float64            = 1.0         
 
-    """
-    free surface stabilization parameter applied to all velocity components?  Default is yes; if not it is only applied to the z-component
-    """
-    FSSA_allVel::Int64       = 1 
-
     "shear heating efficiency parameter   [0 - 1]"   
     shear_heat_eff::Float64  = 1.0             
     

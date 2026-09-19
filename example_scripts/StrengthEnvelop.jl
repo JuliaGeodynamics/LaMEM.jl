@@ -5,7 +5,7 @@ plotting = false    # if you run this example interactively and have CairoMakie 
 model  = Model(Grid(nel=(4,32), x=[-1,1], z=[-30,1]), 
                Time(nstep_max=25, dt_min=1e-4, dt=1e-3, dt_max=10, time_end=100), 
                BoundaryConditions(exx_strain_rates=[1e-15]),
-               Solver(SolverType="direct"),
+               Solver(stokes_solver="block_direct"),
                Output(out_dir="example_1"))
 
 Z = model.Grid.Grid.Z

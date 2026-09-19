@@ -40,13 +40,11 @@ jobs:
           version: '1'
           show-versioninfo: true
       - uses: julia-actions/cache@v3
-      - name: Install the unregistered LaMEM_jll 3.1.0 test build
-        run: julia --project=. -e 'using Pkg; Pkg.add(url="https://github.com/boriskaus/LaMEM_jll.jl")'
       - uses: julia-actions/julia-buildpkg@v1
         env:
           PYTHON: ""
       - name: Install dependencies
-        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.add(url="https://github.com/boriskaus/LaMEM_jll.jl"); Pkg.instantiate()'
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token

@@ -65,12 +65,6 @@ jobs:
           $libexec = Join-Path (Split-Path (Split-Path $juliabin -Parent) -Parent) "libexec"
           New-Item -ItemType Directory -Force -Path $libexec | Out-Null
           Copy-Item "C:\Program Files\7-Zip\7z.exe" "$libexec\7z.exe"
-      - name: Install the unregistered LaMEM_jll 3.1.0 test build
-        shell: bash
-        run: |
-          julia --project=. -e '
-            using Pkg
-            Pkg.add(url="https://github.com/boriskaus/LaMEM_jll.jl")'
       - uses: julia-actions/julia-buildpkg@latest
       - name: Remove macOS quarantine from Julia artifacts
         if: runner.os == 'macOS'

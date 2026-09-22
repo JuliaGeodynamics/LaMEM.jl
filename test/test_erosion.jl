@@ -43,7 +43,6 @@ using GeophysicalModelGenerator
         
         add_phase!(model, air, crust)
 
-        clean_output_dir(model)   # start from a clean output directory
         run_lamem(model,1);
 
         # read last timestep
@@ -52,7 +51,7 @@ using GeophysicalModelGenerator
         @test  sum(data.fields.phase[32,1,:]) ≈ 25.5f0 # check sum of phase along a vertical profile
         
         # cleanup the directory
-        rm_dir(model.Output.out_dir)
+        rm(model.Output.out_dir, force=true, recursive=true)
 
     end
 

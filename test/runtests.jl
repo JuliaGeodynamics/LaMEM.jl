@@ -1,8 +1,6 @@
 using Test
 using LaMEM
 
-include("test_utils.jl")
-
 @testset verbose = true "LaMEM.jl" begin
 
     include("test_solver.jl")

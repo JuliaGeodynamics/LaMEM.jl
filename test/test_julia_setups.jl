@@ -23,7 +23,6 @@ using GeophysicalModelGenerator
     add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 
     # run the simulation on 1 core
-    clean_output_dir(model)   # start from a clean output directory
     run_lamem(model, 1);
 
     # read last timestep
@@ -33,7 +32,7 @@ using GeophysicalModelGenerator
 #    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10866211f0 # check Vz
 
     # cleanup the directory
-    rm_dir(model.Output.out_dir)
+    rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
 
@@ -74,7 +73,6 @@ using GeophysicalModelGenerator
     add_vbox!(model, vbox)
 
     # # run the simulation on 1 core
-    clean_output_dir(model)   # start from a clean output directory
     run_lamem(model, 1);
 
     # # read last timestep
@@ -84,7 +82,7 @@ using GeophysicalModelGenerator
     @test  sum(data.fields.velocity[1][8, 8, 8]) ≈ 1
     
     # cleanup the directory
-    rm_dir(model.Output.out_dir)
+    rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
 end
@@ -148,7 +146,6 @@ using GeophysicalModelGenerator
     # -------------------------
 
     # run the simulation on 1 core
-    clean_output_dir(model)   # start from a clean output directory
     run_lamem(model, 1);
 
     # read last timestep
@@ -157,7 +154,7 @@ using GeophysicalModelGenerator
     @test  sum(data.fields.phase) ≈ 43593.035f0
     
     # cleanup the directory
-    rm_dir(model.Output.out_dir)
+    rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================
 
 

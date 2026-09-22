@@ -20,7 +20,6 @@ using GeophysicalModelGenerator
         add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 
         # run the simulation on 4 core
-        clean_output_dir(model)   # start from a clean output directory
         run_lamem(model, 4);
 
         dir=model.Output.out_dir

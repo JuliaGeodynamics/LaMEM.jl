@@ -88,17 +88,16 @@ Reads a phase diagram from a file `name` and returns a NamedTuple with temperatu
 """
 function read_phase_diagram(name::String)
 
-    f = open(name)
-
-    # Read dimensions
-    for i = 1:49; readline(f); end
-    minT = parse(Float64,   readline(f))
-    ΔT   = parse(Float64,   readline(f))
-    nT   = parse(Int64,     readline(f))
-    minP = parse(Float64,   readline(f))
-    ΔP   = parse(Float64,   readline(f))
-    nP   = parse(Int64,     readline(f))
-    close(f)
+    # Read dimensions (the `do` block closes the file, also if parsing throws)
+    minT, ΔT, nT, minP, ΔP, nP = open(name) do f
+        for i = 1:49; readline(f); end
+        (parse(Float64, readline(f)),
+         parse(Float64, readline(f)),
+         parse(Int64,   readline(f)),
+         parse(Float64, readline(f)),
+         parse(Float64, readline(f)),
+         parse(Int64,   readline(f)))
+    end
     
     data = readdlm(name, skipstart=55);     # read numerical data
 

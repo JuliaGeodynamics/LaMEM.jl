@@ -86,9 +86,7 @@ julia> read_LaMEM_logfile(["logfile_64cpu_1234.out", "logfile_128cpu_5678.out"])
 function read_LaMEM_logfile(Filename::String; ID=nothing, header=true)
     
     # Read file as vector of strings
-    f = open(Filename)
-    lines = readlines(f)
-    close(f)
+    lines = open(readlines, Filename)
 
     # Extract information from logfile
     Cores       = Int64(extract_info_logfile(lines, "Total number of cpu                  :",LaMEM=false, entry=1))

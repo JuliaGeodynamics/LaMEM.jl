@@ -168,22 +168,25 @@ function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd(), w
     end
 
     io = open(fname,"w")
+    try
+        write_LaMEM_inputFile(io, d.Scaling)
+        write_LaMEM_inputFile(io, d.Grid)
+        write_LaMEM_inputFile(io, d.Time)
+        write_LaMEM_inputFile(io, d.FreeSurface)
+        write_LaMEM_inputFile(io, d.BoundaryConditions)
+        write_LaMEM_inputFile(io, d.SolutionParams)
+        write_LaMEM_inputFile(io, d.Solver)
+        write_LaMEM_inputFile(io, d.ModelSetup)
+        write_LaMEM_inputFile(io, d.Output)
+        write_LaMEM_inputFile(io, d.PassiveTracers)
+        write_LaMEM_inputFile(io, d.Materials)
 
-    write_LaMEM_inputFile(io, d.Scaling)
-    write_LaMEM_inputFile(io, d.Grid)
-    write_LaMEM_inputFile(io, d.Time)
-    write_LaMEM_inputFile(io, d.FreeSurface)
-    write_LaMEM_inputFile(io, d.BoundaryConditions)
-    write_LaMEM_inputFile(io, d.SolutionParams)
-    write_LaMEM_inputFile(io, d.Solver)
-    write_LaMEM_inputFile(io, d.ModelSetup)
-    write_LaMEM_inputFile(io, d.Output)
-    write_LaMEM_inputFile(io, d.PassiveTracers)
-    write_LaMEM_inputFile(io, d.Materials)
-    
-    write_LaMEM_inputFile_PETSc(io, d.Solver)   # add PETSc options last
-
-    close(io)
+        write_LaMEM_inputFile_PETSc(io, d.Solver)   # add PETSc options last
+    finally
+        # Always close the file, also if writing throws. On windows an open handle
+        # prevents the enclosing directory from being removed ("permission denied").
+        close(io)
+    end
 end
 
 

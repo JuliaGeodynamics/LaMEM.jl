@@ -39,6 +39,19 @@ Time stepping parameters:
 ```
 The last parameter are optional PETSc command-line options. By default it runs on one processor.
 
+### Saving the output to a logfile
+The LaMEM output is shown in the REPL, but not saved to disk. If you run LaMEM through a queueing
+system such as `slurm` you usually get a logfile automatically, but on a local machine you do not.
+Use the `logfile` keyword to save the output to a file *in addition* to showing it in the REPL:
+```julia
+julia> run_lamem(ParamFile, 4, "-time_end 1", logfile="test")
+```
+This writes `test.log`. A name that already has an extension is used as given, so
+`logfile="test.out"` writes `test.out`.
+
+Such a logfile can afterwards be analysed with [`read_LaMEM_logfile`](@ref), provided the
+simulation was run with the `-log_view` option of PETSc.
+
 Please note that you will have to be in the correct directory or indicate where that directory is. If you are in a different directory, the easiest way to change to the correct one is by using the `changefolder` function (on Windows and Mac):
 ```julia
 julia> changefolder()

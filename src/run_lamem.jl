@@ -47,11 +47,63 @@ function add_blas_libs(cmd::Cmd)
     return addenv(cmd, "LBT_DEFAULT_LIBS" => join(libs, ";"))
 end
 
+"""
+    logfile_name(logfile)
+
+Internal helper that turns the `logfile` keyword of [`run_lamem`](@ref) into a filename:
+`nothing` means no logfile, and a name without an extension gets `".log"` appended, so
+`logfile="test"` writes to `"test.log"` while `logfile="test.out"` is used as given.
+"""
+function logfile_name(logfile)
+    isnothing(logfile) && return nothing
+    name = String(logfile)
+    isempty(name) && return nothing
+    return isempty(splitext(name)[2] ) ? name*".log" : name
+end
+
+"""
+    run_with_logfile(cmd::Cmd, logfile::String; wait=true)
+
+Internal helper that runs `cmd` while sending its output both to the REPL and to `logfile`.
+
+LaMEM writes to `stdout`/`stderr` of the spawned process, so we capture both through a pipe
+and copy every line to `stdout` and to the open file. The copying happens in a task, which
+lets `wait=false` behave as it does without a logfile: the run returns immediately and the
+task keeps draining the pipe (and closes the file) once LaMEM exits.
+"""
+function run_with_logfile(cmd::Cmd, logfile::String; wait=true)
+    out = Pipe()
+    process = run(pipeline(cmd, stdout=out, stderr=out), wait=false)
+    close(out.in)
+
+    io = open(logfile, "w")
+    tee = @async try
+        for line in eachline(out)
+            println(stdout, line)
+            println(io, line)
+            flush(io)
+        end
+    finally
+        close(io)
+    end
+
+    if wait
+        Base.wait(process)
+        Base.wait(tee)
+        success(process) || Base.pipeline_error(process)
+    end
+
+    return nothing
+end
+
 """ 
-    run_lamem(ParamFile::String, cores::Int64=1, args:String=""; wait=true, deactivate_multithreads=true)
+    run_lamem(ParamFile::String, cores::Int64=1, args:String=""; wait=true, deactivate_multithreads=true, logfile=nothing)
 
 This starts a LaMEM simulation, for using the parameter file `ParamFile` on `cores` number of cores. 
 Optional additional command-line parameters can be specified with `args`.
+
+Use `logfile` to additionally save the LaMEM output to a file, while still showing it in the REPL.
+A name without an extension gets `".log"` appended, so `logfile="test"` writes to `"test.log"`.
 
 # Example:
 You can call LaMEM with:
@@ -66,8 +118,14 @@ Do the same on 2 cores with a command-line argument as:
 julia> ParamFile="../../input_models/BuildInSetups/FallingBlock_Multigrid.dat";
 julia> run_lamem(ParamFile, 2, "-nstep_max = 1")
 ```
+
+Save the output to `"test.log"` as well as showing it in the REPL:
+```julia
+julia> run_lamem(ParamFile, 1, "-nstep_max = 1", logfile="test")
+```
 """
-function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
+function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true, logfile=nothing)
+    logfile = logfile_name(logfile)
     cores_compute = cores
     if cores > 1 && !mpi_available()
         cores_compute = 1
@@ -81,7 +139,11 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         end
         cmd = add_blas_libs(cmd)
 
-        run(cmd, wait=wait);
+        if isnothing(logfile)
+            run(cmd, wait=wait);
+        else
+            run_with_logfile(cmd, logfile; wait=wait)
+        end
     else
         # set correct environment
         key = LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env
@@ -96,7 +158,11 @@ function run_lamem(ParamFile::String, cores::Int64=1, args::String=""; wait=true
         cmd = add_blas_libs(cmd)
 
         # Run LaMEM in parallel
-        run(cmd, wait=wait);
+        if isnothing(logfile)
+            run(cmd, wait=wait);
+        else
+            run_with_logfile(cmd, logfile; wait=wait)
+        end
     end
 
     return nothing

@@ -51,6 +51,24 @@ pkg_dir = pkgdir(LaMEM)
         @test isnothing(out)        
     end
 
+    # optional logfile: output should be shown in the REPL *and* saved to file
+    ParamFile = "input_files/FallingBlock_DirectSolver.dat";
+    ParamFile = joinpath(pkg_dir,"test", ParamFile);
+    logfile   = joinpath(tempdir(), "LaMEM_logfile_test")
+    rm(logfile*".log", force=true)
+    out = run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)   # "test" -> "test.log"
+    @test isnothing(out)
+    @test isfile(logfile*".log")
+    lines = readlines(logfile*".log")
+    @test any(contains.(lines, "SOLUTION IS DONE"))                  # the full output ended up in the file
+    rm(logfile*".log", force=true)
+
+    # an explicit extension is kept as-is
+    out = run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile*".out")
+    @test isnothing(out)
+    @test isfile(logfile*".out")
+    rm(logfile*".out", force=true)
+
     # run test with passive tracers
     ParamFile = "input_files/Passive_tracer_ex2D.dat";
     ParamFile = joinpath(pkg_dir,"test", ParamFile);

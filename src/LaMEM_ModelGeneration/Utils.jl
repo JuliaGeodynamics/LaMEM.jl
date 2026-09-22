@@ -273,13 +273,17 @@ function read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...)
     FileName    = model.Output.out_file_name
 
     cur_dir = pwd(); 
-    if !isempty(model.Output.out_dir)
-        cd(model.Output.out_dir)
-    end
+    local data, time
+    try
+        if !isempty(model.Output.out_dir)
+            cd(model.Output.out_dir)
+        end
 
-    data, time = read_LaMEM_timestep(FileName,TimeStep; kwargs...)
-    
-    cd(cur_dir)
+        data, time = read_LaMEM_timestep(FileName,TimeStep; kwargs...)
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
 
     return data, time
 end

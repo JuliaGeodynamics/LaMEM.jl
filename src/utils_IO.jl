@@ -12,26 +12,28 @@ function clean_directory(DirName="./")
     
     CurDir = pwd();
 
-    # change to directory
-    cd(DirName)
+    try
+        # change to directory
+        cd(DirName)
 
-    # pvd files
-    for f in glob("*.pvd")
-         rm(f)
+        # pvd files
+        for f in glob("*.pvd")
+            rm(f)
+        end
+
+        # vts files
+        for f in glob("*.vts")
+            rm(f)
+        end
+
+        #timestep directories
+        for f in glob("Timestep*")
+            rm(f, recursive=true, force=true)
+        end
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(CurDir)
     end
-
-    # vts files
-    for f in glob("*.vts")
-        rm(f)
-    end
-
-    #timestep directories
-    for f in glob("Timestep*")
-        rm(f, recursive=true, force=true)
-    end
-
-
-    cd(CurDir)
 end
 
 

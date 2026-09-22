@@ -205,13 +205,18 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add
     #if !isdir(model.Output.out_dir); mkdir(model.Output.out_dir); end # create directory if needed
     create_initialsetup(model, cores, args; add_APS, warn_constant_grid);
     
-    if !isempty(model.Output.out_dir)
-        cd(model.Output.out_dir)
+    try
+        if !isempty(model.Output.out_dir)
+            cd(model.Output.out_dir)
+        end
+
+        run_lamem(model.Output.param_file_name, cores, args; wait=wait)
+    finally
+        # Always return to the original directory, also if the run throws. On windows a
+        # directory cannot be deleted while it is the current directory of a process, so
+        # leaving the cwd inside out_dir makes a later `rm(out_dir)` fail.
+        cd(cur_dir)
     end
-   
-    run_lamem(model.Output.param_file_name, cores, args; wait=wait)
-    
-    cd(cur_dir)
 
     return nothing
 end
@@ -234,9 +239,12 @@ function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=fa
     println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
     cur_dir = pwd();
 
-    create_initialsetup(model, cores, args; verbose, add_APS, warn_constant_grid);
-    
-    cd(cur_dir)
+    try
+        create_initialsetup(model, cores, args; verbose, add_APS, warn_constant_grid);
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
 
     println("Generated output generated for $cores cores:")
     println("   Base directory       : $(pwd())")
@@ -286,34 +294,37 @@ function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verb
 
     # Move to the working directory
     cur_dir = pwd()
-    if !isempty(model.Output.out_dir)
-        if !isdir(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
-        cd(model.Output.out_dir)
-    end
-
-    write_LaMEM_inputFile(model, model.Output.param_file_name; warn_constant_grid)
-    
-    # corrections for certain platforms (e.g., windows):
-    model, cores = adjust_for_platforms(model, cores) 
-    
-    if !isnothing(model.FreeSurface.Topography)
-        save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
-    end
-
-    if model.ModelSetup.msetup=="files"
-        # write marker files to disk before running LaMEM
-        Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp,APS=model.Grid.APS));
-
-        if cores>1
-            PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
-
-            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose, add_APS=add_APS)
-        else
-            save_LaMEM_markers_parallel(Model3D, verbose=verbose, add_APS=add_APS)
+    try
+        if !isempty(model.Output.out_dir)
+            if !isdir(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
+            cd(model.Output.out_dir)
         end
-    end
 
-    cd(cur_dir)
+        write_LaMEM_inputFile(model, model.Output.param_file_name; warn_constant_grid)
+
+        # corrections for certain platforms (e.g., windows):
+        model, cores = adjust_for_platforms(model, cores)
+
+        if !isnothing(model.FreeSurface.Topography)
+            save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
+        end
+
+        if model.ModelSetup.msetup=="files"
+            # write marker files to disk before running LaMEM
+            Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp,APS=model.Grid.APS));
+
+            if cores>1
+                PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
+
+                save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose, add_APS=add_APS)
+            else
+                save_LaMEM_markers_parallel(Model3D, verbose=verbose, add_APS=add_APS)
+            end
+        end
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
     return nothing
 end
 

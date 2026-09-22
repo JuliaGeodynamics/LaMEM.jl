@@ -65,5 +65,12 @@ function __init__()
 end
 =#
 
+include("blas_threads.jl")
+export set_blas_threads, get_blas_threads
+
+function __init__()
+    set_single_blas_thread()
+end
+
 
 end # module

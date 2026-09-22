@@ -49,6 +49,12 @@ julia> run_lamem(ParamFile, 4, "-time_end 1", logfile="test")
 This writes `test.log`. A name that already has an extension is used as given, so
 `logfile="test.out"` writes `test.out`.
 
+This also works when you run a julia-defined `Model`, in which case a relative name ends up in
+the output directory of the model, next to the other output of the run:
+```julia
+julia> run_lamem(model, 1, logfile="test")    # writes <out_dir>/test.log
+```
+
 Such a logfile can afterwards be analysed with [`read_LaMEM_logfile`](@ref), provided the
 simulation was run with the `-log_view` option of PETSc.
 

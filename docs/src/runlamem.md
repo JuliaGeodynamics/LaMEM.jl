@@ -55,6 +55,17 @@ the output directory of the model, next to the other output of the run:
 julia> run_lamem(model, 1, logfile="test")    # writes <out_dir>/test.log
 ```
 
+If you restart a simulation from LaMEM's restart database (with `-mode restart`), the output of
+the restarted run is *added* to an existing logfile, under a line that marks where the restart
+begins, so the log of a simulation that was restarted a few times stays in one file:
+```julia
+julia> run_lamem(ParamFile, 4, logfile="test")                  # writes test.log
+julia> run_lamem(ParamFile, 4, "-mode restart", logfile="test") # appends to test.log
+```
+A normal (non-restart) run instead starts a fresh logfile. Use the `append` keyword if you want
+to decide this yourself, e.g. `append=true` to always add to an existing file, or `append=false`
+to always overwrite it.
+
 Such a logfile can afterwards be analysed with [`read_LaMEM_logfile`](@ref), provided the
 simulation was run with the `-log_view` option of PETSc.
 

@@ -69,6 +69,24 @@ pkg_dir = pkgdir(LaMEM)
     @test isfile(logfile*".out")
     rm(logfile*".out", force=true)
 
+    # a normal rerun replaces the logfile, a restart adds to it
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)
+    n_first = length(readlines(logfile*".log"))
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)
+    @test length(readlines(logfile*".log")) == n_first             # replaced, not appended
+
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile, append=true)
+    lines = readlines(logfile*".log")
+    @test length(lines) > n_first                                  # appended
+    @test count(l -> occursin("SOLUTION IS DONE", l), lines) == 2  # both runs are in there
+    rm(logfile*".log", force=true)
+
+    # the restart flag switches to appending by itself
+    @test LaMEM.Run.is_restart("-mode restart")
+    @test LaMEM.Run.is_restart("-nstep_max 5 -mode restart")
+    @test !LaMEM.Run.is_restart("-nstep_max 5")
+    @test !LaMEM.Run.is_restart("-mode save_grid")
+
     # run test with passive tracers
     ParamFile = "input_files/Passive_tracer_ex2D.dat";
     ParamFile = joinpath(pkg_dir,"test", ParamFile);

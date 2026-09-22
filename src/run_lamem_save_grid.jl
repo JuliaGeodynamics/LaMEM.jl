@@ -84,30 +84,35 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
     end
 	
 	cur_dir = pwd();
-	cd(directory)
+	try
+		cd(directory)
 
-	ParamFile    = abspath(ParamFile)
-	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
-	
-	arr          = JuliaStringToArray(logoutput)
-	foundline    = get_line_containing(arr,"Processor grid")
-	if isnothing(foundline)
-		cd(cur_dir)
-		return nothing
-	end
-	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
-	Procpartname = nothing
-	if !isnothing(foundline)
-		sprtlftbrkt  = split(foundline,"[")
-		sprtrghtbrkt = split(sprtlftbrkt[3],"]")
-		separatecoma = split(sprtrghtbrkt[1],",")
-		procnumbers  = parse.(Int, separatecoma)
-		Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
-		if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
-			Procpartname = nothing
+		ParamFile    = abspath(ParamFile)
+		logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
+
+		arr          = JuliaStringToArray(logoutput)
+		foundline    = get_line_containing(arr,"Processor grid")
+		if isnothing(foundline)
+			return nothing
 		end
+		foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
+		Procpartname = nothing
+		if !isnothing(foundline)
+			sprtlftbrkt  = split(foundline,"[")
+			sprtrghtbrkt = split(sprtlftbrkt[3],"]")
+			separatecoma = split(sprtrghtbrkt[1],",")
+			procnumbers  = parse.(Int, separatecoma)
+			Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin"
+			# LaMEM writes the partitioning file to its working directory, which is
+			# `directory` -- not necessarily the directory that holds the parameter file.
+			if !isfile(Procpartname) && !isfile(joinpath(splitdir(ParamFile)[1], Procpartname))
+				Procpartname = nothing
+			end
+		end
+
+		return Procpartname
+	finally
+		# always restore the cwd, also on error
+		cd(cur_dir)
 	end
-	cd(cur_dir)
-	
-	return Procpartname
 end

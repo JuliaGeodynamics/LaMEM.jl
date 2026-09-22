@@ -191,7 +191,7 @@ end
 
 
 """
-    run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false)
+    run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, logfile=nothing)
 
 Performs a LaMEM run for the parameters specified in `model`.
 
@@ -200,8 +200,20 @@ Performs a LaMEM run for the parameters specified in `model`.
 - `wait`: if `true`, wait for the simulation to finish before returning
 - `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files.
   Requires LaMEM ≥ 2.2.1 (header 1211215). Default is `false` (LaMEM ≥ 2.2.0).
+- `logfile`: if given, the LaMEM output is written to this file *in addition* to being
+  shown in the REPL. A name without an extension gets `".log"` appended, and a relative
+  name ends up in `model.Output.out_dir`, next to the other output of the run.
+- `append`: whether to add the output to an existing logfile instead of replacing it. By
+  default this happens for a restart (`args` containing `-mode restart`), so that the log of
+  a simulation that was restarted stays in one file.
+
+# Example
+```julia
+julia> run_lamem(model, 1, logfile="test")                   # saved to <out_dir>/test.log
+julia> run_lamem(model, 1, "-mode restart", logfile="test")  # appended to the same file
+```
 """
-function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, warn_constant_grid=true)
+function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, warn_constant_grid=true, logfile=nothing, append=nothing)
 
     cur_dir = pwd();
 
@@ -213,7 +225,8 @@ function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add
             cd(model.Output.out_dir)
         end
 
-        run_lamem(model.Output.param_file_name, cores, args; wait=wait)
+        # note: we are inside out_dir here, so a relative logfile is written there
+        run_lamem(model.Output.param_file_name, cores, args; wait=wait, logfile=logfile, append=append)
     finally
         # Always return to the original directory, also if the run throws. On windows a
         # directory cannot be deleted while it is the current directory of a process, so

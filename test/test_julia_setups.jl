@@ -22,8 +22,13 @@ using GeophysicalModelGenerator
     # Add an initial geometry (using GeophysicalModelGenerator routines)
     add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 
-    # run the simulation on 1 core
-    run_lamem(model, 1);
+    # run the simulation on 1 core, while also saving the output to a logfile
+    run_lamem(model, 1, logfile="test");
+
+    # the logfile ends up in out_dir, next to the other output of the run
+    logfile = joinpath(model.Output.out_dir, "test.log")
+    @test isfile(logfile)
+    @test any(contains.(readlines(logfile), "SOLUTION IS DONE"))
 
     # read last timestep
     data,time = read_LaMEM_timestep(model,last=true);

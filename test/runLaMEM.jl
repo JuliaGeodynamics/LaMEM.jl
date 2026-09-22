@@ -51,6 +51,42 @@ pkg_dir = pkgdir(LaMEM)
         @test isnothing(out)        
     end
 
+    # optional logfile: output should be shown in the REPL *and* saved to file
+    ParamFile = "input_files/FallingBlock_DirectSolver.dat";
+    ParamFile = joinpath(pkg_dir,"test", ParamFile);
+    logfile   = joinpath(tempdir(), "LaMEM_logfile_test")
+    rm(logfile*".log", force=true)
+    out = run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)   # "test" -> "test.log"
+    @test isnothing(out)
+    @test isfile(logfile*".log")
+    lines = readlines(logfile*".log")
+    @test any(contains.(lines, "SOLUTION IS DONE"))                  # the full output ended up in the file
+    rm(logfile*".log", force=true)
+
+    # an explicit extension is kept as-is
+    out = run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile*".out")
+    @test isnothing(out)
+    @test isfile(logfile*".out")
+    rm(logfile*".out", force=true)
+
+    # a normal rerun replaces the logfile, a restart adds to it
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)
+    n_first = length(readlines(logfile*".log"))
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile)
+    @test length(readlines(logfile*".log")) == n_first             # replaced, not appended
+
+    run_lamem(ParamFile, 1, "-nstep_max 1", logfile=logfile, append=true)
+    lines = readlines(logfile*".log")
+    @test length(lines) > n_first                                  # appended
+    @test count(l -> occursin("SOLUTION IS DONE", l), lines) == 2  # both runs are in there
+    rm(logfile*".log", force=true)
+
+    # the restart flag switches to appending by itself
+    @test LaMEM.Run.is_restart("-mode restart")
+    @test LaMEM.Run.is_restart("-nstep_max 5 -mode restart")
+    @test !LaMEM.Run.is_restart("-nstep_max 5")
+    @test !LaMEM.Run.is_restart("-mode save_grid")
+
     # run test with passive tracers
     ParamFile = "input_files/Passive_tracer_ex2D.dat";
     ParamFile = joinpath(pkg_dir,"test", ParamFile);

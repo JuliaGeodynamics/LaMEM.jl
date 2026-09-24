@@ -9,16 +9,32 @@ julia> using LaMEM, GLMakie
 julia> view_model(model)
 ```
 
-![The viewer on a subduction model](assets/viewer_subduction.png)
+![The viewer on a 3D model](assets/viewer_subduction.png)
 
 Use **GLMakie** for this: the 3D view needs a real 3D rasterizer, which CairoMakie does not
 have. Under CairoMakie the cross-section still works and the 3D panel stays empty, which is
 enough to write a movie on a machine without a display (see below).
 
+## 2D and 3D models
+
+A 2D LaMEM setup (one with two elements in its thin direction, as `Grid(nel=(nx,nz))` gives)
+has nothing to show in three dimensions, so the viewer leaves the 3D panel out and gives the
+cross-section the whole window:
+
+```julia
+julia> model = Model(Grid(nel=(64,32), x=[-1000,1000], z=[-660,20]), ...)
+julia> view_model(model, field=:phase, contours=:temperature, arrows=true)
+```
+
+![The viewer on a 2D model](assets/viewer_2d.png)
+
+*A 2D subduction model: the phases as a heatmap, the temperature as white contours over it,
+and the flow field as arrows.*
+
 ## What the window shows
 
-On the left a cross-section through the model, on the right a 3D view of the same field, with
-controls above them for:
+The cross-section through the model and, for a 3D model, a 3D view of the same field beside
+it, with controls above them for:
 
 - the **field** to display. Every field in the output is listed, and a vector field is
   expanded per component, so the velocity appears as `velocity[1]`, `velocity[2]` and
@@ -31,6 +47,8 @@ controls above them for:
   an isosurface in the 3D view, at the level set by the `iso level` slider. This is on by
   default, since volume rendering shows little of a phase field.
 - **velocity arrows** on the cross-section, scaled to the largest velocity in the section.
+- **contours of** a second field, drawn in white over the heatmap — the temperature over the
+  phases, say. `none` switches them off.
 - the **colormap**.
 
 The viewer also opens on a model that has not been run, in which case it shows the initial
@@ -51,12 +69,12 @@ window itself.
 julia> view_model(model, field=:velocity, dim=1, colormap=:vik, isosurface=false)
 ```
 
-![The viewer showing a velocity component](assets/viewer_velocity.png)
-
 - `field`, `dim`: the field and, for a vector field, the component
 - `x`, `y`, `z`: where to cut the cross-section
 - `colormap`: any Makie colormap
-- `isosurface`, `arrows`: whether those start switched on
+- `isosurface`, `arrows`: whether those start switched on (the isosurface defaults to on for
+  a 3D model, and is just the isolines for a 2D one)
+- `contours`: a second field to contour over the heatmap, e.g. `contours=:temperature`
 - `size`: the size of the window
 
 ## Saving a movie

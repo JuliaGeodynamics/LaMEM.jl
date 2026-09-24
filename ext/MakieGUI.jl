@@ -37,6 +37,49 @@ function scalar_field(data::CartData, field::Symbol, dim::Int)
 end
 
 """
+    twod_window_size(data::CartData; width=1000, controls=230)
+
+Internal helper giving a window size that suits a 2D model: the plot area follows the aspect
+ratio of the model, with room above it for the controls. Very flat or very tall models are
+kept within bounds so the window stays usable.
+"""
+function twod_window_size(data::CartData; width=1000, controls=230)
+    axis = thin_axis(data)
+    # the two directions that are actually resolved
+    ext(v) = abs(-(extrema(v)...))
+    w, h = axis === :y ? (ext(data.x.val), ext(data.z.val)) :
+           axis === :z ? (ext(data.x.val), ext(data.y.val)) :
+                         (ext(data.y.val), ext(data.z.val))
+
+    plot_width  = width - 150                       # the colorbar and labels take some
+    plot_height = h > 0 && w > 0 ? plot_width*h/w : 400
+    plot_height = clamp(plot_height, 220, 620)
+
+    return (width, round(Int, plot_height + controls))
+end
+
+"""
+    is_2d(data::CartData)
+
+Internal helper telling whether this is a 2D LaMEM model. LaMEM needs at least two elements
+in every direction, so a 2D setup still has three grid points in its thin direction -- that,
+rather than a single point, is what marks it as 2D. Such a model has nothing to show in 3D,
+so the viewer leaves the 3D panel out.
+"""
+function is_2d(data::CartData)
+    return any(<=(3), Base.size(data.x.val))
+end
+
+"""
+    thin_axis(data::CartData)
+
+Internal helper naming the axis a 2D model is flat in.
+"""
+function thin_axis(data::CartData)
+    return (:x, :y, :z)[argmin(Base.size(data.x.val))]
+end
+
+"""
     timesteps_of(model::Model)
 
 Internal helper returning the timesteps of a finished simulation and the physical time of
@@ -135,16 +178,25 @@ and so that [`save_movie`](@ref) can drive the same observables.
 """
 function build_viewer(frames::Vector{<:CartData}, times;
                       field=nothing, dim=1, x=nothing, y=nothing, z=nothing,
-                      colormap=:roma, size=(1200,650), title_prefix="",
-                      isosurface=true, arrows=false)
+                      colormap=:roma, size=nothing, title_prefix="",
+                      isosurface=nothing, arrows=false, contours=nothing)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
 
+    # a 2D model has nothing to show in three dimensions, so leave that panel out and give
+    # the cross-section the whole window
+    twod = is_2d(first(frames))
+    isnothing(isosurface) && (isosurface = !twod)
+    # A 2D window is sized to the model, so that the `DataAspect` axis fills it instead of
+    # leaving a band of empty figure under a wide, flat model.
+    isnothing(size) && (size = twod ? twod_window_size(first(frames)) : (1250,680))
+
     fig = Makie.Figure(size=size)
 
     # --- controls -------------------------------------------------------------------
-    controls = Makie.GridLayout(fig[1, 1:3], tellwidth=false)
+    ncols    = twod ? 1 : 2       # the cross-section (with its colorbar), and the 3D view
+    controls = Makie.GridLayout(fig[1, 1:ncols], tellwidth=false)
 
     field_menu = Makie.Menu(controls[1,1], options=entries, default=nothing, width=180)
     field_menu.i_selected[] = findfirst(e -> e[2] == selected, entries)
@@ -156,14 +208,27 @@ function build_viewer(frames::Vector{<:CartData}, times;
         default = String(colormap), width=140)
 
     iso_toggle = Makie.Toggle(controls[1,3], active=isosurface)
-    Makie.Label(controls[1,4], "isolines/surface", halign=:left)
+    Makie.Label(controls[1,4], twod ? "isolines" : "isolines/surface", halign=:left)
 
     vel_toggle = Makie.Toggle(controls[1,5], active=arrows)
-    Makie.Label(controls[1,6], "velocity arrows", halign=:left)
+    Makie.Label(controls[1,6], "arrows", halign=:left)
+
+    # contours of a *second* field, drawn over the heatmap -- e.g. the temperature over the
+    # phases. "none" is the default; the fields are those of the data, without components,
+    # since a contour of one velocity component is rarely what is wanted.
+    scalar_entries = [("none", nothing);
+                      [(e[1], e[2]) for e in entries]]
+    Makie.Label(controls[1,7], "contours of", halign=:right)
+    over_menu = Makie.Menu(controls[1,8], options=scalar_entries,
+                           default="none", width=150)
+    if !isnothing(contours)
+        idx = findfirst(e -> e[2] isa Tuple && e[2][1] === contours, scalar_entries)
+        isnothing(idx) || (over_menu.i_selected[] = idx)
+    end
 
     # sliders: timestep (with a play button) and the slice position
     n = length(frames)
-    slider_grid = Makie.GridLayout(fig[2, 1:3], tellwidth=false)
+    slider_grid = Makie.GridLayout(fig[2, 1:ncols], tellwidth=false)
 
     step_slider = Makie.Slider(slider_grid[1,2], range=1:n, startvalue=n)
     Makie.Label(slider_grid[1,1], "timestep", halign=:right)
@@ -204,7 +269,11 @@ function build_viewer(frames::Vector{<:CartData}, times;
     end
 
     # --- the cross-section ------------------------------------------------------------
-    ax2d = Makie.Axis(fig[3,1],
+    # `tellwidth=false` on the colorbar's column would let it drift to the far side of the
+    # cell; instead the colorbar is pinned to the axis, so it follows the plot as the
+    # DataAspect axis resizes
+    plot_grid = Makie.GridLayout(fig[3,1])
+    ax2d = Makie.Axis(plot_grid[1,1],
         xlabel = Makie.lift(s -> s.labels.x_str, slice),
         ylabel = Makie.lift(s -> s.labels.z_str, slice),
         title  = Makie.lift((s,i) -> viewer_title(title_prefix, s, times, i, n), slice, step_slider.value),
@@ -216,19 +285,45 @@ function build_viewer(frames::Vector{<:CartData}, times;
         Makie.lift(s -> s.values, slice),
         colormap = Makie.lift(identity, cmap_menu.selection))
 
-    # its own column, rather than a sublayout inside the axis cell, so that it cannot
-    # overlap either the cross-section or the 3D view
-    Makie.Colorbar(fig[3,2], hm, label=Makie.lift(s -> s.colorbar, slice),
-                   flipaxis=false, labelrotation=Float32(pi/2))
+    # A slim colorbar directly beside the cross-section. `height=Relative(1)` ties it to the
+    # axis rather than the row, so it does not stretch over the whole window.
+    Makie.Colorbar(plot_grid[1,2], hm, label=Makie.lift(s -> s.colorbar, slice),
+                   width=12, ticklabelsize=11, labelsize=12,
+                   height=Makie.Relative(1.0), halign=:left)
+    Makie.colgap!(plot_grid, 1, 10)
 
-    # isocontours on top of the cross-section
-    contours = Makie.contour!(ax2d,
+    # isocontours of the displayed field
+    isolines = Makie.contour!(ax2d,
         Makie.lift(s -> s.x, slice),
         Makie.lift(s -> s.z, slice),
         Makie.lift(s -> s.values, slice),
         levels = Makie.lift(l -> [l], iso_level),
         color = :black, linewidth = 2)
-    bind_visible!(contours, iso_toggle.active)
+    bind_visible!(isolines, iso_toggle.active)
+
+    # contours of a second field on top, e.g. the temperature over the phases
+    overlay = Makie.lift(frame, over_menu.selection, pos_slider.value) do d, choice, pos
+        isnothing(choice) && return nothing
+        f, dm = choice
+        xs, zs, vals, _, _ = slice_of_at(d, f, dm, axis_sym, pos)
+        (x=xs, z=zs, values=vals)
+    end
+
+    # `contour!` cannot take `nothing`, so when no field is chosen keep the coordinates of
+    # the displayed slice and hide the plot instead
+    over_lines = Makie.contour!(ax2d,
+        Makie.lift((o,sl) -> isnothing(o) ? sl.x      : o.x,      overlay, slice),
+        Makie.lift((o,sl) -> isnothing(o) ? sl.z      : o.z,      overlay, slice),
+        Makie.lift((o,sl) -> isnothing(o) ? sl.values : o.values, overlay, slice),
+        levels = 8, color = :white, linewidth = 1.5)
+    # set it from the current value first: `on` only fires on later changes
+    over_lines.visible = !isnothing(overlay[])
+    Makie.on(overlay) do o
+        over_lines.visible = !isnothing(o)
+    end
+    Makie.Label(fig[4,1:ncols], Makie.lift(over_menu.selection) do choice
+            isnothing(choice) ? "" : "white contours: $(choice[1])"
+        end, fontsize=11, color=:gray30, halign=:center, tellwidth=false)
 
     # velocity arrows, subsampled so the plot stays readable
     arrows_data = Makie.lift(frame, pos_slider.value) do d, pos
@@ -243,34 +338,39 @@ function build_viewer(frames::Vector{<:CartData}, times;
         color = :black)
     bind_visible!(arr, vel_toggle.active)
 
-    # --- the 3D view -------------------------------------------------------------------
-    # Note: `volume!` and the 3D `contour!` below need a real 3D rasterizer, which CairoMakie
-    # does not have -- under CairoMakie this panel stays empty, while the cross-section on the
-    # left renders fine. Use GLMakie for the 3D view.
-    ax3d = Makie.Axis3(fig[3,3],
-        xlabel="x", ylabel="y", zlabel="z",
-        title = Makie.lift(s -> "3D: "*s.colorbar, slice))
+    # --- the 3D view, for a 3D model only -------------------------------------------------
+    # A 2D model is flat in one direction and has nothing to show here, so it gets the
+    # cross-section alone and the window stays uncluttered.
+    #
+    # Note: `volume!` and the 3D `contour!` need a real 3D rasterizer, which CairoMakie does
+    # not have -- under CairoMakie this panel stays empty while the cross-section renders
+    # fine. Use GLMakie for the 3D view.
+    if !twod
+        ax3d = Makie.Axis3(fig[3,2],
+            xlabel="x", ylabel="y", zlabel="z",
+            title = Makie.lift(s -> "3D: "*s.colorbar, slice))
 
-    # `volume!` and the 3D `contour!` take the extent of each axis as an interval, not the
-    # coordinate vectors; the LaMEM grid is regular, so its extrema describe it fully
-    grid  = first(frames)
-    xs3   = extrema(grid.x.val)
-    ys3   = extrema(grid.y.val)
-    zs3   = extrema(grid.z.val)
+        # `volume!` and the 3D `contour!` take the extent of each axis as an interval, not
+        # the coordinate vectors; the LaMEM grid is regular, so its extrema describe it fully
+        grid  = first(frames)
+        xs3   = extrema(grid.x.val)
+        ys3   = extrema(grid.y.val)
+        zs3   = extrema(grid.z.val)
 
-    vol = Makie.volume!(ax3d, xs3, ys3, zs3, volume_field,
-                        algorithm = :absorption, absorption = 4.0f0,
-                        colormap = Makie.lift(identity, cmap_menu.selection))
+        vol = Makie.volume!(ax3d, xs3, ys3, zs3, volume_field,
+                            algorithm = :absorption, absorption = 4.0f0,
+                            colormap = Makie.lift(identity, cmap_menu.selection))
 
-    iso = Makie.contour!(ax3d, xs3, ys3, zs3, volume_field,
-                         levels = Makie.lift(l -> [l], iso_level),
-                         alpha = 0.6,
-                         colormap = Makie.lift(identity, cmap_menu.selection))
-    bind_visible!(iso, iso_toggle.active)
-    # the volume rendering only gets in the way once an isosurface is shown
-    vol.visible = !iso_toggle.active[]
-    Makie.on(iso_toggle.active) do on
-        vol.visible = !on
+        iso = Makie.contour!(ax3d, xs3, ys3, zs3, volume_field,
+                             levels = Makie.lift(l -> [l], iso_level),
+                             alpha = 0.6,
+                             colormap = Makie.lift(identity, cmap_menu.selection))
+        bind_visible!(iso, iso_toggle.active)
+        # the volume rendering only gets in the way once an isosurface is shown
+        vol.visible = !iso_toggle.active[]
+        Makie.on(iso_toggle.active) do on
+            vol.visible = !on
+        end
     end
 
     # --- the play button ----------------------------------------------------------------
@@ -282,10 +382,12 @@ function build_viewer(frames::Vector{<:CartData}, times;
         end
     end
 
-    Makie.colsize!(fig.layout, 1, Makie.Relative(0.44))
-    Makie.colsize!(fig.layout, 3, Makie.Relative(0.44))
-    Makie.colgap!(fig.layout, 1, 30)
-    Makie.colgap!(fig.layout, 2, 40)
+    # the plot row takes whatever the controls leave, so the window has no empty band
+    Makie.rowsize!(fig.layout, 3, Makie.Auto(3.0))
+    if !twod
+        Makie.colsize!(fig.layout, 1, Makie.Relative(0.5))
+        Makie.colgap!(fig.layout, 1, 20)
+    end
 
     return fig, step_slider
 end

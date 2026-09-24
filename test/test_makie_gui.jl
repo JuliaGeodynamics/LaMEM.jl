@@ -28,14 +28,14 @@ using GeophysicalModelGenerator
     fig = view_model(model, field=:phase, arrows=true)
     @test fig isa Makie.Figure
 
-    # the controls are there: two menus (field, colormap), three sliders (timestep, slice,
-    # iso level), two toggles (isosurface, arrows) and the play button
+    # the controls are there: three menus (field, colormap, contour overlay), three sliders
+    # (timestep, slice, iso level), two toggles (isosurface, arrows) and the play button
     contents = collect(values(fig.content))
     menus   = filter(c -> c isa Makie.Menu,   contents)
     sliders = filter(c -> c isa Makie.Slider, contents)
     toggles = filter(c -> c isa Makie.Toggle, contents)
     buttons = filter(c -> c isa Makie.Button, contents)
-    @test length(menus)   == 2
+    @test length(menus)   == 3
     @test length(sliders) == 3
     @test length(toggles) == 2
     @test length(buttons) == 1
@@ -69,6 +69,46 @@ using GeophysicalModelGenerator
     @test isfile(movie)
     @test filesize(movie) > 1000
     rm(movie, force=true)
+
+    # --- a 2D model gets no 3D panel, and can take contours of a second field -----------
+    model2d = Model(Grid(nel=(32,16), x=[-1000,1000], z=[-660,20]),
+                    Time(nstep_max=1, dt=0.01, dt_max=0.5),
+                    Solver(SolverType="direct"),
+                    Output(out_dir="makie_gui_2d", out_velocity=1, out_temperature=1))
+    rm_phase!(model2d)
+    add_phase!(model2d, Phase(ID=0,Name="air",eta=1e18,rho=1),
+                        Phase(ID=1,Name="mantle",eta=1e20,rho=3200))
+    add_box!(model2d; xlim=(-1000,1000), zlim=(-660,0), phase=ConstantPhase(1),
+             T=LinearTemp(Ttop=0,Tbot=1350))
+    run_lamem(model2d, 1)
+
+    fig2d = view_model(model2d, field=:phase, contours=:temperature)
+    @test fig2d isa Makie.Figure
+
+    # one Axis and no Axis3: the 3D panel is left out for a 2D model
+    axes2d = filter(c -> c isa Makie.Axis,  collect(values(fig2d.content)))
+    axes3d = filter(c -> c isa Makie.Axis3, collect(values(fig2d.content)))
+    @test length(axes2d) == 1
+    @test isempty(axes3d)
+
+    # while a 3D model keeps both
+    axes3d_of_3d = filter(c -> c isa Makie.Axis3, collect(values(fig.content)))
+    @test length(axes3d_of_3d) == 1
+
+    # the contour menu offers "none" plus the fields, and starts on the chosen one
+    menus2d = filter(c -> c isa Makie.Menu, collect(values(fig2d.content)))
+    over    = last(menus2d)
+    @test "none" in [e[1] for e in over.options[]]
+    @test over.selection[] == (:temperature, 1)
+
+    file2d = joinpath(tempdir(), "LaMEM_viewer_2d.png")
+    rm(file2d, force=true)
+    save(file2d, fig2d)
+    @test isfile(file2d)
+    @test filesize(file2d) > 1000
+    rm(file2d, force=true)
+
+    rm(model2d.Output.out_dir, force=true, recursive=true)
 
     # a model without output cannot be animated, and should say so
     empty_model = Model(Grid(nel=(8,8,8), x=[-1,1], coord_y=[-1,1], coord_z=[-1,1]),

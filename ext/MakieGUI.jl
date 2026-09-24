@@ -170,6 +170,48 @@ function bind_visible!(plot, toggle)
 end
 
 """
+    bind_slider_box!(slider, box, fmt)
+
+Internal helper tying a text box to a slider, so a value can be typed exactly rather than
+only dragged to. Moving the slider rewrites the box, and submitting the box moves the slider
+to the nearest value in its range. A flag breaks the loop between the two, and the typed
+value is clamped to the slider's range, so a number outside it snaps to the closest end
+instead of being ignored.
+"""
+function bind_slider_box!(slider, box, fmt)
+    updating = Ref(false)
+
+    show_value(v) = fmt == "%d" ? string(round(Int, v)) :
+                                  Printf.format(Printf.Format(fmt), v)
+    # start from the slider's current value rather than the placeholder
+    box.displayed_string[] = show_value(slider.value[])
+
+    Makie.on(slider.value) do v
+        updating[] && return
+        updating[] = true
+        box.displayed_string[] = show_value(v)
+        updating[] = false
+    end
+
+    Makie.on(box.stored_string) do str
+        updating[] && return
+        isnothing(str) && return
+        value = tryparse(Float64, str)
+        isnothing(value) && return
+
+        rng = slider.range[]
+        # snap to the nearest value the slider can actually take
+        idx = argmin(abs.(collect(rng) .- value))
+
+        updating[] = true
+        Makie.set_close_to!(slider, collect(rng)[idx])
+        updating[] = false
+    end
+
+    return box
+end
+
+"""
     build_viewer(frames::Vector{<:CartData}, times; ...)
 
 Internal helper that assembles the viewer for the already-read `frames`. Kept separate from
@@ -179,13 +221,15 @@ and so that [`save_movie`](@ref) can drive the same observables.
 function build_viewer(frames::Vector{<:CartData}, times;
                       field=nothing, dim=1, x=nothing, y=nothing, z=nothing,
                       colormap=:roma, size=nothing, title_prefix="",
-                      isosurface=nothing, arrows=false, contours=nothing)
+                      isosurface=nothing, arrows=false, contours=nothing,
+                      contour_colormap=:managua)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
 
     # a 2D model has nothing to show in three dimensions, so leave that panel out and give
     # the cross-section the whole window
+    over_colormap = contour_colormap
     twod = is_2d(first(frames))
     isnothing(isosurface) && (isosurface = !twod)
     # A 2D window is sized to the model, so that the `DataAspect` axis fills it instead of
@@ -232,29 +276,52 @@ function build_viewer(frames::Vector{<:CartData}, times;
 
     step_slider = Makie.Slider(slider_grid[1,2], range=1:n, startvalue=n)
     Makie.Label(slider_grid[1,1], "timestep", halign=:right)
-    Makie.Label(slider_grid[1,3],
-        Makie.lift(i -> time_label(times, i, n), step_slider.value), halign=:left, width=190)
+    Makie.Label(slider_grid[1,4],
+        Makie.lift(i -> time_label(times, i, n), step_slider.value), halign=:left, width=150)
 
-    play_button = Makie.Button(slider_grid[1,4], label="▶ play", width=80)
+    play_button = Makie.Button(slider_grid[1,5], label="▶ play", width=80)
 
-    # the slice runs along x by default, or along whichever axis the caller pinned
-    axis_sym, slice_range = slice_axis_and_range(first(frames), x, y, z)
+    # the axis the section is cut along: the one the caller pinned, else the thinnest
+    axis0, slice_range = slice_axis_and_range(first(frames), x, y, z)
     pos_slider = Makie.Slider(slider_grid[2,2], range=slice_range,
                               startvalue=initial_slice(slice_range, x, y, z))
-    Makie.Label(slider_grid[2,1], "slice ($axis_sym)", halign=:right)
-    Makie.Label(slider_grid[2,3],
-        Makie.lift(v -> Printf.@sprintf("%.3g", v), pos_slider.value), halign=:left, width=190)
+    Makie.Label(slider_grid[2,1], "slice along", halign=:right)
+
+    # the exact position, editable: typing a value moves the section there
+    pos_box = Makie.Textbox(slider_grid[2,3], validator=Float64, width=90)
+    bind_slider_box!(pos_slider, pos_box, "%.4g")
+
+    # and which axis to cut along, so a 2D model can be sliced the other way too
+    axis_menu = Makie.Menu(slider_grid[2,4],
+        options=[("x", :x), ("y", :y), ("z", :z)], default=String(axis0), width=60)
 
     iso_slider = Makie.Slider(slider_grid[3,2], range=range(0, 1, 101), startvalue=0.5)
     Makie.Label(slider_grid[3,1], "iso level", halign=:right)
+    iso_box = Makie.Textbox(slider_grid[3,3], validator=Float64, width=90)
+    bind_slider_box!(iso_slider, iso_box, "%.4g")
+
+    # the timestep is editable as well
+    step_box = Makie.Textbox(slider_grid[1,3], validator=Int, width=90)
+    bind_slider_box!(step_slider, step_box, "%d")
+
+    # moving to another axis rescales the position slider to that axis' extent
+    axis_sym = axis_menu.selection
+    Makie.on(axis_sym) do a
+        isnothing(a) && return
+        _, rng = slice_axis_and_range(first(frames), a === :x ? 1.0 : nothing,
+                                                     a === :y ? 1.0 : nothing,
+                                                     a === :z ? 1.0 : nothing)
+        pos_slider.range[] = rng
+        pos_slider.value[] = (first(rng) + last(rng))/2
+    end
 
     # --- the data behind the plots --------------------------------------------------
     # everything below is derived, so moving a slider or picking a field updates the plots
     frame = Makie.lift(i -> frames[i], step_slider.value)
     sel   = Makie.lift(i -> entries[i][2], field_menu.i_selected)
 
-    slice = Makie.lift(frame, sel, pos_slider.value) do d, (f, dm), pos
-        xs, zs, vals, axes_str, cb = slice_of_at(d, f, dm, axis_sym, pos)
+    slice = Makie.lift(frame, sel, pos_slider.value, axis_sym) do d, (f, dm), pos, ax
+        xs, zs, vals, axes_str, cb = slice_of_at(d, f, dm, ax, pos)
         (x=xs, z=zs, values=vals, labels=axes_str, colorbar=cb)
     end
 
@@ -302,32 +369,57 @@ function build_viewer(frames::Vector{<:CartData}, times;
     bind_visible!(isolines, iso_toggle.active)
 
     # contours of a second field on top, e.g. the temperature over the phases
-    overlay = Makie.lift(frame, over_menu.selection, pos_slider.value) do d, choice, pos
+    overlay = Makie.lift(frame, over_menu.selection, pos_slider.value, axis_sym) do d, choice, pos, ax
         isnothing(choice) && return nothing
         f, dm = choice
-        xs, zs, vals, _, _ = slice_of_at(d, f, dm, axis_sym, pos)
+        xs, zs, vals, _, _ = slice_of_at(d, f, dm, ax, pos)
         (x=xs, z=zs, values=vals)
     end
 
+    # the range the contour colours span, so that the contours and their colorbar agree
+    over_range = Makie.lift(overlay, slice) do o, sl
+        vals = isnothing(o) ? sl.values : o.values
+        lo, hi = extrema(vals)
+        lo == hi ? (lo - 1, hi + 1) : (lo, hi)      # a constant field has no range to map
+    end
+
     # `contour!` cannot take `nothing`, so when no field is chosen keep the coordinates of
-    # the displayed slice and hide the plot instead
+    # the displayed slice and hide the plot instead. The contours are coloured by their own
+    # value, on a colormap of their own so they stay legible over the heatmap.
     over_lines = Makie.contour!(ax2d,
         Makie.lift((o,sl) -> isnothing(o) ? sl.x      : o.x,      overlay, slice),
         Makie.lift((o,sl) -> isnothing(o) ? sl.z      : o.z,      overlay, slice),
         Makie.lift((o,sl) -> isnothing(o) ? sl.values : o.values, overlay, slice),
-        levels = 8, color = :white, linewidth = 1.5)
+        levels = 8, linewidth = 2,
+        colormap = over_colormap, colorrange = over_range)
     # set it from the current value first: `on` only fires on later changes
     over_lines.visible = !isnothing(overlay[])
     Makie.on(overlay) do o
         over_lines.visible = !isnothing(o)
     end
-    Makie.Label(fig[4,1:ncols], Makie.lift(over_menu.selection) do choice
-            isnothing(choice) ? "" : "white contours: $(choice[1])"
-        end, fontsize=11, color=:gray30, halign=:center, tellwidth=false)
+
+    # a second colorbar for those contours, which only makes sense once a field is chosen.
+    # It lives in its own column of the plot grid; that column is given no width when
+    # nothing is selected, so the plot takes the space back.
+    over_cb = Makie.Colorbar(plot_grid[1,3],
+        colormap = over_colormap, limits = over_range,
+        label = Makie.lift(c -> isnothing(c) ? "" : String(c[1]), over_menu.selection),
+        width = 12, ticklabelsize = 11, labelsize = 12,
+        height = Makie.Relative(1.0), halign = :left)
+
+    function show_overlay_colorbar!(on)
+        over_cb.blockscene.visible[] = on
+        Makie.colsize!(plot_grid, 3, on ? Makie.Auto() : Makie.Fixed(0))
+        Makie.colgap!(plot_grid, 2, on ? 10 : 0)
+    end
+    show_overlay_colorbar!(!isnothing(over_menu.selection[]))
+    Makie.on(over_menu.selection) do choice
+        show_overlay_colorbar!(!isnothing(choice))
+    end
 
     # velocity arrows, subsampled so the plot stays readable
-    arrows_data = Makie.lift(frame, pos_slider.value) do d, pos
-        velocity_arrows(d, axis_sym, pos)
+    arrows_data = Makie.lift(frame, pos_slider.value, axis_sym) do d, pos, ax
+        velocity_arrows(d, ax, pos)
     end
     arr = Makie.arrows2d!(ax2d,
         Makie.lift(a -> a.x, arrows_data),
@@ -346,8 +438,11 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # not have -- under CairoMakie this panel stays empty while the cross-section renders
     # fine. Use GLMakie for the 3D view.
     if !twod
+        # `aspect=:data` keeps the three axes in proportion to the model, so a sphere looks
+        # like a sphere; the default stretches each axis to fill the cell
         ax3d = Makie.Axis3(fig[3,2],
             xlabel="x", ylabel="y", zlabel="z",
+            aspect = :data,
             title = Makie.lift(s -> "3D: "*s.colorbar, slice))
 
         # `volume!` and the 3D `contour!` take the extent of each axis as an interval, not
@@ -422,12 +517,14 @@ end
     slice_axis_and_range(data, x, y, z)
 
 Internal helper picking the axis the slice runs along and the positions it can take. The
+range is finely sampled, so that a position typed into the box next to the slider is met
+closely rather than snapping to a coarse step. The
 caller pins an axis by giving `x`, `y` or `z`; by default the section moves along `x`.
 """
 function slice_axis_and_range(data::CartData, x, y, z)
-    !isnothing(x) && return :x, range(extrema(data.x.val)..., 60)
-    !isnothing(y) && return :y, range(extrema(data.y.val)..., 60)
-    !isnothing(z) && return :z, range(extrema(data.z.val)..., 60)
+    !isnothing(x) && return :x, range(extrema(data.x.val)..., 401)
+    !isnothing(y) && return :y, range(extrema(data.y.val)..., 401)
+    !isnothing(z) && return :z, range(extrema(data.z.val)..., 401)
 
     # Nothing pinned: slice along the *thinnest* axis, so that a quasi-2D setup (which LaMEM
     # models often are, with only a few elements in y) shows its interesting plane rather
@@ -437,7 +534,7 @@ function slice_axis_and_range(data::CartData, x, y, z)
               abs(-(extrema(data.z.val)...)))
     axis = (:x, :y, :z)[argmin(widths)]
     values = axis === :x ? data.x.val : axis === :y ? data.y.val : data.z.val
-    return axis, range(extrema(values)..., 60)
+    return axis, range(extrema(values)..., 401)
 end
 
 initial_slice(slice_range, x, y, z) =

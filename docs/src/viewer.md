@@ -28,8 +28,8 @@ julia> view_model(model, field=:phase, contours=:temperature, arrows=true)
 
 ![The viewer on a 2D model](assets/viewer_2d.png)
 
-*A 2D subduction model: the phases as a heatmap, the temperature as white contours over it,
-and the flow field as arrows.*
+*A 2D subduction model: the phases as a heatmap, the temperature as coloured contours over
+them with their own colorbar, and the flow field as arrows.*
 
 ## What the window shows
 
@@ -40,16 +40,21 @@ it, with controls above them for:
   expanded per component, so the velocity appears as `velocity[1]`, `velocity[2]` and
   `velocity[3]`.
 - the **timestep**, as a slider. The `▶ play` button animates the simulation.
-- the **slice position**, which moves the cross-section through the model. By default the
-  section cuts the thinnest direction, which for a quasi-2D LaMEM setup is the plane worth
-  looking at; give `x`, `y` or `z` to pin another one.
+- the **slice position**, which moves the cross-section through the model. The menu beside it
+  chooses the axis to cut along, so a 2D model can be sectioned the other way as well. By
+  default the section cuts the thinnest direction, which for a quasi-2D LaMEM setup is the
+  plane worth looking at.
 - **isolines/surface**, which draws a contour of the displayed field on the cross-section and
   an isosurface in the 3D view, at the level set by the `iso level` slider. This is on by
   default, since volume rendering shows little of a phase field.
 - **velocity arrows** on the cross-section, scaled to the largest velocity in the section.
-- **contours of** a second field, drawn in white over the heatmap — the temperature over the
-  phases, say. `none` switches them off.
+- **contours of** a second field, drawn over the heatmap — the temperature over the phases,
+  say. The contours are coloured by their own value and get a second colorbar of their own,
+  which appears only while a field is selected. `none` switches them off.
 - the **colormap**.
+
+Every slider has a text box beside it, so an exact value can be typed in rather than dragged
+to: a cross-section at exactly `z = -100`, or a particular timestep.
 
 The viewer also opens on a model that has not been run, in which case it shows the initial
 setup — useful to check a setup before starting a simulation:
@@ -75,6 +80,7 @@ julia> view_model(model, field=:velocity, dim=1, colormap=:vik, isosurface=false
 - `isosurface`, `arrows`: whether those start switched on (the isosurface defaults to on for
   a 3D model, and is just the isolines for a 2D one)
 - `contours`: a second field to contour over the heatmap, e.g. `contours=:temperature`
+- `contour_colormap`: the colormap for those contours
 - `size`: the size of the window
 
 ## Saving a movie

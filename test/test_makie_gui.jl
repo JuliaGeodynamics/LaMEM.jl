@@ -28,17 +28,19 @@ using GeophysicalModelGenerator
     fig = view_model(model, field=:phase, arrows=true)
     @test fig isa Makie.Figure
 
-    # the controls are there: three menus (field, colormap, contour overlay), three sliders
-    # (timestep, slice, iso level), two toggles (isosurface, arrows) and the play button
+    # the controls are there: four menus (field, colormap, contour overlay, slice axis),
+    # three sliders (timestep, slice, iso level) each with a text box beside it for an exact
+    # value, two toggles (isosurface, arrows) and the play button
     contents = collect(values(fig.content))
     menus   = filter(c -> c isa Makie.Menu,   contents)
     sliders = filter(c -> c isa Makie.Slider, contents)
     toggles = filter(c -> c isa Makie.Toggle, contents)
     buttons = filter(c -> c isa Makie.Button, contents)
-    @test length(menus)   == 3
+    @test length(menus)   == 4
     @test length(sliders) == 3
     @test length(toggles) == 2
     @test length(buttons) == 1
+    @test length(filter(c -> c isa Makie.Textbox, contents)) == 3
 
     # the field menu lists the scalars, and one entry per component of the velocity
     labels = [e[1] for e in first(menus).options[]]
@@ -95,11 +97,27 @@ using GeophysicalModelGenerator
     axes3d_of_3d = filter(c -> c isa Makie.Axis3, collect(values(fig.content)))
     @test length(axes3d_of_3d) == 1
 
-    # the contour menu offers "none" plus the fields, and starts on the chosen one
+    # the contour menu offers "none" plus the fields, and starts on the chosen one.
+    # `fig.content` is not in construction order, so find each menu by what it holds.
     menus2d = filter(c -> c isa Makie.Menu, collect(values(fig2d.content)))
-    over    = last(menus2d)
-    @test "none" in [e[1] for e in over.options[]]
+    over    = only(filter(m -> "none" in [e[1] for e in m.options[]], menus2d))
     @test over.selection[] == (:temperature, 1)
+
+    # the slice axis can be chosen, which rescales the position slider to that axis
+    axis_menu = only(filter(m -> [e[1] for e in m.options[]] == ["x","y","z"], menus2d))
+    sliders2d = filter(c -> c isa Makie.Slider, collect(values(fig2d.content)))
+    pos2d     = sliders2d[2]
+    axis_menu.i_selected[] = 1                       # slice along x instead
+    @test extrema(collect(pos2d.range[])) == (-1000.0, 1000.0)
+
+    # and an exact position can be typed into the box beside the slider: the box that
+    # currently shows the slider's own value is the one bound to it
+    boxes2d = filter(c -> c isa Makie.Textbox, collect(values(fig2d.content)))
+    shown(b) = tryparse(Float64, something(b.displayed_string[], ""))
+    pos_box  = first(filter(b -> !isnothing(shown(b)) &&
+                                 isapprox(shown(b), pos2d.value[]; atol=1e-3), boxes2d))
+    pos_box.stored_string[] = "-300"
+    @test pos2d.value[] ≈ -300 atol=10
 
     file2d = joinpath(tempdir(), "LaMEM_viewer_2d.png")
     rm(file2d, force=true)

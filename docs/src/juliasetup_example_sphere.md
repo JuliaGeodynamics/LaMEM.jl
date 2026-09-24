@@ -3,9 +3,9 @@ This is a first example that illustrates how to build a setup using the LaMEM.jl
 
 We start with loading the packages we need:
 ```julia
-julia> using LaMEM, GeophysicalModelGenerator, Plots
+julia> using LaMEM, GeophysicalModelGenerator, GLMakie
 ```
-The [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) package can be used to generate model setups and [Plots](https://github.com/JuliaPlots/Plots.jl) for plotting.
+The [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) package can be used to generate model setups, and [GLMakie](https://docs.makie.org/stable/explanations/backends/glmakie) drives the interactive viewer that we use below to look at the setup and the results. On a machine without a display, use `CairoMakie` instead; everything works the same, except that the 3D panel stays empty.
 
 #### 1.1 Define model setup
 
@@ -71,13 +71,22 @@ We also need to specify an initial model geometry. The julia package `Geophysica
 ```julia
 julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 ```
-It is often useful to plot the initial model setup. You can do this with the `heatmap` function from the `Plots.jl` package, for which we provide a LaMEM plugin that allows you to specify a cross-section through a 3D LaMEM setup:
+It is often useful to look at the initial model setup before starting a simulation, which you can do with [`view_model`](@ref):
 
 ```julia
-julia> plot_cross_section(model, field=:phase, y=0)
+julia> view_model(model)
 ```
 
-![InitialSetupSphere](assets/InitialSetupSphere.png)
+![The viewer on the initial setup](assets/viewer_sphere_setup.png)
+
+This opens the **LaMEM Model Viewer**: a cross-section through the setup on the left, a 3D view of the same field on the right, and a panel of controls down the side. The menu at the top lists the fields that the setup has -- here `phase`, `temperature` and `plast_strain` -- and the sliders move the cross-section through the model and pick the level of the isosurface. The blue plane in the 3D view marks where the section is cut.
+
+Nothing has been run at this point: the viewer reads the setup straight from `model`.
+
+If you prefer a single figure to an interactive window, the plotting recipes give you one:
+```julia
+julia> crosssection(model, field=:phase, y=0)
+```
 
 In the initial setup we define two fields: `:phase` which defines the rocktypes and `:temperature` which has the initial temperature. They are stored as 3D arrays in `model.Grid.Phases` and `model.Grid.Temp`:
 ```julia
@@ -133,13 +142,22 @@ Time stepping parameters:
 
 #### 1.5 Visualize results
 
-Once the simulation is done, you can look at the results using the same `heatmap` function, but by specifying a timestep, which will read that timestep and plot a cross-section though it:
+Once the simulation is done, `view_model` shows its results. It is the same window as before, but the timestep slider is now live: drag it, type a number into the box beside it, or press `▶ play` to animate the simulation.
 
 ```julia
-julia> plot_cross_section(model, y=0, timestep=20, field=:phase)	
+julia> view_model(model, field=:phase, arrows=true)
 ```
 
-![FallingSphere_t20](assets/FallingSphere_t20.png)
+![The viewer on the results](assets/viewer_sphere_result.png)
+
+The sphere has sunk, and the velocity arrows show the flow it drives around itself. `arrows=true` switches those on from the start; the toggles in the panel do the same while the window is open.
+
+You can also write the animation to a file, which needs no interactive window:
+```julia
+julia> save_movie("falling_sphere.mp4", model, field=:phase)
+```
+
+See [Interactive viewer](@ref) for the rest of what the window can do -- contours of a second field, the colormap, choosing which axis to cut along -- and [Plotting with Makie](@ref) for the recipes that produce a single figure instead.
 
 Alternatively, you can visualize the results with Paraview.
 Change to the directory where you did the simulation:

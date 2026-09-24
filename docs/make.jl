@@ -31,6 +31,7 @@ makedocs(;
                                                     "Available functions" => "LaMEM_ModelFunctions.md",
                                                     "Passive tracers" => "readpassivetracers.md",
                                                     "Plotting with Makie" => "plotting_makie.md",
+                                                    "Interactive viewer" => "viewer.md",
                                                   ],
         "run LaMEM models the classical way" => ["Run LaMEM" => "runlamem.md",
                                "Reading timesteps" => "readtimesteps.md"],

@@ -13,6 +13,8 @@ using LaMEM
     include("test_compression.jl")
     include("test_GeoParams_integration.jl")
     include("test_plots_ext.jl")
+    include("test_makie_ext.jl")
+    include("test_makie_gui.jl")
     include("test_examples.jl")
     include("test_erosion.jl")
     include("test_sedimentation.jl")

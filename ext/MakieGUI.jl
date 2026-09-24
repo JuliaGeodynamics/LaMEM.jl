@@ -167,6 +167,7 @@ function LaMEM.view_model(model::Model; kwargs...)
     return fig
 end
 
+
 function LaMEM.view_model(data::CartData; title_prefix="", kwargs...)
     fig, _ = build_viewer([data], [NaN]; title_prefix=title_prefix, kwargs...)
     return fig
@@ -239,7 +240,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
                       field=nothing, dim=1, x=nothing, y=nothing, z=nothing,
                       colormap=:roma, size=nothing, title_prefix="",
                       isosurface=nothing, arrows=false, contours=nothing,
-                      contour_colormap=:managua)
+                      contour_colormap=:managua, threed=nothing)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
@@ -247,11 +248,20 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # a 2D model has nothing to show in three dimensions, so leave that panel out and give
     # the cross-section the whole window
     over_colormap = contour_colormap
-    twod = is_2d(first(frames))
+    twod = is_2d(first(frames)) || threed === false
     isnothing(isosurface) && (isosurface = !twod)
     # A 2D window is sized to the model, so that the `DataAspect` axis fills it instead of
     # leaving a band of empty figure under a wide, flat model.
     isnothing(size) && (size = twod ? twod_window_size(first(frames)) : (1250,680))
+
+    # CairoMakie has no 3D rasterizer, so `volume!` and the 3D `contour!` below draw
+    # nothing and the 3D panel comes out empty. That is easy to mistake for a broken
+    # viewer, so say it rather than leave the user guessing.
+    if !twod && nameof(Makie.current_backend()) !== :GLMakie
+        @warn """The 3D view needs GLMakie; with $(nameof(Makie.current_backend())) that \
+                 panel stays empty. Run `using GLMakie; GLMakie.activate!()` before \
+                 `view_model`, or pass `threed=false` to leave the panel out."""
+    end
 
     fig = Makie.Figure(size=size, backgroundcolor=:white)
 
@@ -261,12 +271,18 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # not have to grow a strip of widgets across the top, and the sections make it clear
     # what belongs to what.
     panel_width = 215
-    Makie.Box(fig[1,1], color=(:gray92, 0.6), strokecolor=(:gray70, 0.5), strokewidth=1,
+
+    # the name of the window, which also lands in a saved image, and is set on the GLMakie
+    # window itself where that is possible
+    Makie.Label(fig[1, 1:2], "LaMEM Model Viewer", font=:bold, fontsize=17,
+                color=:gray20, halign=:left, padding=(6, 0, 2, 6), tellwidth=false)
+
+    Makie.Box(fig[2,1], color=(:gray92, 0.6), strokecolor=(:gray70, 0.5), strokewidth=1,
               cornerradius=10)
-    panel = Makie.GridLayout(fig[1,1], tellheight=false, halign=:center, valign=:top)
+    panel = Makie.GridLayout(fig[2,1], tellheight=false, halign=:center, valign=:top)
     Makie.colsize!(fig.layout, 1, Makie.Fixed(panel_width))
 
-    plots = Makie.GridLayout(fig[1,2])
+    plots = Makie.GridLayout(fig[2,2])
 
     section(row, text) = Makie.Label(panel[row, 1:2], text, font=:bold, fontsize=13,
                                      halign=:left, color=:gray25, tellwidth=false)

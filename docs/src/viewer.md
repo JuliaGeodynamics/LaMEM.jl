@@ -12,8 +12,9 @@ julia> view_model(model)
 ![The viewer on a 3D model](assets/viewer_subduction.png)
 
 Use **GLMakie** for this: the 3D view needs a real 3D rasterizer, which CairoMakie does not
-have. Under CairoMakie the cross-section still works and the 3D panel stays empty, which is
-enough to write a movie on a machine without a display (see below).
+have. Under CairoMakie the cross-section still works and the 3D panel stays empty -- the
+viewer says so when it opens -- which is enough to write a movie on a machine without a
+display (see below). Pass `threed=false` to leave the 3D panel out deliberately.
 
 ## 2D and 3D models
 
@@ -78,6 +79,7 @@ julia> view_model(model, field=:velocity, dim=1, colormap=:vik, isosurface=false
 - `field`, `dim`: the field and, for a vector field, the component
 - `x`, `y`, `z`: where to cut the cross-section
 - `colormap`: any Makie colormap
+- `threed`: `false` leaves the 3D panel out, even for a 3D model
 - `isosurface`, `arrows`: whether those start switched on (the isosurface defaults to on for
   a 3D model, and is just the isolines for a 2D one)
 - `contours`: a second field to contour over the heatmap, e.g. `contours=:temperature`

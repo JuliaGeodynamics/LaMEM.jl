@@ -129,6 +129,10 @@ using GeophysicalModelGenerator
 
     rm(model2d.Output.out_dir, force=true, recursive=true)
 
+    # `threed=false` leaves the 3D panel out of a 3D model as well
+    fig_flat = view_model(model, field=:phase, threed=false)
+    @test isempty(filter(c -> c isa Makie.Axis3, collect(values(fig_flat.content))))
+
     # a model without output cannot be animated, and should say so
     empty_model = Model(Grid(nel=(8,8,8), x=[-1,1], coord_y=[-1,1], coord_z=[-1,1]),
                         Output(out_dir="makie_gui_empty"))

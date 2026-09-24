@@ -42,7 +42,8 @@ the same field beside it -- while the controls sit in a panel down the left, gro
   expanded per component, so the velocity appears as `velocity[1]`, `velocity[2]` and
   `velocity[3]`.
 - the **timestep**, as a slider. The `▶ play` button animates the simulation.
-- the **slice position**, which moves the cross-section through the model. The menu beside it
+- the **slice position**, which moves the cross-section through the model. In the 3D view a
+  blue outline marks where that section is taken, so the two panels can be read together. The menu beside it
   chooses the axis to cut along, so a 2D model can be sectioned the other way as well. By
   default the section cuts the thinnest direction, which for a quasi-2D LaMEM setup is the
   plane worth looking at.

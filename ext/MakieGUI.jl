@@ -62,6 +62,27 @@ function twod_window_size(data::CartData; panel=215, plot_width=760, margin=90,
 end
 
 """
+    slice_plane(xs, ys, zs, axis::Symbol, pos)
+
+Internal helper giving the four corners of the cross-section's plane inside the 3D box, so
+that the 3D view shows where the section on the left is taken.
+"""
+function slice_plane(xs, ys, zs, axis::Symbol, pos)
+    corners = if axis === :x
+        [Makie.Point3f(pos, ys[1], zs[1]), Makie.Point3f(pos, ys[2], zs[1]),
+         Makie.Point3f(pos, ys[2], zs[2]), Makie.Point3f(pos, ys[1], zs[2])]
+    elseif axis === :y
+        [Makie.Point3f(xs[1], pos, zs[1]), Makie.Point3f(xs[2], pos, zs[1]),
+         Makie.Point3f(xs[2], pos, zs[2]), Makie.Point3f(xs[1], pos, zs[2])]
+    else
+        [Makie.Point3f(xs[1], ys[1], pos), Makie.Point3f(xs[2], ys[1], pos),
+         Makie.Point3f(xs[2], ys[2], pos), Makie.Point3f(xs[1], ys[2], pos)]
+    end
+
+    return (points=corners,)
+end
+
+"""
     w_over_h(data::CartData, axis::Symbol)
 
 Internal helper giving the height-to-width ratio of a cross-section perpendicular to `axis`,
@@ -252,7 +273,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
     isnothing(isosurface) && (isosurface = !twod)
     # A 2D window is sized to the model, so that the `DataAspect` axis fills it instead of
     # leaving a band of empty figure under a wide, flat model.
-    isnothing(size) && (size = twod ? twod_window_size(first(frames)) : (1250,680))
+    isnothing(size) && (size = twod ? twod_window_size(first(frames)) : (1420,700))
 
     # CairoMakie has no 3D rasterizer, so `volume!` and the 3D `contour!` below draw
     # nothing and the 3D panel comes out empty. That is easy to mistake for a broken
@@ -521,6 +542,17 @@ function build_viewer(frames::Vector{<:CartData}, times;
                              alpha = 0.6,
                              colormap = Makie.lift(identity, cmap_menu.selection))
         bind_visible!(iso, iso_toggle.active)
+
+        # show where the cross-section is taken: a translucent rectangle in the 3D box at
+        # the position of the slider, so the two panels can be read together
+        plane = Makie.lift(pos_slider.value, axis_sym) do pos, ax
+            slice_plane(xs3, ys3, zs3, ax, pos)
+        end
+        # `mesh!(points, faces)` overflows the stack in this Makie version; `poly!` takes
+        # the four corners directly and is what we want anyway
+        Makie.poly!(ax3d, Makie.lift(p -> p.points, plane),
+                    color = (:dodgerblue, 0.06), transparency = true,
+                    strokecolor = (:dodgerblue, 0.8), strokewidth = 2.5)
         # the volume rendering only gets in the way once an isosurface is shown
         vol.visible = !iso_toggle.active[]
         Makie.on(iso_toggle.active) do on
@@ -538,9 +570,13 @@ function build_viewer(frames::Vector{<:CartData}, times;
     end
 
     if !twod
-        # cross-section and 3D view share the plot area
-        Makie.colsize!(plots, 1, Makie.Relative(0.5))
-        Makie.colgap!(plots, 1, 20)
+        # cross-section and 3D view share the plot area. The 3D cell is made square, since
+        # `aspect=:data` keeps the box in proportion *within its cell* -- in a cell that is
+        # much wider than tall the whole box, and everything in it, comes out stretched.
+        # the 3D cell is square, so `aspect=:data` is not fighting a stretched cell; the
+        # cross-section keeps whatever is left, which is why the row is not squeezed
+        Makie.colsize!(plots, 2, Makie.Aspect(1, 1.0))
+        Makie.colgap!(plots, 1, 24)
     else
         # a DataAspect axis is as tall as the data makes it; without this the colorbars
         # beside it stretch over the whole window instead of matching the plot

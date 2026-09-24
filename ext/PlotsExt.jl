@@ -117,6 +117,20 @@ end
 
 
 """
+    topography_of(fields)
+
+Internal helper that picks the topography out of a free-surface data set. LaMEM writes the
+field as `topography`, but `GeophysicalModelGenerator` setups call it `Topography`, so accept
+both rather than only the capitalised name.
+"""
+function topography_of(fields)
+    hasproperty(fields, :topography) && return fields.topography
+    hasproperty(fields, :Topography) && return fields.Topography
+    error("no topography found in this data set; its fields are $(keys(fields)). " *
+          "Read it with `read_LaMEM_timestep(model, ...; surf=true)`.")
+end
+
+"""
     plot_topo(topo::CartData; kwargs...)
 
 Simple function to plot the topography 
@@ -125,7 +139,7 @@ function plot_topo(topo::CartData; kwargs...)
    
     hm = Plots.heatmap( topo.x.val[:,1,1], 
                         topo.y.val[1,:,1], 
-                        topo.fields.Topography[:,:,1]'; 
+                        topography_of(topo.fields)[:,:,1]'; 
                         aspect_ratio=:equal, 
                         xlabel="x",
                         ylabel="y",

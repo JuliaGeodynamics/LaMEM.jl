@@ -465,8 +465,12 @@ function build_viewer(frames::Vector{<:CartData}, times;
         color = :black, linewidth = 2)
     bind_visible!(isolines, iso_toggle.active)
 
-    # contours of a second field on top, e.g. the temperature over the phases
-    overlay = Makie.lift(frame, over_menu.selection, pos_slider.value, axis_sym) do d, choice, pos, ax
+    # Contours of a second field on top, e.g. the temperature over the phases.
+    # This has to be an `Observable{Any}`: with `lift` the type is taken from the first
+    # value, which is `nothing` while the menu is on "none", and choosing a field then
+    # throws "cannot convert a value to nothing for assignment".
+    overlay = Makie.Observable{Any}(nothing)
+    Makie.map!(overlay, frame, over_menu.selection, pos_slider.value, axis_sym) do d, choice, pos, ax
         isnothing(choice) && return nothing
         f, dm = choice
         xs, zs, vals, _, _ = slice_of_at(d, f, dm, ax, pos)
@@ -504,14 +508,13 @@ function build_viewer(frames::Vector{<:CartData}, times;
         width = 12, ticklabelsize = 11, labelsize = 12,
         height = Makie.Relative(1.0), halign = :left)
 
-    function show_overlay_colorbar!(on)
-        over_cb.blockscene.visible[] = on
-        Makie.colsize!(plot_grid, 3, on ? Makie.Auto() : Makie.Fixed(0))
-        Makie.colgap!(plot_grid, 2, on ? 10 : 0)
-    end
-    show_overlay_colorbar!(!isnothing(over_menu.selection[]))
+    # Only the colorbar's own visibility is switched here. Resizing its column instead --
+    # `Fixed(0)` when nothing is selected -- forces a layout recompute against the
+    # DataAspect axis beside it, which can land on a fractional pixel width and throws an
+    # InexactError from GLMakie when it converts that to Int32.
+    over_cb.blockscene.visible[] = !isnothing(over_menu.selection[])
     Makie.on(over_menu.selection) do choice
-        show_overlay_colorbar!(!isnothing(choice))
+        over_cb.blockscene.visible[] = !isnothing(choice)
     end
 
     # velocity arrows, subsampled so the plot stays readable

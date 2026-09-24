@@ -120,6 +120,18 @@ using GeophysicalModelGenerator
     pos_box.stored_string[] = "-300"
     @test pos2d.value[] ≈ -300 atol=10
 
+    # choosing a contour field after the viewer opened must not throw: the overlay
+    # observable starts on `nothing`, and a plain `lift` would type it `Observable{Nothing}`
+    over_2 = only(filter(m -> "none" in [e[1] for e in m.options[]],
+                         filter(c -> c isa Makie.Menu, collect(values(fig2d.content)))))
+    over_2.i_selected[] = 1                                   # back to "none"
+    @test over_2.selection[] === nothing
+    idx_T = findfirst(e -> e[1] == "temperature", over_2.options[])
+    if !isnothing(idx_T)
+        @test_nowarn over_2.i_selected[] = idx_T              # this used to throw
+        @test over_2.selection[] == (:temperature, 1)
+    end
+
     file2d = joinpath(tempdir(), "LaMEM_viewer_2d.png")
     rm(file2d, force=true)
     save(file2d, fig2d)

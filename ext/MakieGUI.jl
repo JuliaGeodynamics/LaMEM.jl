@@ -62,12 +62,12 @@ function twod_window_size(data::CartData; panel=215, plot_width=760, margin=90,
 end
 
 """
-    slice_plane(xs, ys, zs, axis::Symbol, pos)
+    slice_outline(xs, ys, zs, axis::Symbol, pos)
 
-Internal helper giving the four corners of the cross-section's plane inside the 3D box, so
+Internal helper giving the closed outline of the cross-section's plane inside the 3D box, so
 that the 3D view shows where the section on the left is taken.
 """
-function slice_plane(xs, ys, zs, axis::Symbol, pos)
+function slice_outline(xs, ys, zs, axis::Symbol, pos)
     corners = if axis === :x
         [Makie.Point3f(pos, ys[1], zs[1]), Makie.Point3f(pos, ys[2], zs[1]),
          Makie.Point3f(pos, ys[2], zs[2]), Makie.Point3f(pos, ys[1], zs[2])]
@@ -79,7 +79,9 @@ function slice_plane(xs, ys, zs, axis::Symbol, pos)
          Makie.Point3f(xs[2], ys[2], pos), Makie.Point3f(xs[1], ys[2], pos)]
     end
 
-    return (points=corners,)
+    # `[corners; corners[1]]` would splat the trailing point, since a `Point3f` is itself
+    # iterable, and hand Makie a `Vector{Any}` of coordinates rather than points
+    return push!(copy(corners), corners[1])
 end
 
 """
@@ -545,14 +547,18 @@ function build_viewer(frames::Vector{<:CartData}, times;
 
         # show where the cross-section is taken: a translucent rectangle in the 3D box at
         # the position of the slider, so the two panels can be read together
-        plane = Makie.lift(pos_slider.value, axis_sym) do pos, ax
-            slice_plane(xs3, ys3, zs3, ax, pos)
+        outline = Makie.lift(pos_slider.value, axis_sym) do pos, ax
+            slice_outline(xs3, ys3, zs3, ax, pos)
         end
-        # `mesh!(points, faces)` overflows the stack in this Makie version; `poly!` takes
-        # the four corners directly and is what we want anyway
-        Makie.poly!(ax3d, Makie.lift(p -> p.points, plane),
-                    color = (:dodgerblue, 0.06), transparency = true,
-                    strokecolor = (:dodgerblue, 0.8), strokewidth = 2.5)
+        # a shaded quad, so the plane reads as a surface, with its border drawn on top
+        quad = Makie.lift(outline) do pts
+            Makie.GeometryBasics.Mesh(pts[1:4],
+                [Makie.GeometryBasics.GLTriangleFace(1,2,3),
+                 Makie.GeometryBasics.GLTriangleFace(1,3,4)])
+        end
+        Makie.mesh!(ax3d, quad, color = (:dodgerblue, 0.20), transparency = true,
+                    shading = Makie.NoShading)
+        Makie.lines!(ax3d, outline, color = (:dodgerblue, 0.9), linewidth = 3)
         # the volume rendering only gets in the way once an isosurface is shown
         vol.visible = !iso_toggle.active[]
         Makie.on(iso_toggle.active) do on

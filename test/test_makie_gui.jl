@@ -129,6 +129,15 @@ using GeophysicalModelGenerator
 
     rm(model2d.Output.out_dir, force=true, recursive=true)
 
+    # the outline of the slice plane must be five points, not a flattened list of
+    # coordinates: `[corners; corners[1]]` splats the trailing point, since a Point3f is
+    # itself iterable, and Makie then recurses on it
+    ext = Base.get_extension(LaMEM, :MakieExt)
+    outline = ext.slice_outline((-1.0,1.0), (-1.0,1.0), (-1.0,1.0), :x, 0.0)
+    @test length(outline) == 5
+    @test eltype(outline) <: Makie.Point3
+    @test outline[1] == outline[end]            # closed
+
     # `threed=false` leaves the 3D panel out of a 3D model as well
     fig_flat = view_model(model, field=:phase, threed=false)
     @test isempty(filter(c -> c isa Makie.Axis3, collect(values(fig_flat.content))))

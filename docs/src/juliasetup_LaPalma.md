@@ -5,10 +5,10 @@ In this example, we will show how to create a 3D model setup for the 2020 La Pal
 #### 1. Load packages & topography
 Let's start with what we need:
 ```julia
-julia> using LaMEM, GeophysicalModelGenerator, GMT, Plots
+julia> using LaMEM, GeophysicalModelGenerator, GMT, GLMakie
 Loading GMT routines within GMG
 WARNING: using GMT.meshgrid in module GeophysicalModelGenerator conflicts with an existing identifier.
-adding Plots.jl plotting extensions for LaMEM
+Adding Makie.jl plotting extensions for LaMEM
 ```
 
 Load the topography, choose a projection point & project the topography to cartesian coordinates:
@@ -30,9 +30,9 @@ julia> Topo_LaMEM = CartData(xyz_grid(-70:.2:70,-60:.2:70,0));
 julia> Topo_LaMEM = project_CartData(Topo_LaMEM, Topo, proj)
 ```
 
-We can plot it with:
+We can plot it with the `topo` recipe:
 ```julia
-julia> plot_topo(Topo_LaMEM, clim=(-4,4))
+julia> topo(Topo_LaMEM)
 ```
 
 ![LaPalma_topo](assets/LaPalma_topo.png)
@@ -100,11 +100,15 @@ julia> add_ellipsoid!(model, cen=(-1,0,-11), axes=(3,3,8), StrikeAngle=225, DipA
 julia> add_ellipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngle=0, phase=ConstantPhase(5), T=ConstantTemp(1200));
 ```
 
- We can plot a cross-section through the model:
+ We can look at the setup with the interactive viewer:
 ```julia
- julia> plot_cross_section(model, x=0, field=:phase)
+ julia> view_model(model, field=:phase, x=0)
 ```
- ![LaPalma_CrossSection](assets/LaPalma_CrossSection.png)
+ ![The viewer on the La Palma setup](assets/viewer_lapalma.png)
+
+The cross-section at `x = 0` shows the three magma bodies, and the 3D view their shape, with a
+blue plane marking where the section is cut. See [Interactive viewer](@ref) for the rest of
+what the window can do.
 
 
 ##### Set material properties

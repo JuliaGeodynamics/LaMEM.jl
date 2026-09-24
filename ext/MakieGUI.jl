@@ -85,6 +85,22 @@ function slice_outline(xs, ys, zs, axis::Symbol, pos)
 end
 
 """
+    section_aspect(data::CartData, axis::Symbol, max_aspect)
+
+Internal helper giving the aspect of the cross-section axis. True proportions (`DataAspect`)
+are what one wants for a model that is not too far from square, but a realistic geodynamic
+setup can be thousands of kilometres wide and a few hundred deep, and at true scale that is
+an unreadable sliver with its labels on top of each other. Beyond `max_aspect` the section is
+therefore stretched vertically, which exaggerates the depth but shows the model.
+"""
+function section_aspect(data::CartData, axis::Symbol, max_aspect)
+    hw = w_over_h(data, axis)              # height / width
+    hw <= 0 && return Makie.DataAspect()
+    wh = 1/hw                              # width / height
+    return wh > max_aspect ? Makie.AxisAspect(max_aspect) : Makie.DataAspect()
+end
+
+"""
     w_over_h(data::CartData, axis::Symbol)
 
 Internal helper giving the height-to-width ratio of a cross-section perpendicular to `axis`,
@@ -186,6 +202,8 @@ Use [`save_movie`](@ref) to write an animation of the simulation to disk.
 - `isosurface`: whether the isosurface and the isocontours start switched on (default `true`,
   since the volume rendering shows little of a phase field)
 - `arrows`: whether the velocity arrows start switched on (default `false`)
+- `max_aspect`: how wide the cross-section may get before it is stretched vertically rather
+  than drawn at true scale (default 6); a wide, shallow model is unreadable at true scale
 - `narrows`: roughly how many velocity arrows to draw across the longer side of the section
   (default 28); the sampling follows from that, so the arrows stay readable whatever the
   resolution of the model
@@ -281,7 +299,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
                       colormap=:roma, size=nothing, title_prefix="",
                       isosurface=nothing, arrows=false, contours=nothing,
                       contour_colormap=:managua, threed=nothing, twod=nothing,
-                      narrows=28)
+                      narrows=28, max_aspect=6)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
@@ -450,7 +468,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
         xlabel = Makie.lift(s -> s.labels.x_str, slice),
         ylabel = Makie.lift(s -> s.labels.z_str, slice),
         title  = Makie.lift((s,i) -> viewer_title(title_prefix, s, times, i, n), slice, step_slider.value),
-        aspect = Makie.DataAspect())
+        aspect = section_aspect(first(frames), axis0, max_aspect))
 
     hm = Makie.heatmap!(ax2d,
         Makie.lift(s -> s.x, slice),
@@ -613,7 +631,8 @@ function build_viewer(frames::Vector{<:CartData}, times;
     else
         # a DataAspect axis is as tall as the data makes it; without this the colorbars
         # beside it stretch over the whole window instead of matching the plot
-        Makie.rowsize!(plots, 1, Makie.Aspect(1, w_over_h(first(frames), axis0)))
+        Makie.rowsize!(plots, 1, Makie.Aspect(1, max(w_over_h(first(frames), axis0),
+                                                     1/max_aspect)))
     end
     Makie.colgap!(fig.layout, 1, 12)
 

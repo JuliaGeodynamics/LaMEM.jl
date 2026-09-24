@@ -40,10 +40,11 @@ end
     twod_window_size(data::CartData; width=1000, controls=230)
 
 Internal helper giving a window size that suits a 2D model: the plot area follows the aspect
-ratio of the model, with room above it for the controls. Very flat or very tall models are
+ratio of the model, next to the fixed-width control panel. Very flat or very tall models are
 kept within bounds so the window stays usable.
 """
-function twod_window_size(data::CartData; width=1000, controls=230)
+function twod_window_size(data::CartData; panel=215, plot_width=760, margin=90,
+                          panel_height=560)
     axis = thin_axis(data)
     # the two directions that are actually resolved
     ext(v) = abs(-(extrema(v)...))
@@ -51,11 +52,27 @@ function twod_window_size(data::CartData; width=1000, controls=230)
            axis === :z ? (ext(data.x.val), ext(data.y.val)) :
                          (ext(data.y.val), ext(data.z.val))
 
-    plot_width  = width - 150                       # the colorbar and labels take some
-    plot_height = h > 0 && w > 0 ? plot_width*h/w : 400
-    plot_height = clamp(plot_height, 220, 620)
+    # the axis is a DataAspect one, so its height follows the model's proportions; the
+    # control panel needs a certain height of its own, and the window has to satisfy both
+    inner  = plot_width - 170                       # the two colorbars and the labels
+    height = h > 0 && w > 0 ? inner*h/w : 400
+    height = clamp(height + margin, panel_height, 760)
 
-    return (width, round(Int, plot_height + controls))
+    return (panel + plot_width, round(Int, height))
+end
+
+"""
+    w_over_h(data::CartData, axis::Symbol)
+
+Internal helper giving the height-to-width ratio of a cross-section perpendicular to `axis`,
+which is what an `Aspect` row size needs so the plot row is exactly as tall as the plot.
+"""
+function w_over_h(data::CartData, axis::Symbol)
+    ext(v) = abs(-(extrema(v)...))
+    w, h = axis === :y ? (ext(data.x.val), ext(data.z.val)) :
+           axis === :z ? (ext(data.x.val), ext(data.y.val)) :
+                         (ext(data.y.val), ext(data.z.val))
+    return (w > 0 && h > 0) ? h/w : 0.5
 end
 
 """
@@ -236,73 +253,99 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # leaving a band of empty figure under a wide, flat model.
     isnothing(size) && (size = twod ? twod_window_size(first(frames)) : (1250,680))
 
-    fig = Makie.Figure(size=size)
+    fig = Makie.Figure(size=size, backgroundcolor=:white)
 
-    # --- controls -------------------------------------------------------------------
-    ncols    = twod ? 1 : 2       # the cross-section (with its colorbar), and the 3D view
-    controls = Makie.GridLayout(fig[1, 1:ncols], tellwidth=false)
+    # --- layout ---------------------------------------------------------------------
+    # The controls sit in a panel down the left side, grouped under headings, and the plots
+    # take the rest of the window. Keeping them out of the plot area means the window does
+    # not have to grow a strip of widgets across the top, and the sections make it clear
+    # what belongs to what.
+    panel_width = 215
+    Makie.Box(fig[1,1], color=(:gray92, 0.6), strokecolor=(:gray70, 0.5), strokewidth=1,
+              cornerradius=10)
+    panel = Makie.GridLayout(fig[1,1], tellheight=false, halign=:center, valign=:top)
+    Makie.colsize!(fig.layout, 1, Makie.Fixed(panel_width))
 
-    field_menu = Makie.Menu(controls[1,1], options=entries, default=nothing, width=180)
+    plots = Makie.GridLayout(fig[1,2])
+
+    section(row, text) = Makie.Label(panel[row, 1:2], text, font=:bold, fontsize=13,
+                                     halign=:left, color=:gray25, tellwidth=false)
+    row = 0
+
+    # --- what to show ----------------------------------------------------------------
+    section(row += 1, "Field")
+    field_menu = Makie.Menu(panel[row += 1, 1:2], options=entries, default=nothing,
+                            width=Makie.Relative(1.0))
     field_menu.i_selected[] = findfirst(e -> e[2] == selected, entries)
 
     colormaps = [:roma, :vik, :batlow, :oleron, :lipari, :viridis, :thermal]
     colormap in colormaps || pushfirst!(colormaps, colormap)
-    cmap_menu = Makie.Menu(controls[1,2],
+    cmap_menu = Makie.Menu(panel[row += 1, 1:2],
         options = [(String(c), c) for c in colormaps],
-        default = String(colormap), width=140)
+        default = String(colormap), width=Makie.Relative(1.0))
 
-    iso_toggle = Makie.Toggle(controls[1,3], active=isosurface)
-    Makie.Label(controls[1,4], twod ? "isolines" : "isolines/surface", halign=:left)
+    # --- overlays ---------------------------------------------------------------------
+    section(row += 1, "Overlays")
 
-    vel_toggle = Makie.Toggle(controls[1,5], active=arrows)
-    Makie.Label(controls[1,6], "arrows", halign=:left)
+    iso_toggle = Makie.Toggle(panel[row += 1, 1], active=isosurface)
+    Makie.Label(panel[row, 2], twod ? "isolines" : "isolines / surface",
+                halign=:left, fontsize=12)
 
-    # contours of a *second* field, drawn over the heatmap -- e.g. the temperature over the
-    # phases. "none" is the default; the fields are those of the data, without components,
-    # since a contour of one velocity component is rarely what is wanted.
-    scalar_entries = [("none", nothing);
-                      [(e[1], e[2]) for e in entries]]
-    Makie.Label(controls[1,7], "contours of", halign=:right)
-    over_menu = Makie.Menu(controls[1,8], options=scalar_entries,
-                           default="none", width=150)
+    vel_toggle = Makie.Toggle(panel[row += 1, 1], active=arrows)
+    Makie.Label(panel[row, 2], "velocity arrows", halign=:left, fontsize=12)
+
+    # contours of a *second* field, e.g. the temperature over the phases. "none" is the
+    # default; components are left out, since a contour of one velocity component is rarely
+    # what is wanted.
+    scalar_entries = [("none", nothing); [(e[1], e[2]) for e in entries]]
+    Makie.Label(panel[row += 1, 1:2], "contours of", halign=:left, fontsize=12,
+                color=:gray40, tellwidth=false)
+    over_menu = Makie.Menu(panel[row += 1, 1:2], options=scalar_entries,
+                           default="none", width=Makie.Relative(1.0))
     if !isnothing(contours)
         idx = findfirst(e -> e[2] isa Tuple && e[2][1] === contours, scalar_entries)
         isnothing(idx) || (over_menu.i_selected[] = idx)
     end
 
-    # sliders: timestep (with a play button) and the slice position
+    # --- the cross-section ------------------------------------------------------------
+    section(row += 1, "Cross-section")
+
     n = length(frames)
-    slider_grid = Makie.GridLayout(fig[2, 1:ncols], tellwidth=false)
-
-    step_slider = Makie.Slider(slider_grid[1,2], range=1:n, startvalue=n)
-    Makie.Label(slider_grid[1,1], "timestep", halign=:right)
-    Makie.Label(slider_grid[1,4],
-        Makie.lift(i -> time_label(times, i, n), step_slider.value), halign=:left, width=150)
-
-    play_button = Makie.Button(slider_grid[1,5], label="▶ play", width=80)
-
-    # the axis the section is cut along: the one the caller pinned, else the thinnest
     axis0, slice_range = slice_axis_and_range(first(frames), x, y, z)
-    pos_slider = Makie.Slider(slider_grid[2,2], range=slice_range,
-                              startvalue=initial_slice(slice_range, x, y, z))
-    Makie.Label(slider_grid[2,1], "slice along", halign=:right)
 
-    # the exact position, editable: typing a value moves the section there
-    pos_box = Makie.Textbox(slider_grid[2,3], validator=Float64, width=90)
+    Makie.Label(panel[row += 1, 1], "along", halign=:left, fontsize=12, color=:gray40)
+    axis_menu = Makie.Menu(panel[row, 2],
+        options=[("x", :x), ("y", :y), ("z", :z)], default=String(axis0),
+        width=Makie.Relative(1.0))
+
+    pos_slider = Makie.Slider(panel[row += 1, 1:2], range=slice_range,
+                              startvalue=initial_slice(slice_range, x, y, z))
+    pos_box = Makie.Textbox(panel[row += 1, 1:2], validator=Float64,
+                            width=Makie.Relative(1.0))
     bind_slider_box!(pos_slider, pos_box, "%.4g")
 
-    # and which axis to cut along, so a 2D model can be sliced the other way too
-    axis_menu = Makie.Menu(slider_grid[2,4],
-        options=[("x", :x), ("y", :y), ("z", :z)], default=String(axis0), width=60)
+    iso_slider = Makie.Slider(panel[row += 1, 1:2], range=range(0, 1, 101), startvalue=0.5)
+    Makie.Label(panel[row += 1, 1], "iso level", halign=:left, fontsize=12, color=:gray40)
+    iso_box = Makie.Textbox(panel[row, 2], validator=Float64, width=Makie.Relative(1.0))
+    bind_slider_box!(iso_slider, iso_box, "%.3g")
 
-    iso_slider = Makie.Slider(slider_grid[3,2], range=range(0, 1, 101), startvalue=0.5)
-    Makie.Label(slider_grid[3,1], "iso level", halign=:right)
-    iso_box = Makie.Textbox(slider_grid[3,3], validator=Float64, width=90)
-    bind_slider_box!(iso_slider, iso_box, "%.4g")
+    # --- the timestep ------------------------------------------------------------------
+    section(row += 1, "Timestep")
 
-    # the timestep is editable as well
-    step_box = Makie.Textbox(slider_grid[1,3], validator=Int, width=90)
+    step_slider = Makie.Slider(panel[row += 1, 1:2], range=1:n, startvalue=n)
+    step_box = Makie.Textbox(panel[row += 1, 1], validator=Int, width=Makie.Relative(1.0))
     bind_slider_box!(step_slider, step_box, "%d")
+    play_button = Makie.Button(panel[row, 2], label="▶ play", width=Makie.Relative(1.0))
+
+    Makie.Label(panel[row += 1, 1:2],
+        Makie.lift(i -> time_label(times, i, n), step_slider.value),
+        halign=:left, fontsize=11, color=:gray40, tellwidth=false)
+
+    Makie.rowgap!(panel, 6)
+    for r in 1:row                      # a little more air above each section heading
+        Makie.rowsize!(panel, r, Makie.Auto(false))
+    end
+    Makie.colgap!(panel, 8)
 
     # moving to another axis rescales the position slider to that axis' extent
     axis_sym = axis_menu.selection
@@ -339,7 +382,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # `tellwidth=false` on the colorbar's column would let it drift to the far side of the
     # cell; instead the colorbar is pinned to the axis, so it follows the plot as the
     # DataAspect axis resizes
-    plot_grid = Makie.GridLayout(fig[3,1])
+    plot_grid = Makie.GridLayout(plots[1,1])
     ax2d = Makie.Axis(plot_grid[1,1],
         xlabel = Makie.lift(s -> s.labels.x_str, slice),
         ylabel = Makie.lift(s -> s.labels.z_str, slice),
@@ -357,6 +400,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
     Makie.Colorbar(plot_grid[1,2], hm, label=Makie.lift(s -> s.colorbar, slice),
                    width=12, ticklabelsize=11, labelsize=12,
                    height=Makie.Relative(1.0), halign=:left)
+    Makie.colsize!(plot_grid, 1, Makie.Auto(true))
     Makie.colgap!(plot_grid, 1, 10)
 
     # isocontours of the displayed field
@@ -440,7 +484,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
     if !twod
         # `aspect=:data` keeps the three axes in proportion to the model, so a sphere looks
         # like a sphere; the default stretches each axis to fill the cell
-        ax3d = Makie.Axis3(fig[3,2],
+        ax3d = Makie.Axis3(plots[1,2],
             xlabel="x", ylabel="y", zlabel="z",
             aspect = :data,
             title = Makie.lift(s -> "3D: "*s.colorbar, slice))
@@ -477,12 +521,16 @@ function build_viewer(frames::Vector{<:CartData}, times;
         end
     end
 
-    # the plot row takes whatever the controls leave, so the window has no empty band
-    Makie.rowsize!(fig.layout, 3, Makie.Auto(3.0))
     if !twod
-        Makie.colsize!(fig.layout, 1, Makie.Relative(0.5))
-        Makie.colgap!(fig.layout, 1, 20)
+        # cross-section and 3D view share the plot area
+        Makie.colsize!(plots, 1, Makie.Relative(0.5))
+        Makie.colgap!(plots, 1, 20)
+    else
+        # a DataAspect axis is as tall as the data makes it; without this the colorbars
+        # beside it stretch over the whole window instead of matching the plot
+        Makie.rowsize!(plots, 1, Makie.Aspect(1, w_over_h(first(frames), axis0)))
     end
+    Makie.colgap!(fig.layout, 1, 12)
 
     return fig, step_slider
 end

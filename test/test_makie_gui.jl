@@ -48,7 +48,7 @@ using GeophysicalModelGenerator
     @test "velocity[3]" in labels          # a vector field is expanded per component
 
     # moving the timestep slider changes what is displayed, without throwing
-    step_slider = argmax(s -> length(s.range[]) == 2 ? 1 : 0, sliders)
+    step_slider = only(filter(sl -> collect(sl.range[]) == [1,2], sliders))
     @test_nowarn step_slider.value[] = 1
 
     # the toggles switch the isosurface and the arrows
@@ -105,8 +105,9 @@ using GeophysicalModelGenerator
 
     # the slice axis can be chosen, which rescales the position slider to that axis
     axis_menu = only(filter(m -> [e[1] for e in m.options[]] == ["x","y","z"], menus2d))
+    # identify the position slider by its range: it spans the model, not 1:n or 0:1
     sliders2d = filter(c -> c isa Makie.Slider, collect(values(fig2d.content)))
-    pos2d     = sliders2d[2]
+    pos2d     = only(filter(sl -> length(sl.range[]) == 401, sliders2d))
     axis_menu.i_selected[] = 1                       # slice along x instead
     @test extrema(collect(pos2d.range[])) == (-1000.0, 1000.0)
 

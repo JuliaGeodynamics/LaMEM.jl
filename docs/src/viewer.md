@@ -33,8 +33,9 @@ them with their own colorbar, and the flow field as arrows.*
 
 ## What the window shows
 
-The cross-section through the model and, for a 3D model, a 3D view of the same field beside
-it, with controls above them for:
+The plots take the right of the window -- the cross-section, and for a 3D model a 3D view of
+the same field beside it -- while the controls sit in a panel down the left, grouped into
+**Field**, **Overlays**, **Cross-section** and **Timestep**:
 
 - the **field** to display. Every field in the output is listed, and a vector field is
   expanded per component, so the velocity appears as `velocity[1]`, `velocity[2]` and

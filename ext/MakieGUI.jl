@@ -416,13 +416,19 @@ function build_viewer(frames::Vector{<:CartData}, times;
     frame = Makie.lift(i -> frames[i], step_slider.value)
     sel   = Makie.lift(i -> entries[i][2], field_menu.i_selected)
 
-    slice = Makie.lift(frame, sel, pos_slider.value, axis_sym) do d, (f, dm), pos, ax
+    # These have to be `Observable{Any}`: `lift` takes the element type from the first value,
+    # and the fields do not share one -- `phase` is an integer field, the temperature a
+    # float one. Switching from phase to temperature would otherwise try to store a
+    # `Matrix{Float64}` in a `Matrix{Int32}` and throw an InexactError.
+    slice = Makie.Observable{Any}(nothing)
+    Makie.map!(slice, frame, sel, pos_slider.value, axis_sym) do d, (f, dm), pos, ax
         xs, zs, vals, axes_str, cb = slice_of_at(d, f, dm, ax, pos)
-        (x=xs, z=zs, values=vals, labels=axes_str, colorbar=cb)
+        (x=xs, z=zs, values=float.(vals), labels=axes_str, colorbar=cb)
     end
 
-    volume_field = Makie.lift(frame, sel) do d, (f, dm)
-        scalar_field(d, f, dm)
+    volume_field = Makie.Observable{Any}(nothing)
+    Makie.map!(volume_field, frame, sel) do d, (f, dm)
+        float.(scalar_field(d, f, dm))
     end
 
     # a level in data units, from the 0-1 slider, so one slider fits every field
@@ -474,7 +480,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
         isnothing(choice) && return nothing
         f, dm = choice
         xs, zs, vals, _, _ = slice_of_at(d, f, dm, ax, pos)
-        (x=xs, z=zs, values=vals)
+        (x=xs, z=zs, values=float.(vals))
     end
 
     # the range the contour colours span, so that the contours and their colorbar agree

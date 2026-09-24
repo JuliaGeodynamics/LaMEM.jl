@@ -120,6 +120,20 @@ using GeophysicalModelGenerator
     pos_box.stored_string[] = "-300"
     @test pos2d.value[] ≈ -300 atol=10
 
+    # switching the displayed field must not throw either: `phase` is an integer field and
+    # the temperature a float one, so an observable typed from the first value cannot hold
+    # both (`InexactError: Int32(1543.6...)`)
+    field_menu_2d = first(filter(m -> "phase" in [e[1] for e in m.options[]] &&
+                                      !("none" in [e[1] for e in m.options[]]),
+                                 filter(c -> c isa Makie.Menu, collect(values(fig2d.content)))))
+    # (not `@test_nowarn`: a constant field makes PlotUtils warn about tick placement,
+    # which is cosmetic and unrelated)
+    for i in eachindex(field_menu_2d.options[])
+        field_menu_2d.i_selected[] = i
+        @test field_menu_2d.selection[] == field_menu_2d.options[][i][2]
+    end
+    field_menu_2d.i_selected[] = 1
+
     # choosing a contour field after the viewer opened must not throw: the overlay
     # observable starts on `nothing`, and a plain `lift` would type it `Observable{Nothing}`
     over_2 = only(filter(m -> "none" in [e[1] for e in m.options[]],

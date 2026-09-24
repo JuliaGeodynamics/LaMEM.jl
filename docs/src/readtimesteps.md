@@ -70,5 +70,5 @@ can be run again. Use `rm(model.Output.out_dir, recursive=true)` if you want the
 gone as well.
 
 Clearing the output is worth doing when you change a setup and then look at it with
-[`view_model`](@ref): without it, the viewer finds the timesteps of the *previous* run and
+[`view_model`](@ref Interactive-viewer): without it, the viewer finds the timesteps of the *previous* run and
 offers their fields rather than those of the new setup.

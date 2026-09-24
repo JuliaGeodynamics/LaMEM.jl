@@ -71,7 +71,7 @@ We also need to specify an initial model geometry. The julia package `Geophysica
 ```julia
 julia> add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 ```
-It is often useful to look at the initial model setup before starting a simulation, which you can do with [`view_model`](@ref):
+It is often useful to look at the initial model setup before starting a simulation, which you can do with [`view_model`](@ref Interactive-viewer):
 
 ```julia
 julia> view_model(model)

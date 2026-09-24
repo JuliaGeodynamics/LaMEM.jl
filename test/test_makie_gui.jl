@@ -129,6 +129,27 @@ using GeophysicalModelGenerator
 
     rm(model2d.Output.out_dir, force=true, recursive=true)
 
+    # a `Model` says whether it is 2D itself: LaMEM needs two elements in every direction,
+    # so `nel_y == 2` is exactly what `Grid(nel=(nx,nz))` gives
+    ext2 = Base.get_extension(LaMEM, :MakieExt)
+    @test ext2.is_2d(Model(Grid(x=[-2000.,2000.], z=[-660,40], nel=(512,128)),
+                           Output(out_dir="is2d_test_2d")))
+    @test !ext2.is_2d(Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]),
+                            Output(out_dir="is2d_test_3d")))
+
+    # Without the model, it is inferred from the grid, which has to hold for the marker grid
+    # of a setup as well as for LaMEM output. A 2D
+    # setup written as `Grid(nel=(nx,nz))` has three points across in its output but six in
+    # its marker grid, so an absolute threshold is not enough; and a genuinely thin 3D model
+    # must not be mistaken for a 2D one.
+    flat(dims) = CartData(zeros(dims...), zeros(dims...), zeros(dims...), (phase=zeros(dims...),))
+    @test ext2.is_2d(flat((1536, 6, 384)))      # 2D setup, markers, nel=(512,128)
+    @test ext2.is_2d(flat((96, 6, 48)))         # 2D setup, markers, nel=(32,16)
+    @test ext2.is_2d(flat((33, 3, 17)))         # 2D output
+    @test !ext2.is_2d(flat((17, 17, 17)))       # 3D output
+    @test !ext2.is_2d(flat((48, 48, 48)))       # 3D setup, markers
+    @test !ext2.is_2d(flat((33, 33, 9)))        # thin, but genuinely 3D
+
     # the outline of the slice plane must be five points, not a flattened list of
     # coordinates: `[corners; corners[1]]` splats the trailing point, since a Point3f is
     # itself iterable, and Makie then recurses on it

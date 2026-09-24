@@ -99,15 +99,29 @@ function w_over_h(data::CartData, axis::Symbol)
 end
 
 """
+    is_2d(model::Model)
     is_2d(data::CartData)
 
-Internal helper telling whether this is a 2D LaMEM model. LaMEM needs at least two elements
-in every direction, so a 2D setup still has three grid points in its thin direction -- that,
-rather than a single point, is what marks it as 2D. Such a model has nothing to show in 3D,
-so the viewer leaves the 3D panel out.
+Internal helper telling whether this is a 2D LaMEM model. A `Model` says so itself: LaMEM
+needs at least two elements in every direction, so `nel_y == 2` is exactly what
+`Grid(nel=(nx,nz))` produces and is the authoritative test.
+
+Given only the data, it has to be inferred. LaMEM needs at least two elements
+in every direction, so a 2D setup is never flat: it has three grid points across in its
+output, and six in the marker grid of the setup. What marks it as 2D is that one direction
+is far coarser than the others. Such a model has nothing to show in 3D, so the viewer leaves
+the 3D panel out.
 """
+is_2d(model::Model) = first(model.Grid.nel_y) == 2
+
 function is_2d(data::CartData)
-    return any(<=(3), Base.size(data.x.val))
+    dims = Base.size(data.x.val)
+    thin = minimum(dims)
+    # Without the model this has to be read off the grid, and an absolute threshold does not
+    # do it: LaMEM output has three points across a 2D model, but the marker grid of the
+    # same setup has three per cell, so six. What marks a model as 2D is that one direction
+    # is far coarser than the others, rather than any particular count.
+    return thin <= 3 || thin*8 <= maximum(dims)
 end
 
 """
@@ -180,13 +194,13 @@ function LaMEM.view_model(model::Model; kwargs...)
     if isempty(timesteps)
         # nothing has been run yet: show the initial setup, which needs no output files
         data, _ = model_data(model, nothing, false)
-        return LaMEM.view_model(data; title_prefix="initial setup", kwargs...)
+        return LaMEM.view_model(data; title_prefix="initial setup", twod=is_2d(model), kwargs...)
     end
 
     # read every timestep once, up front: the animation has to be able to jump between
     # them without re-reading, and a LaMEM run that fits in memory as one field fits as all
     frames = [first(read_LaMEM_timestep(model, ts)) for ts in timesteps]
-    fig, _ = build_viewer(frames, times; kwargs...)
+    fig, _ = build_viewer(frames, times; twod=is_2d(model), kwargs...)
     return fig
 end
 
@@ -263,7 +277,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
                       field=nothing, dim=1, x=nothing, y=nothing, z=nothing,
                       colormap=:roma, size=nothing, title_prefix="",
                       isosurface=nothing, arrows=false, contours=nothing,
-                      contour_colormap=:managua, threed=nothing)
+                      contour_colormap=:managua, threed=nothing, twod=nothing)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
@@ -271,7 +285,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
     # a 2D model has nothing to show in three dimensions, so leave that panel out and give
     # the cross-section the whole window
     over_colormap = contour_colormap
-    twod = is_2d(first(frames)) || threed === false
+    twod = (isnothing(twod) ? is_2d(first(frames)) : twod) || threed === false
     isnothing(isosurface) && (isosurface = !twod)
     # A 2D window is sized to the model, so that the `DataAspect` axis fills it instead of
     # leaving a band of empty figure under a wide, flat model.
@@ -719,7 +733,7 @@ function LaMEM.save_movie(filename::AbstractString, model::Model; framerate=8, k
     isempty(timesteps) && error("this model has no output to animate; run it first with `run_lamem`")
 
     frames = [first(read_LaMEM_timestep(model, ts)) for ts in timesteps]
-    fig, slider = build_viewer(frames, times; kwargs...)
+    fig, slider = build_viewer(frames, times; twod=is_2d(model), kwargs...)
 
     Makie.record(fig, filename, eachindex(frames); framerate=framerate) do i
         slider.value[] = i

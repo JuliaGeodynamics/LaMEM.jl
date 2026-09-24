@@ -1,5 +1,5 @@
 # Contains a number of useful functions
-import LaMEM.IO_functions: read_LaMEM_simulation, read_LaMEM_timestep
+import LaMEM.IO_functions: read_LaMEM_simulation, read_LaMEM_timestep, clean_directory
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
@@ -263,6 +263,26 @@ end
 Reads a LaMEM simulation as specified in `model` and returns the timesteps, times and filenames of that simulation once it is finished.
 """
 read_LaMEM_simulation(model::Model; kwargs...) = read_LaMEM_simulation(model.Output.out_file_name,model.Output.out_dir; kwargs...)
+
+"""
+    clean_directory(model::Model)
+
+Removes the LaMEM timesteps and `*.pvd`/`*.vts` files from the output directory of `model`,
+as [`clean_directory`](@ref) does for a directory given by name. The directory itself is
+kept, along with the input file, the markers and any logfile, so the model can be run again.
+
+Use `rm(model.Output.out_dir, recursive=true)` if you want the directory gone as well.
+
+# Example
+```julia
+julia> clean_directory(model)     # remove the results of an earlier run
+```
+"""
+function clean_directory(model::Model)
+    dir = isempty(model.Output.out_dir) ? "./" : model.Output.out_dir
+    isdir(dir) || return nothing            # nothing has been run yet
+    return clean_directory(dir)
+end
 
 """
     data, time = read_LaMEM_timestep(model::Model, TimeStep::Int64=0; fields=nothing, phase=false, surf=false, last=true)

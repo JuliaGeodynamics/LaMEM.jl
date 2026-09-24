@@ -14,7 +14,7 @@ julia> include("TM_Subduction_example.jl")
 We get started by loading the required packages:
 
 ```
-using LaMEM, GeophysicalModelGenerator, Plots
+using LaMEM, GeophysicalModelGenerator, GLMakie
 ```
 
 #### 2. LaMEM model setup
@@ -348,15 +348,18 @@ model.Grid.Temp = model.Grid.Temp - model.Grid.Grid.Z.*Adiabat;
 ```
 
 ##### Plot preview of the setup
-Cross-sections of the model setup showing the temperature and the phase fields can be visualized as follows:
+The setup can be inspected with the interactive viewer, which for this 2D model shows the
+cross-section alone:
 
 ```julia
-plot_cross_section(model, y=0, field=:temperature)
-plot_cross_section(model, y=0, field=:phase)
+view_model(model, field=:phase, contours=:temperature)
 ```
 which gives:
- ![Subduction_CrossSection_phase](assets/sub_field.png)
- ![Subduction_CrossSection_temp](assets/sub_temp.png)
+ ![The viewer on the TMSubduction setup](assets/viewer_tmsubduction.png)
+
+The phases are the heatmap and the temperature the coloured contours over them, each with its
+own colorbar; the menu at the top switches which field is which. See
+[Interactive viewer](@ref) for the rest.
 
 #### 3. Define material parameters
 

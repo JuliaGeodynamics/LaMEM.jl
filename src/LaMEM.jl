@@ -68,6 +68,11 @@ function axis_labels end
 export crosssection, crosssection!, topo, topo!, phasediagram, phasediagram!
 export axis_labels
 
+# Interactive viewer, also only available once a Makie backend is loaded
+function view_model end
+function save_movie end
+export view_model, save_movie
+
 
 #=
 function __init__()

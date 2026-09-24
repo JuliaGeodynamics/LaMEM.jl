@@ -4,13 +4,13 @@ Passive tracers are useful to track the evolutions of the temperature, pressure 
 ### Initiate passive tracers in the model
 Let's use a simple model of a "falling sphere" as the example. We initiate the passive tracers by turning on the flag: `Passive_Tracer=1` and assign a spatial range to populate tracers in the entire simulation box `PassiveTracer_Box=[-1,1,-1,1,-1,1])`. The default tracer density is 100 x 1 x 100 along x, y, z axes. 
 ```julia
-using LaMEM, GeophysicalModelGenerator, Plots
+using LaMEM, GeophysicalModelGenerator, CairoMakie
 
 model  = Model(Grid(nel=(16,16,16), x=[-1,1], y=[-1,1], z=[-1,1]), PassiveTracers(Passive_Tracer=1, PassiveTracer_Box=[-1,1,-1,1,-1,1]))
 matrix = Phase(ID=0,Name="matrix",eta=1e20,rho=3000)
 sphere = Phase(ID=1,Name="sphere",eta=1e23,rho=3200)
 add_phase!(model, sphere, matrix)
-add_sphere!(model,cen=(0.0,0.0,0.0), radius=(0.5,))
+add_sphere!(model,cen=(0.0,0.0,0.0), radius=0.5)
 
 run_lamem(model,1)
 ```
@@ -72,16 +72,35 @@ Key: Time_Myrs, Size: (4,)
 The `passive_tracers` contains spatial coordinates and P, T, Phase properties and also the associated temporal information for all 4 time steps in matrixes. Now let's plot the position of selected tracer at t=0.
 
 ```julia
-using Plots
-scatter(passive_tracers.x[:,1], passive_tracers.z[:,1], title="Scatter Plot of Selected Passive Tracers", legend=false, aspect_ratio=:equal)
+fig = Figure(size=(500,450))
+ax  = Axis(fig[1,1], xlabel="x", ylabel="z",
+           title="Selected passive tracers at t = 0", aspect=DataAspect())
+scatter!(ax, passive_tracers.x[:,1], passive_tracers.z[:,1], markersize=6)
+fig
 ```
-![InitialSetupSphere](assets/Passivetracers_plot.png)
+![The selected tracers at t=0](assets/tracers_scatter.png)
 
-We can plot a temporal evolution of P-T of a specific tracer. In the following line, we only select one tracer whose ID==1 among the 489 tracers we selected.
+which is the quarter of the sphere that the selection asked for.
+
+The same data gives the evolution of a single tracer through time. Here we follow the first
+of the 489 tracers as the sphere sinks:
 ```julia
-plot( passive_tracers.Temperature[1,:], passive_tracers.Pressure[1,:])
+fig = Figure(size=(560,400))
+ax  = Axis(fig[1,1], xlabel="Time [Myr]", ylabel="z",
+           title="Depth of tracer 1 through time")
+lines!(ax, passive_tracers.Time_Myrs, passive_tracers.z[1,:])
+scatter!(ax, passive_tracers.Time_Myrs, passive_tracers.z[1,:], markersize=8)
+fig
 ```
+![The depth of one tracer through time](assets/tracers_depth.png)
 
- Since the example "falling sphere" code does not contain much dynamics and it only runs for a few timesteps, the resulted P-T path contain little information. 
+A P-T path is plotted the same way, from `passive_tracers.Temperature` and
+`passive_tracers.Pressure`:
+```julia
+lines(passive_tracers.Temperature[1,:], passive_tracers.Pressure[1,:])
+```
+Note that the "falling sphere" example is isothermal and only runs for a few timesteps, so
+its P-T path carries little information; a P-T path is worth plotting for a thermomechanical
+model such as [2D Thermomechanical subduction model](@ref).
 
 It is also doable to plot the the average P, T properties of a small group of tracers of our selection.

@@ -1,9 +1,9 @@
 module MakieExt
 
 using Makie
-using GeophysicalModelGenerator, Statistics
+using GeophysicalModelGenerator, Statistics, Printf
 import LaMEM
-import LaMEM: cross_section, Model, read_LaMEM_timestep, read_phase_diagram
+import LaMEM: cross_section, Model, read_LaMEM_timestep, read_LaMEM_simulation, read_phase_diagram
 import LaMEM: crosssection, crosssection!, topo, topo!, phasediagram, phasediagram!
 
 # Plotting recipes, that are only loaded when a Makie backend (GLMakie, CairoMakie, ...)
@@ -230,5 +230,7 @@ function Makie.plot!(p::PhaseDiagram{<:Tuple{<:AbstractString, <:Symbol}})
 
     return p
 end
+
+include("MakieGUI.jl")
 
 end # module

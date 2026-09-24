@@ -57,15 +57,18 @@ The inclined part of the slab is generate by giving it a dip:
 add_box!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
 ```
 
-There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
+There is a simple way to have a quick look at this setup, with the interactive viewer:
 
 ```julia
-using Plots
-plot_cross_section(model, y=100, field=:phase)
+using GLMakie
+view_model(model, field=:phase, y=100)
 ```
 
-Which will give the following plot:
-![2D cross section](assets/SubductionSetup_3D.png)
+![The viewer on the 3D subduction setup](assets/viewer_subduction3d.png)
+
+The cross-section at `y = 100` is on the left and a 3D view of the slab on the right, with a
+blue plane marking where the section is cut. Nothing has been run yet -- the viewer reads the
+setup straight from `model`. See [Interactive viewer](@ref) for what else the window can do.
 
 ## 3. Add material properties:
 We can specify material properties by using the `Phase` function

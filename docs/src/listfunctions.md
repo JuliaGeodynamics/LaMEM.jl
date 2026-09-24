@@ -3,11 +3,8 @@
 These are all functions that are available in the package, which can roughly be divided into two groups (running & reading LaMEM)
 
 ## Julia interface to LaMEM
-```@autodocs
-Modules = [ LaMEM.LaMEM_Model]
-Public = true
-Private = false
-```
+The functions for building a model setup from julia are listed under
+[Available functions](@ref).
 
 ## Running LaMEM
 ```@autodocs

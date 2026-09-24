@@ -51,6 +51,9 @@ the same field beside it -- while the controls sit in a panel down the left, gro
   an isosurface in the 3D view, at the level set by the `iso level` slider. This is on by
   default, since volume rendering shows little of a phase field.
 - **velocity arrows** on the cross-section, scaled to the largest velocity in the section.
+  They are subsampled to about 28 arrows across the longer side, evenly spaced in distance
+  rather than in grid points, so a high-resolution model does not end up with a black mass
+  of them; `narrows` sets how many.
 - **contours of** a second field, drawn over the heatmap — the temperature over the phases,
   say. The contours are coloured by their own value and get a second colorbar of their own,
   which appears only while a field is selected. `none` switches them off.
@@ -81,6 +84,7 @@ julia> view_model(model, field=:velocity, dim=1, colormap=:vik, isosurface=false
 - `x`, `y`, `z`: where to cut the cross-section
 - `colormap`: any Makie colormap
 - `threed`: `false` leaves the 3D panel out, even for a 3D model
+- `narrows`: roughly how many velocity arrows across the longer side (default 28)
 - `isosurface`, `arrows`: whether those start switched on (the isosurface defaults to on for
   a 3D model, and is just the isolines for a 2D one)
 - `contours`: a second field to contour over the heatmap, e.g. `contours=:temperature`

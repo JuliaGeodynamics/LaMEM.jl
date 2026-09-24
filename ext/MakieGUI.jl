@@ -186,6 +186,9 @@ Use [`save_movie`](@ref) to write an animation of the simulation to disk.
 - `isosurface`: whether the isosurface and the isocontours start switched on (default `true`,
   since the volume rendering shows little of a phase field)
 - `arrows`: whether the velocity arrows start switched on (default `false`)
+- `narrows`: roughly how many velocity arrows to draw across the longer side of the section
+  (default 28); the sampling follows from that, so the arrows stay readable whatever the
+  resolution of the model
 - `size`: the size of the window
 """
 function LaMEM.view_model(model::Model; kwargs...)
@@ -277,7 +280,8 @@ function build_viewer(frames::Vector{<:CartData}, times;
                       field=nothing, dim=1, x=nothing, y=nothing, z=nothing,
                       colormap=:roma, size=nothing, title_prefix="",
                       isosurface=nothing, arrows=false, contours=nothing,
-                      contour_colormap=:managua, threed=nothing, twod=nothing)
+                      contour_colormap=:managua, threed=nothing, twod=nothing,
+                      narrows=28)
 
     entries  = field_menu_entries(first(frames))
     selected = isnothing(field) ? first(entries)[2] : (field, dim)
@@ -525,7 +529,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
 
     # velocity arrows, subsampled so the plot stays readable
     arrows_data = Makie.lift(frame, pos_slider.value, axis_sym) do d, pos, ax
-        velocity_arrows(d, ax, pos)
+        velocity_arrows(d, ax, pos; narrows=narrows)
     end
     arr = Makie.arrows2d!(ax2d,
         Makie.lift(a -> a.x, arrows_data),
@@ -686,14 +690,16 @@ function slice_of_at(data::CartData, field::Symbol, dim::Int, axis::Symbol, pos)
 end
 
 """
-    velocity_arrows(data, axis, pos; every=2)
+    velocity_arrows(data, axis, pos; narrows=28)
 
 Internal helper returning the in-plane velocity components on the cross-section, subsampled
-by `every` so the arrows stay readable, together with a length scale that keeps them a
-sensible fraction of the model. Data without a velocity field gives a single arrow of zero
+to roughly `narrows` arrows across the longer side, together with a length scale that keeps
+them a sensible fraction of the model. The subsampling is by distance rather than by index,
+so a model with very different resolutions in its two directions still gets arrows on a
+square-ish lattice. Data without a velocity field gives a single arrow of zero
 length, since `arrows2d!` rejects empty input.
 """
-function velocity_arrows(data::CartData, axis::Symbol, pos; every=2)
+function velocity_arrows(data::CartData, axis::Symbol, pos; narrows=28)
     if !hasproperty(data.fields, :velocity)
         # `arrows2d!` cannot handle empty input, so hand back a single arrow of zero length
         # instead; it is invisible, and the toggle is what the user sees anyway
@@ -706,18 +712,31 @@ function velocity_arrows(data::CartData, axis::Symbol, pos; every=2)
     xs, zs, u, _, _ = slice_of_at(data, :velocity, dims[1], axis, pos)
     _,  _,  w, _, _ = slice_of_at(data, :velocity, dims[2], axis, pos)
 
-    ix = 1:every:length(xs)
-    iz = 1:every:length(zs)
+    # Subsample to a fixed number of arrows rather than a fixed stride: a 512x128 model
+    # would otherwise give hundreds of them and the plot turns black. The two strides are
+    # chosen so the arrows are evenly spaced *in distance* -- the long side of a wide model
+    # gets more of them than the short one, so they sit on a square-ish lattice rather than
+    # being stretched along with the aspect ratio of the model.
+    lx = length(xs) > 1 ? abs(last(xs) - first(xs)) : 1.0
+    lz = length(zs) > 1 ? abs(last(zs) - first(zs)) : 1.0
+    longest = max(lx, lz)
+
+    count_along(n, len) = clamp(round(Int, narrows*len/longest), 2, n)
+    stride_for(n, len)  = max(1, cld(n, count_along(n, len)))
+
+    ix = 1:stride_for(length(xs), lx):length(xs)
+    iz = 1:stride_for(length(zs), lz):length(zs)
 
     xg = repeat(collect(xs[ix]), 1, length(iz))
     zg = repeat(collect(zs[iz])', length(ix), 1)
     us = u[ix, iz]
     ws = w[ix, iz]
 
-    # scale the arrows to about one grid spacing at the largest velocity
+    # scale the arrows to about one arrow spacing at the largest velocity, so they stay
+    # clear of each other whatever the sampling worked out to be
     vmax = maximum(hypot.(us, ws))
-    dx = length(xs) > 1 ? abs(xs[2]-xs[1])*every : 1.0
-    scale = vmax > 0 ? dx/vmax : 1.0
+    spacing = length(ix) > 1 ? lx/(length(ix)-1) : longest/narrows
+    scale = vmax > 0 ? spacing/vmax : 1.0
 
     return (x=vec(xg), z=vec(zg), u=vec(us), w=vec(ws), scale=scale)
 end

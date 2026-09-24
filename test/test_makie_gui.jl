@@ -120,6 +120,20 @@ using GeophysicalModelGenerator
     pos_box.stored_string[] = "-300"
     @test pos2d.value[] ≈ -300 atol=10
 
+    # the arrows are subsampled to a fixed count, not a fixed stride, so a high-resolution
+    # model does not end up with a black mass of them
+    ext3 = Base.get_extension(LaMEM, :MakieExt)
+    function arrow_count(nel)
+        mm = Model(Grid(x=[-2000.,2000.], z=[-660,40], nel=nel), Output(out_dir="arrow_test"))
+        dd = CartData(mm.Grid.Grid.X, mm.Grid.Grid.Y, mm.Grid.Grid.Z,
+                      (phase=mm.Grid.Phases,
+                       velocity=(mm.Grid.Grid.X, mm.Grid.Grid.Y, mm.Grid.Grid.Z)))
+        return length(ext3.velocity_arrows(dd, :y, 0.0).x)
+    end
+    @test arrow_count((512,128)) < 400          # the high-resolution case from the report
+    @test arrow_count((32,16))   < 400
+    @test arrow_count((512,128)) > 20           # but still enough to read the flow
+
     # switching the displayed field must not throw either: `phase` is an integer field and
     # the temperature a float one, so an observable typed from the first value cannot hold
     # both (`InexactError: Int32(1543.6...)`)

@@ -36,6 +36,19 @@ using GeophysicalModelGenerator
     @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10747005f0 rtol=1e-1 # check Vz
 #    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.10866211f0 # check Vz
 
+    # `clean_directory(model)` clears the results but keeps the directory and its input
+    @test isdir(model.Output.out_dir)
+    clean_directory(model)
+    left = readdir(model.Output.out_dir)
+    @test isdir(model.Output.out_dir)                        # the directory itself stays
+    @test !any(startswith.(left, "Timestep"))                # the results are gone
+    @test !any(endswith.(left, ".pvd"))
+    @test "output.dat" in left                               # the input file is kept
+
+    # a model that was never run has nothing to clean, and should not throw
+    @test clean_directory(Model(Grid(nel=(8,8,8), x=[-1,1], y=[-1,1], z=[-1,1]),
+                                Output(out_dir="never_run_at_all"))) === nothing
+
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)
     # ===============================

@@ -56,3 +56,19 @@ julia> data, time = read_LaMEM_timestep(FileName, 1, DirName, fields=("phase [ ]
   attributes: ["note"]
 , [6.729703])
 ```
+
+### Removing the output of a run
+The results of an earlier run can be cleared with `clean_directory`, which takes either the
+model or the name of a directory:
+```julia
+julia> clean_directory(model)              # the output directory of the model
+julia> clean_directory("my_output_dir")    # or a directory by name
+```
+This removes the `Timestep_*` directories and the `*.pvd`/`*.vts` files, but keeps the
+directory itself along with the `*.dat` input file, the markers and any logfile, so the model
+can be run again. Use `rm(model.Output.out_dir, recursive=true)` if you want the directory
+gone as well.
+
+Clearing the output is worth doing when you change a setup and then look at it with
+[`view_model`](@ref): without it, the viewer finds the timesteps of the *previous* run and
+offers their fields rather than those of the new setup.

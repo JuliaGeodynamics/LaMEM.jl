@@ -55,6 +55,19 @@ function plot_phasediagram end
 function plot_cross_section_simulation end
 export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
 
+# Makie recipes, only defined once a Makie backend (GLMakie, CairoMakie, ...) is loaded.
+# `Makie.@recipe` generates the `crosssection`/`crosssection!` (and topo/phasediagram)
+# functions itself, so here we only reserve the names that the extension fills in.
+function crosssection end
+function crosssection! end
+function topo end
+function topo! end
+function phasediagram end
+function phasediagram! end
+function axis_labels end
+export crosssection, crosssection!, topo, topo!, phasediagram, phasediagram!
+export axis_labels
+
 
 #=
 function __init__()

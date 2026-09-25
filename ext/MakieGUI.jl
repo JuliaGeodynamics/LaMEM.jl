@@ -512,6 +512,13 @@ function build_viewer(frames::Vector{<:CartData}, times;
         lo == hi ? (lo - 1, hi + 1) : (lo, hi)      # a constant field has no range to map
     end
 
+    # Give the levels explicitly rather than asking for a count. Left to itself, `contour!`
+    # derives them from the data, and when a field turns out to be constant -- an unrun
+    # setup, or a timestep where nothing has happened yet -- that derivation returns a
+    # vector where the plot expects a range and the update throws. The levels follow
+    # `over_range`, which already handles the constant case.
+    over_levels = Makie.lift(r -> collect(range(r[1], r[2], 8)), over_range)
+
     # `contour!` cannot take `nothing`, so when no field is chosen keep the coordinates of
     # the displayed slice and hide the plot instead. The contours are coloured by their own
     # value, on a colormap of their own so they stay legible over the heatmap.
@@ -519,7 +526,7 @@ function build_viewer(frames::Vector{<:CartData}, times;
         Makie.lift((o,sl) -> isnothing(o) ? sl.x      : o.x,      overlay, slice),
         Makie.lift((o,sl) -> isnothing(o) ? sl.z      : o.z,      overlay, slice),
         Makie.lift((o,sl) -> isnothing(o) ? sl.values : o.values, overlay, slice),
-        levels = 8, linewidth = 2,
+        levels = over_levels, linewidth = 2,
         colormap = over_colormap, colorrange = over_range)
     # set it from the current value first: `on` only fires on later changes
     over_lines.visible = !isnothing(overlay[])

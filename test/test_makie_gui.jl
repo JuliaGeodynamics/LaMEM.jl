@@ -203,6 +203,24 @@ using GeophysicalModelGenerator
     fig_flat = view_model(model, field=:phase, threed=false)
     @test isempty(filter(c -> c isa Makie.Axis3, collect(values(fig_flat.content))))
 
+    # contouring a field that is constant must not break the plot: `contour!` derives its
+    # levels from the data when given a count, and for a constant field that derivation
+    # returns a vector where a range is expected, which throws on the next update. An unrun
+    # setup and an early timestep both have such fields (a uniform viscosity, say).
+    flat_model = Model(Grid(x=[-1000.,1000.], z=[-660,20], nel=(16,8)),
+                       Output(out_dir="makie_gui_flat"))
+    rm_phase!(flat_model)
+    add_phase!(flat_model, Phase(ID=0,Name="mantle",eta=1e20,rho=3200))
+    flat_model.Grid.Temp .= 1300.0                    # constant everywhere
+    fig_flat_c = view_model(flat_model, field=:phase, contours=:temperature)
+    @test fig_flat_c isa Makie.Figure
+    file_flat = joinpath(tempdir(), "LaMEM_viewer_flat.png")
+    rm(file_flat, force=true)
+    save(file_flat, fig_flat_c)                       # this used to throw on update
+    @test isfile(file_flat)
+    rm(file_flat, force=true)
+    rm(flat_model.Output.out_dir, force=true, recursive=true)
+
     # a model without output cannot be animated, and should say so
     empty_model = Model(Grid(nel=(8,8,8), x=[-1,1], coord_y=[-1,1], coord_z=[-1,1]),
                         Output(out_dir="makie_gui_empty"))

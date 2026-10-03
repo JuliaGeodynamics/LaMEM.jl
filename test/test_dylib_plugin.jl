@@ -15,8 +15,9 @@ plugin_dir = joinpath(pkg_dir, "test", "dylib_plugin_test")
 # Pkg.test runs the tests with JULIA_LOAD_PATH="@:<test env>", which has no
 # @stdlib entry, so a child process started with its own --project cannot
 # even `using Pkg`. Give the children a load path of their project + stdlibs.
+# (the load-path separator is ';' on Windows, ':' elsewhere)
 julia_cmd(args...) = addenv(`$(Base.julia_cmd()) --startup-file=no $(args)`,
-                            "JULIA_LOAD_PATH" => "@:@stdlib")
+                            "JULIA_LOAD_PATH" => join(("@", "@stdlib"), Sys.iswindows() ? ";" : ":"))
 
 @testset "dylib_plugin" begin
     if VERSION < v"1.12"

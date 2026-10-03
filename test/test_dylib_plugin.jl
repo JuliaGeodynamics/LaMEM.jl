@@ -56,6 +56,22 @@ julia_cmd(args...) = addenv(`$(Base.julia_cmd()) --startup-file=no $(args)`,
         end
     end
 
+    # Phasetrans is switched on for built-in transitions added after the Model was constructed,
+    # but not for a plugin alone (its rule is gated by phase_transitions = dylib only)
+    late = Model(Grid(nel=(8,8)), Output(write_VTK_setup=false))
+    add_phase!(late, Phase(ID=0, Name="matrix"), Phase(ID=1, Name="sphere"))
+    add_sphere!(late, cen=(0.0,0.0,-5.0), radius=2.0)
+    add_phasetransition!(late, PhaseTransition(Type="dylib", library="libptlib_x.so"))
+    @test late.SolutionParams.Phasetrans == 0
+    add_phasetransition!(late, builtin)
+    @test late.SolutionParams.Phasetrans == 1
+    late.SolutionParams.Phasetrans = 0
+    late.Materials.PhaseTransitions = [builtin]            # set directly, bypassing add_phasetransition!
+    mktempdir() do dir
+        write_LaMEM_inputFile(late, joinpath(dir, "late.dat"))
+        @test dat_value(read(joinpath(dir, "late.dat"), String), "Phasetrans") == "1"
+    end
+
     # no plugin: nothing is written, and LaMEM uses its built-in phase transitions only
     dat, model = write_dat(builtin)
     @test isnothing(dat_value(dat, "dylib_plugin"))

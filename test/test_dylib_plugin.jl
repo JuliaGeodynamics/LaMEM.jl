@@ -3,7 +3,9 @@ using Test, Base.Sys
 # Tests LaMEM's dylib_plugin feature: a user-defined phase-transition rule,
 # written in Julia and compiled to a shared library with JuliaC.jl, loaded
 # by LaMEM at runtime via `dylib_plugin = <path>` / `phase_transitions = dylib`
-# in the .dat file (see LaMEM's src/dylib_plugins.h).
+# in the .dat file (see LaMEM's src/dylib_plugins.h). The plugin uses the
+# plugin ABI v3 (struct-based `lamem_phase_transition(markers, cells, step,
+# scaling)`), which needs a LaMEM_jll whose loader speaks ABI v3.
 #
 # Building the plugin needs Julia >= 1.12 (`juliac --trim`); older versions
 # skip. Everything else is a hard failure: the plugin is supported on Linux,
@@ -27,6 +29,10 @@ julia_cmd(args...) = addenv(`$(Base.julia_cmd()) --startup-file=no $(args)`,
         # Julia environment so this does not touch the user's own project.
         build_env = mktempdir()
         run(julia_cmd("--project=$build_env", "-e", "using Pkg; Pkg.add(\"JuliaC\")"))
+
+        # A bundle left over from an earlier run makes JuliaC's artifact copy
+        # fail ("... exists. `force=true` is required"), so start clean.
+        rm(joinpath(plugin_dir, "build_constant"); force = true, recursive = true)
 
         rule_file = joinpath(plugin_dir, "ptlib_constant.jl")
         build_script = joinpath(plugin_dir, "build_plugin.jl")
@@ -56,6 +62,11 @@ julia_cmd(args...) = addenv(`$(Base.julia_cmd()) --startup-file=no $(args)`,
         @test isfile(logfile)
         log = read(logfile, String)
         @test occursin("Dylib plugin", log)
+        # plugin ABI v3 (struct-based lamem_phase_transition); LaMEM prints
+        # the version the loaded library reports in its parameter block
+        @test occursin("Plugin ABI version                      : 3", log)
+        # per-step summary: "Dylib plugin  : N marker(s) changed phase,
+        # M marker(s) changed temperature, K marker(s) changed other fields"
         m = match(r"Dylib plugin\s*:\s*(\d+) marker\(s\) changed phase", log)
         @test !isnothing(m)
         if !isnothing(m)

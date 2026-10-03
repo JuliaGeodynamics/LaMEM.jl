@@ -9,7 +9,8 @@ If you activate passive tracers, for example, it will also activate output for t
 function UpdateDefaultParameters(model::Model)
 
     # If PhaseTransitions are defined, we generally want this to be activated in computations
-    if !isempty(model.Materials.PhaseTransitions)
+    # (a user-defined phase transition, Type="dylib", does not need it)
+    if any(PT -> PT.Type != "dylib", model.Materials.PhaseTransitions)
         model.SolutionParams.Phasetrans = 1
     end
    

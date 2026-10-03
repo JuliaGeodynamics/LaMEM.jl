@@ -491,12 +491,21 @@ end
     Defines phase transitions on markers (that change the Phase ID of a marker depending on some conditions)
 
     $(TYPEDFIELDS)
+
+    `Type="dylib"` activates a user-defined phase transition rule, written in Julia and compiled into a
+    shared library (a LaMEM plugin) with `build_phase_transition_plugin`; `library` is the path of that
+    library and all other fields are ignored. LaMEM calls the rule every time step on all markers, after the
+    built-in phase transitions. A model can have at most one such entry, and does not need `Phasetrans=1`
+    for it. Example:
+
+        library = build_phase_transition_plugin("ptlib_myrule.jl")
+        add_phasetransition!(model, PhaseTransition(Type="dylib", library=library))
 """
 Base.@kwdef mutable struct PhaseTransition
     "Phase_transition law ID"
     ID::Int64                      =   0           
 
-    "[Constant, Clapeyron, Box]: Constant - the phase transition occurs only at a fixed value of the parameter; Clapeyron - clapeyron slope"
+    "[Constant, Clapeyron, Box, NotInAirBox, dylib]: Constant - the phase transition occurs only at a fixed value of the parameter; Clapeyron - clapeyron slope; dylib - user-defined rule, compiled into the plugin `library`"
     Type::String                    =   "Constant"      
     
     "Type of predefined Clapeyron slope, such as Mantle_Transition_660km"
@@ -570,12 +579,23 @@ Base.@kwdef mutable struct PhaseTransition
     
     "Number of phase transition equations. Must be 1 or 2 for Clapeyron phase transitions"
     numberofequation::Union{Int64, Nothing}   =   nothing
+
+    "[only for Type=dylib] path of the compiled phase transition plugin (as returned by `build_phase_transition_plugin`); a relative path is relative to the directory in which LaMEM runs (`model.Output.out_dir`)"
+    library::Union{String, Nothing}   =   nothing
     
 end
 
+# fields of a Type="dylib" phase transition that are shown (all others are ignored)
+isdylib(d::PhaseTransition) = d.Type == "dylib"
+shown_fields(d::PhaseTransition) = isdylib(d) ? (:Type, :library) : fieldnames(typeof(d))
+
 function show(io::IO, d::PhaseTransition)
-    println(io, "Phase Transition Law $(d.ID): ")
-    fields    = fieldnames(typeof(d))
+    if isdylib(d)
+        println(io, "Phase Transition Law (Julia plugin): ")
+    else
+        println(io, "Phase Transition Law $(d.ID): ")
+    end
+    fields    = shown_fields(d)
 
     # print fields
     for f in fields
@@ -588,7 +608,7 @@ function show(io::IO, d::PhaseTransition)
 end
 
 function show_short(d::PhaseTransition)
-    fields    = fieldnames(typeof(d))
+    fields    = shown_fields(d)
     str = "PhaseTransition("
     for (i,f) in enumerate(fields)
         if !isnothing(getfield(d,f))
@@ -893,14 +913,23 @@ function write_LaMEM_inputFile(io, d::Materials)
     println(io, "#===============================================================================")
     println(io,"")
 
+    # A user-defined phase transition (Type="dylib") is not a <PhaseTransitionStart> block, but
+    # two top-level keywords: load the plugin library, and call its rule every time step
+    for PT in filter(isdylib, d.PhaseTransitions)
+        println(io, "   # User-defined phase transition (Julia plugin)")
+        println(io,"    $(rpad("dylib_plugin",17))  = $(write_vec(PT.library))     # $(get_doc(PhaseTransition, :library))")
+        println(io,"    $(rpad("phase_transitions",17))  = $(write_vec("dylib"))     # call the rule of the plugin every time step, after the built-in phase transitions")
+        println(io,"")
+    end
+
     println(io, "   # Define Phase Transition laws (maximum 10)")
-    for PT in d.PhaseTransitions
+    for PT in filter(!isdylib, d.PhaseTransitions)
       
         println(io, "   <PhaseTransitionStart>")
         
         pt_fields    = fieldnames(typeof(PT))
         for pt in pt_fields
-            if !isnothing(getfield(PT,pt))
+            if !isnothing(getfield(PT,pt)) && pt != :library
                 name = rpad(String(pt),15)
                 comment = get_doc(PhaseTransition, pt)
                 data = getfield(PT,pt) 

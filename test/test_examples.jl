@@ -48,6 +48,8 @@ const testing = true
     @testset "PhaseTransitionPlugin" begin
         if VERSION < v"1.12"
             @test_skip "building the plugin needs Julia >= 1.12 (juliac --trim)"
+        elseif pkgversion(LaMEM.LaMEM_jll) < v"3.4.0"
+            @test_skip "loading the plugin needs LaMEM_jll >= 3.4.0"
         else
             include("../example_scripts/PhaseTransitionPlugin.jl")
             @test isfile(library)

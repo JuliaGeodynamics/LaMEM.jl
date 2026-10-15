@@ -11,7 +11,7 @@ julia> println(readchomp(`$(LaMEM.LaMEM_jll.LaMEM()) -fastscape_info`))
 
 ## Setting it up from Julia
 
-FastScape is switched on with `surf_mode=2` in the [`FreeSurface`](@ref) and configured with a [`FastScape`](@ref) structure, which LaMEM.jl writes as a `<FastScapeStart>`/`<FastScapeEnd>` block of the input file:
+FastScape is switched on with `surf_mode=2` in the [`FreeSurface`](@ref) and configured with a [`FastScape`](@ref) structure:
 
 ```julia
 julia> using LaMEM, GeophysicalModelGenerator
@@ -34,7 +34,7 @@ julia> add_phase!(model, Phase(ID=0, Name="Air",      eta=1e19, rho=50),
 julia> run_lamem(model, 1, logfile="fastscape")
 ```
 
-The log file then contains the FastScape messages (`Begin FastScape`, ...), and the FastScape surface is written next to the other output as `*_fs.pvd`.
+The FastScape surface is written next to the other output as `*_fs.pvd`.
 
 Some points to keep in mind:
 
@@ -54,14 +54,3 @@ A parameter file that already has a `<FastScapeStart>` block can be run as it is
 julia> run_lamem("Collision_FastScape.dat", 4)
 ```
 
-## Input files from the manuscript
-
-Input files of simulations in which LaMEM was coupled to FastScape are available on [Zenodo](https://zenodo.org/records/21761705). Several keys were renamed in the version of LaMEM that is distributed with `LaMEM_jll`, so these files need a few edits before they run:
-
-| Key in the manuscript files | Key in LaMEM ≥ 3.3.0 (and `FastScape(...)`) |
-|:----------------------------|:--------------------------------------------|
-| `Max_dt`                    | `max_fs_dt`                                 |
-| `setMarine`                 | `set_marine`                                |
-| `Lsolve`                    | `depth_siltsand_solve`                      |
-
-Be aware that the manuscript coupled LaMEM (3.0.1) and a modified FastScape separately, whereas `LaMEM_jll` has FastScape built in. Running the renamed input files is therefore not guaranteed to reproduce the published results, and we have not compared them.

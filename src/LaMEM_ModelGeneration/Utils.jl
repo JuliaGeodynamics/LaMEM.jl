@@ -178,6 +178,10 @@ This adds a phase transition `phase_trans` to `model`
 """
 function add_phasetransition!(model::Model, phase_trans::PhaseTransition) 
     push!(model.Materials.PhaseTransitions, phase_trans);
+    # built-in transitions are only applied with Phasetrans = 1 (a Type="dylib" plugin does not need it)
+    if phase_trans.Type != "dylib"
+        model.SolutionParams.Phasetrans = 1
+    end
     return nothing
 end
 

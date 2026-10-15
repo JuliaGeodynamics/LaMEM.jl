@@ -156,6 +156,11 @@ Writes a LaMEM input file based on the data stored in Model
 function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd(), warn_constant_grid=true)
     Check_LaMEM_Model(d; warn_constant_grid)    # check for mistakes in input
 
+    # built-in phase transitions added after the Model was constructed (e.g. by push!) still need Phasetrans = 1
+    if any(PT -> PT.Type != "dylib", d.Materials.PhaseTransitions)
+        d.SolutionParams.Phasetrans = 1
+    end
+
     if d.Output.write_VTK_setup
         # If we want to write an input file 
         write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp,APS=d.Grid.APS)),"Model3D")

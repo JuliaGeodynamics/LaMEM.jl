@@ -30,6 +30,7 @@ makedocs(;
                                                     "Notebooks" => "juliasetup_pluto.md",
                                                     "Available functions" => "LaMEM_ModelFunctions.md",
                                                     "Passive tracers" => "readpassivetracers.md",
+                                                    "Surface processes with FastScape" => "fastscape.md",
                                                     "User-defined phase transitions" => "phase_transition_plugins.md",
                                                     "Plotting with Makie" => "plotting_makie.md",
                                                     "Interactive viewer" => "viewer.md",
@@ -78,7 +79,17 @@ build_output_path = joinpath(@__DIR__, "build", ".documenter")
 package_json = joinpath(@__DIR__, "package.json")
 template_json = joinpath(pkgdir(DocumenterVitepress), "template", "package.json")
 added_package_json = !isfile(package_json)
-added_package_json && cp(template_json, package_json)
+if added_package_json
+    cp(template_json, package_json)
+    # The template asks for `@nolebase/vitepress-plugin-enhanced-readabilities ^2.14.0`, which
+    # npm now resolves to 2.21.x; that needs Vitepress 2.0 (alpha), while the template uses
+    # Vitepress 1.x, so `npm install` fails with ERESOLVE. Stay below 2.21 until
+    # DocumenterVitepress moves to Vitepress 2.
+    chmod(package_json, 0o644)      # the copy of a package-store file is read-only
+    write(package_json, replace(read(package_json, String),
+        "\"@nolebase/vitepress-plugin-enhanced-readabilities\": \"^2.14.0\"" =>
+        "\"@nolebase/vitepress-plugin-enhanced-readabilities\": \">=2.14.0 <2.21.0\""))
+end
 try
     cd(@__DIR__) do
         node(; adjust_PATH = true, adjust_LIBPATH = true) do _

@@ -19,13 +19,6 @@ using LaMEM
     include("test_erosion.jl")
     include("test_sedimentation.jl")
     include("test_fastscape.jl")
-
-    # Julia phase-transition plugins need a LaMEM_jll that loads them (>= 3.4.0)
-    if pkgversion(LaMEM.LaMEM_jll) >= v"3.4.0"
-        include("test_dylib_plugin.jl")
-    else
-        @info "Skipping the dylib_plugin tests: they need LaMEM_jll >= 3.4.0" version=pkgversion(LaMEM.LaMEM_jll)
-    end
 end
 
 if !Sys.iswindows()

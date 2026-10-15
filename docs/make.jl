@@ -31,7 +31,6 @@ makedocs(;
                                                     "Available functions" => "LaMEM_ModelFunctions.md",
                                                     "Passive tracers" => "readpassivetracers.md",
                                                     "Surface processes with FastScape" => "fastscape.md",
-                                                    "User-defined phase transitions" => "phase_transition_plugins.md",
                                                     "Plotting with Makie" => "plotting_makie.md",
                                                     "Interactive viewer" => "viewer.md",
                                                   ],

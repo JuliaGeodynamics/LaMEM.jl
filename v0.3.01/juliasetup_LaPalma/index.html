@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Example 2: Volcano · LaMEM.jl</title><meta name="title" content="Example 2: Volcano · LaMEM.jl"/><meta property="og:title" content="Example 2: Volcano · LaMEM.jl"/><meta property="twitter:title" content="Example 2: Volcano · LaMEM.jl"/><meta name="description" content="Documentation for LaMEM.jl."/><meta property="og:description" content="Documentation for LaMEM.jl."/><meta property="twitter:description" content="Documentation for LaMEM.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">LaMEM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><span class="tocitem">Installation</span><ul><li><a class="tocitem" href="../installation/">General instructions</a></li><li><a class="tocitem" href="../installation_HPC/">Installation on HPC systems</a></li></ul></li><li><span class="tocitem">Create &amp; run LaMEM models from julia</span><ul><li><a class="tocitem" href="../juliasetups/">Overview</a></li><li><a class="tocitem" href="../juliasetup_example_sphere/">Example 1: Sphere</a></li><li class="is-active"><a class="tocitem" href>Example 2: Volcano</a></li><li><a class="tocitem" href="../juliasetup_TMSubduction/">Example 3: 2D Subduction</a></li><li><a class="tocitem" href="../Subduction3D/">Example 4: 3D Subduction</a></li><li><a class="tocitem" href="../juliasetup_pluto/">Notebooks</a></li><li><a class="tocitem" href="../LaMEM_ModelFunctions/">Available functions</a></li></ul></li><li><a class="tocitem" href="../runlamem/">Run LaMEM</a></li><li><a class="tocitem" href="../readtimesteps/">Reading timesteps</a></li><li><a class="tocitem" href="../listfunctions/">List of functions</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Create &amp; run LaMEM models from julia</a></li><li class="is-active"><a href>Example 2: Volcano</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Example 2: Volcano</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/JuliaGeodynamics/LaMEM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/JuliaGeodynamics/LaMEM.jl/blob/main/docs/src/juliasetup_LaPalma.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="La-Palma-Volcano-setup"><a class="docs-heading-anchor" href="#La-Palma-Volcano-setup">La Palma Volcano setup</a><a id="La-Palma-Volcano-setup-1"></a><a class="docs-heading-anchor-permalink" href="#La-Palma-Volcano-setup" title="Permalink"></a></h1><p>In this example, we will show how to create a 3D model setup for the 2020 La Palma eruption. We mainly focus on the LaMEM part; see the <a href="https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl">GeophysicalModelGenerator</a> package for more details on how to plot earthquake data etc.</p><h4 id="1.-Load-packages-and-topography"><a class="docs-heading-anchor" href="#1.-Load-packages-and-topography">1. Load packages &amp; topography</a><a id="1.-Load-packages-and-topography-1"></a><a class="docs-heading-anchor-permalink" href="#1.-Load-packages-and-topography" title="Permalink"></a></h4><p>Let&#39;s start with what we need:</p><pre><code class="language-julia hljs">julia&gt; using LaMEM, GeophysicalModelGenerator, GMT, Plots
+Loading GMT routines within GMG
+WARNING: using GMT.meshgrid in module GeophysicalModelGenerator conflicts with an existing identifier.
+adding Plots.jl plotting extensions for LaMEM</code></pre><p>Load the topography, choose a projection point &amp; project the topography to cartesian coordinates:</p><pre><code class="language-julia hljs">julia&gt; Topo = ImportTopo(lon = [-18.7, -17.1], lat=[28.0, 29.2], file=&quot;@earth_relief_03s.grd&quot;);
+julia&gt; proj = ProjectionPoint(Lon=-17.84, Lat=28.56);
+julia&gt; Topo_cart = Convert2CartData(Topo, proj)
+CartData 
+    size    : (1921, 1441, 1)
+    x       ϵ [ -86.09445705828863 : 73.67229892155609]
+    y       ϵ [ -63.5531883197492 : 73.28446155584604]
+    z       ϵ [ -4.38352685546875 : 2.414]
+    fields  : (:Topography,)
+  attributes: [&quot;note&quot;]</code></pre><p>This shows the dimensions of our domain in kilometers. The issue is that this projected topography is not an orthogonal grid, but (slightly) distorted. In any case, we see the approximate dimensions of the grid (in horizontal directions), so we can create an orthogonal grid on which to project this:</p><pre><code class="language-julia hljs">julia&gt; Topo_LaMEM = CartData(xyz_grid(-70:.2:70,-60:.2:70,0));
+julia&gt; Topo_LaMEM = ProjectCartData(Topo_LaMEM, Topo, proj)</code></pre><p>We can plot it with:</p><pre><code class="language-julia hljs">julia&gt; plot_topo(Topo_LaMEM, clim=(-4,4))</code></pre><p><img src="../assets/LaPalma_topo.png" alt="LaPalma_topo"/></p><h4 id="2.-LaMEM-Model-setup"><a class="docs-heading-anchor" href="#2.-LaMEM-Model-setup">2. LaMEM Model setup</a><a id="2.-LaMEM-Model-setup-1"></a><a class="docs-heading-anchor-permalink" href="#2.-LaMEM-Model-setup" title="Permalink"></a></h4><p>Next, we generate a model setup  for LaMEM with:</p><pre><code class="language-julia hljs">julia&gt; model = Model(Grid(x=[-50.,50.], y=[-40.,40.], z=[-80,15] , nel=(64,64,32)),
+                     BoundaryConditions(temp_bot=1350, open_top_bound=1),
+                     Scaling(GEO_units(stress=1e9Pa, length=1km)),
+                     Time(nstep_max=20) )
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
+|-- Grid                :  nel=(64, 64, 32); xϵ(-50.0, 50.0), yϵ(-40.0, 40.0), zϵ(-80.0, 15.0) 
+|-- Time                :  nstep_max=20; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=files; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  0 phases; </code></pre><h5 id="Set-geotherm-and-phases"><a class="docs-heading-anchor" href="#Set-geotherm-and-phases">Set geotherm and phases</a><a id="Set-geotherm-and-phases-1"></a><a class="docs-heading-anchor-permalink" href="#Set-geotherm-and-phases" title="Permalink"></a></h5><p>We can set an initial constant, linear, geotherm with:</p><pre><code class="language-julia hljs">julia&gt; Z = model.Grid.Grid.Z;
+julia&gt; Geotherm=30
+julia&gt; model.Grid.Temp = -Z.*Geotherm;</code></pre><p>We will cutoff extreme values with:</p><pre><code class="language-julia hljs">julia&gt; model.Grid.Temp[model.Grid.Temp.&lt;20]    .=  20;
+julia&gt; model.Grid.Temp[model.Grid.Temp.&gt;1350]  .=  1350;
+julia&gt; model.Grid
+LaMEM grid with constant Δ: 
+  nel         : ([64], [64], [32])
+  marker/cell : (3, 3, 3)
+  x           ϵ [-50.0 : 50.0]
+  y           ϵ [-40.0 : 40.0]
+  z           ϵ [-80.0 : 15.0]
+  Phases      : range ϵ [0 - 0]
+  Temp        : range ϵ [20.0 - 1350.0]</code></pre><p>Set <code>Phases</code> to two everywhere:</p><pre><code class="language-julia hljs">julia&gt; model.Grid.Phases .= 2;</code></pre><p>Now set points above the topography to zero (will be air later), the ones above the topography but below zero to &#39;water` and below 40 km to mantle (if we had a Moho surface we could use that):</p><pre><code class="language-julia hljs"> julia&gt; above_surface!(model, Topo_LaMEM, phase=0, T=0)
+ julia&gt; model.Grid.Phases[Z.&lt;-0 .&amp;&amp; model.Grid.Phases .== 0] .= 1;
+ julia&gt; model.Grid.Phases[Z.&lt;-40] .= 3;</code></pre><p>Finally, we define some magma chambers:</p><pre><code class="language-julia hljs">julia&gt; add_sphere!(model, cen=(0,0,-35), radius=5, phase=ConstantPhase(5), T=ConstantTemp(1200));
+julia&gt; add_ellipsoid!(model, cen=(-1,0,-11), axes=(3,3,8), StrikeAngle=225, DipAngle=45, phase=ConstantPhase(5), T=ConstantTemp(1200));
+julia&gt; add_ellipsoid!(model, cen=(-0,0,-23), axes=(8,8,2), StrikeAngle=0, DipAngle=0, phase=ConstantPhase(5), T=ConstantTemp(1200));</code></pre><p>We can plot a cross-section through the model:</p><pre><code class="language-julia hljs"> julia&gt; plot_cross_section(model, x=0, field=:phase)</code></pre><p><img src="../assets/LaPalma_CrossSection.png" alt="LaPalma_CrossSection"/></p><h5 id="Set-material-properties"><a class="docs-heading-anchor" href="#Set-material-properties">Set material properties</a><a id="Set-material-properties-1"></a><a class="docs-heading-anchor-permalink" href="#Set-material-properties" title="Permalink"></a></h5><p>First, we set air and water properties:</p><pre><code class="language-julia hljs">julia&gt; air = set_air(alpha=3e-5, G=1e10, nu=0.2, ch=10e6, fr=30)
+Phase 0 (air): 
+  rho    = 100.0 
+  eta    = 1.0e17 
+  G      = 1.0e10 
+  nu     = 0.2 
+  ch     = 1.0e7 
+  fr     = 30.0 
+  alpha  = 3.0e-5 
+  Cp     = 1000.0 
+  k      = 30.0 
+julia&gt; water=deepcopy(air); water.Name=&quot;water&quot;; water.ID=1</code></pre><p>Next, we set the crust:</p><pre><code class="language-julia hljs">julia&gt; crust = Phase(Name=&quot;Crust&quot;, ID=2, rho=2900, alpha=3e-5, disl_prof=&quot;Mafic_Granulite-Ranalli_1995&quot;,
+                    G=3e10, nu=0.2, k=3, Cp=1000, ch=10e6, fr=30)
+Phase 2 (Crust): 
+  rho       = 2900.0 
+  disl_prof = Mafic_Granulite-Ranalli_1995 
+  G         = 3.0e10 
+  nu        = 0.2 
+  ch        = 1.0e7 
+  fr        = 30.0 
+  alpha     = 3.0e-5 
+  Cp        = 1000.0 
+  k         = 3.0 </code></pre><p>The mantle is done as a copy of that, while changing a few parameters:</p><pre><code class="language-julia hljs"> julia&gt; mantle = copy_phase(crust, Name=&quot;Mantle&quot;, ID=3, rho=3320.0, disl_prof=&quot;Dry_Olivine-Ranalli_1995&quot;, G=6.5e10, k=3.3);</code></pre><p>And we define two different types of magma:</p><pre><code class="language-julia hljs">julia&gt; andesite = Phase(Name=&quot;andesitic_magma&quot;,ID=4,rho=2700, alpha=3e-5, eta=1e18, G=1.5e10, nu=0.2, k=3, Cp=1000, T=980, ch=1e7, fr=30);
+julia&gt; dacite = copy_phase(andesite,Name=&quot;dacite_magma&quot;, ID=5, rho=2575.0, eta=1e19, T=800.0)</code></pre><p>Now we add all of this to the model:</p><pre><code class="language-julia hljs">julia&gt; rm_phase!(model)
+julia&gt; add_phase!(model, air, water, crust, mantle, andesite, dacite)</code></pre><p>And check that we indeed have 6 phases:</p><pre><code class="language-julia hljs">julia&gt; model
+LaMEM Model setup
+|
+|-- Scaling             :  GeoParams.Units.GeoUnits{GEO}
+|-- Grid                :  nel=(64, 64, 32); xϵ(-50.0, 50.0), yϵ(-40.0, 40.0), zϵ(-80.0, 15.0) 
+|-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
+|-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
+|-- Solution parameters :  eta_min=1.0e18; eta_max=1.0e25; eta_ref=1.0e20; act_temp_diff=0
+|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Model setup options :  Type=files; 
+|-- Output options      :  filename=output; pvd=1; avd=0; surf=0
+|-- Materials           :  0 phases; </code></pre><h5 id="Add-topography-to-model"><a class="docs-heading-anchor" href="#Add-topography-to-model">Add topography to model</a><a id="Add-topography-to-model-1"></a><a class="docs-heading-anchor-permalink" href="#Add-topography-to-model" title="Permalink"></a></h5><p>We can add the topography grid that we created earlier to the model with:</p><pre><code class="language-julia hljs">julia&gt; add_topography!(model, Topo_LaMEM)</code></pre><h5 id="Set-solver-options"><a class="docs-heading-anchor" href="#Set-solver-options">Set solver options</a><a id="Set-solver-options-1"></a><a class="docs-heading-anchor-permalink" href="#Set-solver-options" title="Permalink"></a></h5><p>You will want to use a multigrid solver in this case:</p><pre><code class="language-julia hljs">julia&gt; model.Solver = Solver(SolverType=&quot;multigrid&quot;,  MGLevels=4)</code></pre><h3 id="3.-Run-LaMEM"><a class="docs-heading-anchor" href="#3.-Run-LaMEM">3. Run LaMEM</a><a id="3.-Run-LaMEM-1"></a><a class="docs-heading-anchor-permalink" href="#3.-Run-LaMEM" title="Permalink"></a></h3><p>Running LaMEM is simple; here on 4 processors:</p><pre><code class="language-julia hljs">julia&gt; run_lamem(model, 4)
+Saved file: Model3D.vts
+Written LaMEM topography file: topography.txt
+Writing LaMEM marker file -&gt; ./markers/mdb.00000000.dat
+Writing LaMEM marker file -&gt; ./markers/mdb.00000001.dat
+Writing LaMEM marker file -&gt; ./markers/mdb.00000002.dat
+Writing LaMEM marker file -&gt; ./markers/mdb.00000003.dat
+-------------------------------------------------------------------------- 
+                   Lithosphere and Mantle Evolution Model                   
+     Compiled: Date: Apr  7 2023 - Time: 22:11:23           
+     Version : 1.2.4 
+-------------------------------------------------------------------------- 
+        STAGGERED-GRID FINITE DIFFERENCE CANONICAL IMPLEMENTATION           
+-------------------------------------------------------------------------- 
+Parsing input file : output.dat 
+Finished parsing input file : output.dat 
+--------------------------------------------------------------------------
+Scaling parameters:
+   Temperature : 1000. [C/K] 
+   Length      : 1000. [m] 
+   Viscosity   : 1e+20 [Pa*s] 
+   Stress      : 1e+09 [Pa] 
+--------------------------------------------------------------------------</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../juliasetup_example_sphere/">« Example 1: Sphere</a><a class="docs-footer-nextpage" href="../juliasetup_TMSubduction/">Example 3: 2D Subduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Friday 15 March 2024 06:42">Friday 15 March 2024</span>. Using Julia version 1.9.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

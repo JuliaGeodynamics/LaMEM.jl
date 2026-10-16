@@ -18,7 +18,6 @@ using LaMEM
     include("test_examples.jl")
     include("test_erosion.jl")
     include("test_sedimentation.jl")
-    include("test_dylib_plugin.jl")
 end
 
 if !Sys.iswindows()

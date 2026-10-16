@@ -54,3 +54,32 @@ A parameter file that already has a `<FastScapeStart>` block can be run as it is
 julia> run_lamem("Collision_FastScape.dat", 4)
 ```
 
+## Example: subduction in 2D and 3D
+
+`example_scripts/Subduction_FastScape.jl` sets up a subduction zone with FastScape, as a 2D cross-section or as a 3D model. It follows the subduction model of the manuscript (input files on [Zenodo](https://zenodo.org/records/21761705)): an oceanic plate is pushed towards a continental plate at 5 cm/yr by a moving block (`BCBlock`) and subducts along a weak zone that dips at 30°, while FastScape erodes the topography that builds up and deposits the sediment as phase 8. The 3D model has an oceanic plateau on the subducting plate, which makes the subduction zone vary along strike.
+
+```julia
+julia> include("example_scripts/Subduction_FastScape.jl")
+julia> model = subduction_fastscape_model(ndim=2, nel=(192,48))      # a 2D cross-section
+julia> view_model(model)                                             # check the setup (needs a Makie backend)
+julia> run_lamem(model, 4, logfile="subduction")
+```
+
+For 3D, use `ndim=3` and `nel=(nx,ny,nz)`:
+
+```julia
+julia> model = subduction_fastscape_model(ndim=3, nel=(192,48,48))
+julia> run_lamem(model, 8, logfile="subduction")
+```
+
+![The 2D and 3D subduction setups](assets/subduction_fastscape_setup.png)
+
+*Top: the 2D setup, with the phases and the temperature. Bottom: the 3D setup, as a section through the middle and in map view at z = -5 km, where the oceanic plateau is the square on the subducting plate.*
+
+In 2D the surface of LaMEM is a line, so the FastScape domain is extended along strike (`fs2D=1`, over 100 km). The `fs_refine` keyword sets how much finer the FastScape grid is than the LaMEM surface grid.
+
+Differences with the manuscript, which ran the 3D model with 384×96×96 elements on 256 cores:
+
+- the default resolutions here are much lower, and `fs_refine` is 2 instead of 6, so that the models run on a laptop;
+- the temperature of the plates uses a half-space cooling profile of 70 Myr everywhere, without the younger part along the left boundary of the manuscript's model;
+- the manuscript's coupling of LaMEM 3.0.1 and a modified FastScape is not identical to the FastScape that is built into LaMEM, so the results are not expected to be the same.

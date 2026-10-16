@@ -96,3 +96,26 @@ end
 
     rm(model.Output.out_dir, force=true, recursive=true)
 end
+
+@testset "Subduction with FastScape (2D and 3D example)" begin
+    include("../example_scripts/Subduction_FastScape.jl")
+
+    for (ndim, nel) in ((2, (48,12)), (3, (48,12,12)))
+        out_dir = "subduction_fastscape_$(ndim)D"
+        model   = subduction_fastscape_model(ndim=ndim, nel=nel, nstep_max=2, nstep_out=1, out_dir=out_dir)
+
+        phases = unique(model.Grid.Phases)
+        @test all(p in phases for p in (0,1,2,3,5,6,7))     # air, weak zone, mantle, plates
+        @test (4 in phases) == (ndim == 3)                  # the oceanic plateau only exists in 3D
+        @test model.FreeSurface.surf_mode == 2
+        @test model.FreeSurface.FastScape.fs2D == (ndim == 2 ? 1 : 0)
+
+        run_lamem(model, 1, logfile="subduction")
+        log = read(joinpath(out_dir, "subduction.log"), String)
+        @test occursin("Begin FastScape", log)
+        @test occursin("SOLUTION IS DONE", log)
+        @test isfile(joinpath(out_dir, "sub_fs.pvd"))
+
+        rm(out_dir, force=true, recursive=true)
+    end
+end

@@ -138,6 +138,45 @@ Base.@kwdef mutable struct Output
     "amplitude of topography (=topo-average(topo))"
     out_surf_amplitude  = 0
 
+    "activate FastScape surface output (surf_mode=2 only; written to <out_file_name>_fs.pvd). The FastScape output flags are not written unless set, in which case LaMEM switches them all on"
+    out_surf_fs::Union{Int64,Nothing} = nothing
+
+    "activate writing FastScape .pvd file"
+    out_fs_pvd::Union{Int64,Nothing} = nothing
+
+    "FastScape topography"
+    out_surf_topofs::Union{Int64,Nothing} = nothing
+
+    "silt fraction (marine transport, set_marine=1)"
+    out_surf_silt_fraction::Union{Int64,Nothing} = nothing
+
+    "basement elevation (topography minus sediment thickness)"
+    out_surf_basement::Union{Int64,Nothing} = nothing
+
+    "cumulative erosion"
+    out_surf_total_erosion::Union{Int64,Nothing} = nothing
+
+    "drainage area"
+    out_surf_drainage_area::Union{Int64,Nothing} = nothing
+
+    "erosion rate"
+    out_surf_erosion_rate::Union{Int64,Nothing} = nothing
+
+    "surface slope"
+    out_surf_slope::Union{Int64,Nothing} = nothing
+
+    "surface curvature"
+    out_surf_curvature::Union{Int64,Nothing} = nothing
+
+    "chi parameter (integrated drainage-area metric)"
+    out_surf_chi::Union{Int64,Nothing} = nothing
+
+    "catchment ID"
+    out_surf_catchment::Union{Int64,Nothing} = nothing
+
+    "lake depth"
+    out_surf_lake_depth::Union{Int64,Nothing} = nothing
+
     "activate marker output"
     out_mark     = 0 
 
@@ -226,7 +265,7 @@ function write_LaMEM_inputFile(io, d::Output)
             end
         end
         
-        if getfield(d,f) == 1 || write_always
+        if (getfield(d,f) == 1 || write_always) && !isnothing(getfield(d,f))
             # only print if value differs from reference value
             name = rpad(String(f),15)
             comment = get_doc(Output, f)

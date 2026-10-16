@@ -1,0 +1,85 @@
+# Surface processes with FastScape
+
+LaMEM can couple its free surface to [FastScape](https://fastscape.org), a landscape-evolution model that computes river incision, hillslope diffusion, sediment transport and deposition on the surface grid. Instead of the built-in erosion/sedimentation, the topography is then evolved by FastScape every time step, and the deposited sediment is turned into a LaMEM phase of your choice.
+
+This needs a LaMEM binary that was compiled with FastScape, which is the case for `LaMEM_jll` 3.3.0 or newer (it ships `Fastscapelib_jll`). You can check this with
+
+```julia
+julia> using LaMEM
+julia> println(readchomp(`$(LaMEM.LaMEM_jll.LaMEM()) -fastscape_info`))
+```
+
+## Setting it up from Julia
+
+FastScape is switched on with `surf_mode=2` in the [`FreeSurface`](@ref) and configured with a [`FastScape`](@ref) structure:
+
+```julia
+julia> using LaMEM, GeophysicalModelGenerator
+julia> model = Model(Grid(nel=(32,8,16), x=[-50,50], y=[-10,10], z=[-50,10]),
+                     Scaling(GEO_units(stress=1000MPa, viscosity=1e20Pa*s)),
+                     Time(dt=1e-3, dt_min=1e-5, dt_max=1e-2, nstep_max=3, nstep_out=1, time_end=1),
+                     FreeSurface(surf_use=1, surf_level=0.0, surf_air_phase=0, surf_mode=2,
+                                 FastScape=FastScape(sed_phases=2, max_fs_dt=1e-3, fs_refine=2,
+                                                     topo_boundary="1111", vel_boundary="0000")),
+                     Output(out_dir="fastscape_example"))
+
+julia> add_box!(model; xlim=(-50, 50), ylim=(-10, 10), zlim=(0, 10),  phase=ConstantPhase(0), T=nothing)   # air
+julia> add_box!(model; xlim=(-50, 50), ylim=(-10, 10), zlim=(-50, 0), phase=ConstantPhase(1), T=nothing)   # crust
+julia> add_box!(model; xlim=(-10, 10), ylim=(-10, 10), zlim=(-50, 2), phase=ConstantPhase(1), T=nothing)   # a plateau
+
+julia> add_phase!(model, Phase(ID=0, Name="Air",      eta=1e19, rho=50),
+                         Phase(ID=1, Name="crust",    eta=1e21, rho=2700),
+                         Phase(ID=2, Name="sediment", eta=1e20, rho=2500))
+
+julia> run_lamem(model, 1, logfile="fastscape")
+```
+
+The FastScape surface is written next to the other output as `*_fs.pvd`.
+
+Some points to keep in mind:
+
+- `sed_phases` is the phase ID given to newly deposited sediment. It has to exist in the model.
+- If a LaMEM step is longer than `max_fs_dt`, it is split into several FastScape substeps.
+- `topo_boundary` and `vel_boundary` have one digit per boundary, in the order bottom (y-min), right (x-max), top (y-max), left (x-min). For `topo_boundary`, `1` means fixed height (sediment can leave the model) and `0` a reflective boundary. For `vel_boundary`, `1` means zero velocity, and `0` that the velocity transferred from LaMEM is kept.
+- The marine parameters (`sealevel`, `poroSilt`, ...) are only written if `set_marine=1`.
+- For a 2D LaMEM model, use `fs2D=1`: the 1D surface is then extended in the second horizontal direction over `extendedRange`, with `extendedNodes` points.
+
+All parameters, with their defaults, are listed in the docstring of [`FastScape`](@ref).
+
+## Using an existing input file
+
+A parameter file that already has a `<FastScapeStart>` block can be run as it is, as with any other LaMEM input file:
+
+```julia
+julia> run_lamem("Collision_FastScape.dat", 4)
+```
+
+## Example: subduction in 2D and 3D
+
+`example_scripts/Subduction_FastScape.jl` sets up a subduction zone with FastScape, as a 2D cross-section or as a 3D model. It follows the subduction model of the manuscript (input files on [Zenodo](https://zenodo.org/records/21761705)): an oceanic plate is pushed towards a continental plate at 5 cm/yr by a moving block (`BCBlock`) and subducts along a weak zone that dips at 30°, while FastScape erodes the topography that builds up and deposits the sediment as phase 8. The 3D model has an oceanic plateau on the subducting plate, which makes the subduction zone vary along strike.
+
+```julia
+julia> include("example_scripts/Subduction_FastScape.jl")
+julia> model = subduction_fastscape_model(ndim=2, nel=(192,48))      # a 2D cross-section
+julia> view_model(model)                                             # check the setup (needs a Makie backend)
+julia> run_lamem(model, 4, logfile="subduction")
+```
+
+For 3D, use `ndim=3` and `nel=(nx,ny,nz)`:
+
+```julia
+julia> model = subduction_fastscape_model(ndim=3, nel=(192,48,48))
+julia> run_lamem(model, 8, logfile="subduction")
+```
+
+![The 2D and 3D subduction setups](assets/subduction_fastscape_setup.png)
+
+*Top: the 2D setup, with the phases and the temperature. Bottom: the 3D setup, as a section through the middle and in map view at z = -5 km, where the oceanic plateau is the square on the subducting plate.*
+
+In 2D the surface of LaMEM is a line, so the FastScape domain is extended along strike (`fs2D=1`, over 100 km). The `fs_refine` keyword sets how much finer the FastScape grid is than the LaMEM surface grid.
+
+Differences with the GMD manuscript, which ran the 3D model with 384×96×96 elements on 256 cores:
+
+- the default resolutions here are much lower, and `fs_refine` is 2 instead of 6, so that the models run on a laptop;
+- the temperature of the plates uses a half-space cooling profile of 70 Myr everywhere, without the younger part along the left boundary of the manuscript's model;
+- the manuscript's coupling of LaMEM 3.0.1 and a modified FastScape is not identical to the FastScape that is built into LaMEM, so the results are not expected to be the same.

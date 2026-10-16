@@ -33,6 +33,7 @@ export Grid
 include("Time.jl")      # Timestepping
 export Time
 
+include("FastScape.jl")             # FastScape surface processes
 include("FreeSurface.jl")           # Free surface
 export FreeSurface
 

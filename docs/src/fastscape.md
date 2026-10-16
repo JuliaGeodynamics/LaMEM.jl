@@ -78,7 +78,7 @@ julia> run_lamem(model, 8, logfile="subduction")
 
 In 2D the surface of LaMEM is a line, so the FastScape domain is extended along strike (`fs2D=1`, over 100 km). The `fs_refine` keyword sets how much finer the FastScape grid is than the LaMEM surface grid.
 
-Differences with the manuscript, which ran the 3D model with 384×96×96 elements on 256 cores:
+Differences with the GMD manuscript, which ran the 3D model with 384×96×96 elements on 256 cores:
 
 - the default resolutions here are much lower, and `fs_refine` is 2 instead of 6, so that the models run on a laptop;
 - the temperature of the plates uses a half-space cooling profile of 70 Myr everywhere, without the younger part along the left boundary of the manuscript's model;

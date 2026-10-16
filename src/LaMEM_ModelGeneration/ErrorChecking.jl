@@ -48,7 +48,30 @@ function Check_LaMEM_Model(m::Model; warn_constant_grid=true)
         end
     end
 
-    
+    # user-defined phase transition (Julia plugin): LaMEM loads one library per run, and reads its
+    # path as a single token of at most 259 characters, from a line in which '#' starts a comment
+    dylibs = filter(PT -> PT.Type == "dylib", m.Materials.PhaseTransitions)
+    if length(dylibs) > 1
+        error("Only one phase transition with Type=\"dylib\" (a Julia plugin) can be used per model; you have $(length(dylibs))")
+    end
+    for PT in dylibs
+        lib = PT.library
+        if isnothing(lib) || isempty(lib)
+            error("A phase transition with Type=\"dylib\" needs the path of the plugin library: PhaseTransition(Type=\"dylib\", library=...), see build_phase_transition_plugin")
+        end
+        if any(isspace, lib) || occursin('#', lib)
+            error("The path of the phase transition plugin library must not contain spaces or '#': \"$lib\"")
+        end
+        if ncodeunits(lib) >= 260
+            error("The path of the phase transition plugin library is too long for LaMEM ($(ncodeunits(lib)) > 259 characters): $lib")
+        end
+    end
+    for PT in m.Materials.PhaseTransitions
+        if PT.Type != "dylib" && !isnothing(PT.library)
+            @warn "PhaseTransition $(PT.ID) has Type=\"$(PT.Type)\"; its library=\"$(PT.library)\" is ignored (it is only used with Type=\"dylib\")"
+        end
+    end
+
     return nothing
 end
 

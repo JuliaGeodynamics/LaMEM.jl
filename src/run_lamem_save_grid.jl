@@ -6,6 +6,17 @@
 using Base.Sys   
 
 
+# `ignorestatus` keeps a failing LaMEM from throwing, so tell the user that it did fail
+function warn_if_failed(proc)
+	if process_exited(proc) && proc.exitcode != 0
+		@warn "LaMEM exited with exit code $(proc.exitcode) while saving the grid; see the messages above. " *
+		      "A \"symbol lookup error ... undefined symbol: MPI_...\" means that the MPI library that is loaded is not compatible with " *
+		      "the one that LaMEM_jll/PETSc_jll were built with (for MPItrampoline you need MPItrampoline_jll >= 5.5.3, " *
+		      "see the HPC installation page of the documentation)."
+	end
+	return nothing
+end
+
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
     if cores > 1 && !mpi_available()
         cores = 1
@@ -19,8 +30,9 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
             cmd = deactivate_multithreading(cmd)
         end
 		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
-		run(cmd1, wait=wait);
+		proc = run(cmd1, wait=wait);
 		close(out.in)
+		warn_if_failed(proc)
 	else
 	
         # set correct environment
@@ -35,8 +47,9 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
 
         # Run LaMEM in parallel
 		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
-        run(cmd1, wait=wait);
+        proc = run(cmd1, wait=wait);
 		close(out.in)
+		warn_if_failed(proc)
     end
 	stdout = String(read(out))
 

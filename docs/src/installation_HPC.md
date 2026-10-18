@@ -40,16 +40,19 @@ export MPITRAMPOLINE_MPIEXEC=$HOME/MPIwrapper/mpiwrapper/bin/mpiwrapperexec
 ```
 Depending on the system it may be called `lib` instead of `lib64` (check!).
 
-* Start julia and install the correct versuion of `MPItrampoline_jll`
-Since `LaMEM_jll` and `PETSc_jll` are compiled versus a specific version of `MPItrampoline_jll`, this step is important.
-You can see which one we currently use [here](https://github.com/JuliaPackaging/Yggdrasil/blob/master/L/LaMEM/build_tarballs.jl).
-At the time of writting this was version 5.2.1:
+* Start julia and install a compatible version of `MPItrampoline_jll`
+`LaMEM_jll` and `PETSc_jll` are compiled versus `MPItrampoline_jll`, and they need MPI-4 functionality (such as `MPI_Allreduce_c`) that older versions do not provide. 
+You therefore need `MPItrampoline_jll` version `5.5.3` or newer (the same version range that is used to build `PETSc_jll`, see [here](https://github.com/JuliaPackaging/Yggdrasil/blob/master/L/LaMEM/build_tarballs.jl)):
 ```julia
 julia
 julia> ]
-pkg>add MPItrampoline_jll@5.2.1
+pkg>add MPItrampoline_jll@5.5.3
 ```
-
+> [!WARNING]
+> If you use an older `MPItrampoline_jll` (e.g. `5.2.1`, which this page used to recommend), preparing or running a model fails with an error such as
+> `symbol lookup error: .../libpetsc_double_real_Int32_double_real_Int32.so.3.22: undefined symbol: MPI_Allreduce_c`.
+> Check which version you have with `]status MPItrampoline_jll` and update it if needed.
+> Also make sure that `MPIwrapper` (see above) was compiled against an MPI library that is MPI-4 compliant (e.g., OpenMPI 5 or MPICH 4), as `MPItrampoline` forwards the calls to it.
 
 
 * Install the `MPI` and `MPIPreferences` packages:

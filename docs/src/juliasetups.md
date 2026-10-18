@@ -139,6 +139,11 @@ Running a model is very simple:
 ```julia
 julia> run_lamem(model,1)
 ```
+The second argument is the number of cores, so you can run the same model in parallel (here on 4 cores, no manual `mpiexec` setup needed) with:
+```julia
+julia> run_lamem(model,4)
+```
+If you already have a LaMEM `*.dat` file, see the [legacy workflow](runlamem.md).
 
 ### Upgrading to LaMEM 3.x
 

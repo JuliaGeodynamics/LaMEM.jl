@@ -35,9 +35,11 @@ makedocs(;
                                                     "Plotting with Makie" => "plotting_makie.md",
                                                     "Interactive viewer" => "viewer.md",
                                                   ],
-        "run LaMEM models the classical way" => ["Run LaMEM" => "runlamem.md",
-                               "Reading timesteps" => "readtimesteps.md"],
         "List of functions" => "listfunctions.md",
+
+        # legacy workflow (existing *.dat files); kept for reference, deliberately last
+        "Legacy: run from *.dat files" => ["Run LaMEM" => "runlamem.md",
+                                           "Reading timesteps" => "readtimesteps.md"],
     ],
     pagesonly=true,
     warnonly=true,

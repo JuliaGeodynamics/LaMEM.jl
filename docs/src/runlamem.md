@@ -1,4 +1,10 @@
-# Run LaMEM
+# Run LaMEM from existing `*.dat` files
+
+!!! note "Legacy workflow"
+    This page describes the "classical" way of using LaMEM: running a simulation from a parameter (`*.dat`) file that was written by hand or taken from the LaMEM repository.
+    For new models we recommend creating, running and analysing them directly from Julia, see [Create & run LaMEM models from julia](juliasetups.md).
+    The workflow below remains useful if you already have `*.dat` files.
+
 Go to the package manager & install it with:
 ```julia
 julia>]

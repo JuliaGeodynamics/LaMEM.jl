@@ -35,7 +35,7 @@ features:
   - icon: ▶️
     title: Run in parallel
     details: Launch LaMEM on multiple cores with a single function call — no manual mpiexec configuration needed.
-    link: /runlamem
+    link: /juliasetups
 
   - icon: 🖥️
     title: HPC ready

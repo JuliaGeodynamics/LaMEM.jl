@@ -127,6 +127,11 @@ Base.@kwdef struct GeomSphere
         
     "required in case of [constant]: temperature value [in Celcius in case of GEO units]"
     cstTemp::Union{Float64,Nothing}     = nothing   
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 
@@ -176,6 +181,11 @@ Base.@kwdef struct GeomEllipsoid
         
     "required in case of [constant]: temperature value [in Celcius in case of GEO units]"
     cstTemp::Union{Float64,Nothing}     = nothing   
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 
@@ -230,6 +240,11 @@ Base.@kwdef struct GeomBox
     
     "required in case of [`halfspace`]: thermal age of lithosphere [in Myrs if GEO units are used]"
     thermalAge::Union{Float64,Nothing}     = nothing   
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 function show(io::IO, d::GeomBox)
@@ -292,6 +307,11 @@ Base.@kwdef struct GeomRidgeSeg
 
     "[optional] parameter that indicates the spreading velocity of the plate; if not defined it uses bvel_velin specified elsewhere"
     v_spread::Union{Float64,Nothing}    = nothing
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 function show(io::IO, d::GeomRidgeSeg)
@@ -333,6 +353,11 @@ Base.@kwdef struct GeomHex
     (counter)-clockwise for an arbitrary face, followed by the opposite face
     """
     coord::Vector{Float64}      = [0.25, 0.25, 0.25,   0.5, 0.2, 0.2,   0.6, 0.7, 0.25,   0.3, 0.5, 0.3,   0.2, 0.3, 0.75,   0.6, 0.15, 0.75,   0.5, 0.6, 0.80,   0.2, 0.4, 0.75]
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 function show(io::IO, d::GeomHex)
@@ -398,6 +423,11 @@ Base.@kwdef struct GeomLayer
     
     "required in case of [`halfspace`]: thermal age of lithosphere [in Myrs if GEO units are used]"
     thermalAge::Union{Float64,Nothing}  = nothing   
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 function show(io::IO, d::GeomLayer)
@@ -449,6 +479,11 @@ Base.@kwdef struct GeomCylinder
     "required in case of [`constant`]: temperature value [in Celcius in case of GEO units]"
     cstTemp::Union{Float64,Nothing}     = nothing   
 
+    "optional: simulation times at which the primitive is stamped onto the markers (phase, temperature if given; APS, ATS and stresses are reset); at most 10, strictly increasing. If not given, the primitive defines the initial geometry (requires LaMEM_jll >= 3.3.0)"
+    t_inject::Union{Vector{Float64},Nothing} = nothing
+
+    "number of injection times; set automatically from `t_inject`"
+    n_inject::Union{Int64,Nothing} = isnothing(t_inject) ? nothing : length(t_inject)
 end
 
 function show(io::IO, d::GeomCylinder)

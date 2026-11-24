@@ -20,11 +20,6 @@ Base.@kwdef mutable struct SolutionParams
     """
     FSSA::Float64            = 1.0         
 
-    """
-    free surface stabilization parameter applied to all velocity components?  Default is yes; if not it is only applied to the z-component
-    """
-    FSSA_allVel::Int64       = 1 
-
     "shear heating efficiency parameter   [0 - 1]"   
     shear_heat_eff::Float64  = 1.0             
     
@@ -59,7 +54,7 @@ Base.@kwdef mutable struct SolutionParams
     p_litho_visc::Int64    = 1              
     
     "use lithostatic pressure for plasticity"
-    p_litho_plast::Int64   = 1         
+    p_litho_plast::Int64   = 0         
 
     "limit pressure at first iteration for plasticity"      
     p_lim_plast::Int64     = 1              
@@ -71,7 +66,7 @@ Base.@kwdef mutable struct SolutionParams
     act_p_shift::Int64       = 1 
 
     "viscosity lower bound [Pas]"
-    eta_min::Float64         = 1e18        
+    eta_min::Float64         = 0.0        
     
     "viscosity upper limit [Pas]   "
     eta_max::Float64         = 1e25         

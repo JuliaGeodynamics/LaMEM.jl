@@ -7,6 +7,9 @@ on:
       - main
     tags: '*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # Cancel redundant CI tests automatically
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,32 +23,32 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.10'
-          - '1.11'
+          - '1'
+          - '1.12'
           #- 'nightly'
         os:
           - ubuntu-latest
-          - macos-13
+          - macOS-15-intel        # with intel processors 
           - windows-latest
         arch:
           - x64
         include:
           - os: macOS-latest
             arch: aarch64
-            version: '1.10'
+            version: '1.12'
           - os: macOS-latest
             arch: aarch64
-            version: '1.11'
+            version: '1'
           #- os: macOS-latest
           #  arch: aarch64
           #  version: 'nightly'
     steps:
-      - uses: actions/checkout@v4
-      - uses: julia-actions/setup-julia@v2
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         env:
           cache-name: cache-artifacts
         with:
@@ -55,12 +58,22 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: Copy 7z into Julia libexec on Windows (GR build.jl hardcodes this path, removed in Julia 1.12)
+        if: runner.os == 'Windows'
+        run: |
+          $juliabin = (Get-Command julia).Source
+          $libexec = Join-Path (Split-Path (Split-Path $juliabin -Parent) -Parent) "libexec"
+          New-Item -ItemType Directory -Force -Path $libexec | Out-Null
+          Copy-Item "C:\Program Files\7-Zip\7z.exe" "$libexec\7z.exe"
       - uses: julia-actions/julia-buildpkg@latest
-      - uses: julia-actions/julia-runtest@latest  
+      - name: Remove macOS quarantine from Julia artifacts
+        if: runner.os == 'macOS'
+        run: xattr -r -d com.apple.quarantine ~/.julia/artifacts/ || true
+      - uses: julia-actions/julia-runtest@latest
 #  build_docs:
 #    runs-on: ubuntu-latest
 #    steps:
-#      - uses: actions/checkout@v4
+#      - uses: actions/checkout@v7
 #      - uses: julia-actions/setup-julia@latest
 #        with:
 #          version: '1.10'

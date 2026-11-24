@@ -1,6 +1,6 @@
 # This is the main LaMEM Model struct
 using GeophysicalModelGenerator.GeoParams
-import LaMEM.Run: run_lamem, run_lamem_save_grid
+import LaMEM.Run: run_lamem, run_lamem_save_grid, mpi_available
 import LaMEM: passivetracer_time, project_onto_crosssection
 using LaMEM.Run.LaMEM_jll
 
@@ -98,15 +98,15 @@ Allow to define a model setup by specifying some of the basic objects
 Example
 ===
 ```julia
-julia> d = Model(Grid(nel=(10,1,20)), Scaling(NO_units()))
+julia> d = Model(Grid(nel=(10,2,20)), Scaling(NO_units()))
 LaMEM Model setup
 |
 |-- Scaling             :  GeoParams.Units.GeoUnits{GeoParams.Units.NONE}
-|-- Grid                :  nel=(10, 1, 20); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
+|-- Grid                :  nel=(10, 2, 20); xϵ(-10.0, 10.0), yϵ(-10.0, 0.0), zϵ(-10.0, 0.0) 
 |-- Time                :  nstep_max=50; nstep_out=1; time_end=1.0; dt=0.05
 |-- Boundary conditions :  noslip=[0, 0, 0, 0, 0, 0]
 |-- Solution parameters :  
-|-- Solver options      :  direct solver; superlu_dist; penalty term=10000.0
+|-- Solver options      :  coupled_direct; mumps; penalty=1000.0
 |-- Model setup options :  Type=geom; 
 |-- Output options      :  filename=output; pvd=1; avd=0; surf=0
 |-- Materials           :  1 phases;  
@@ -153,12 +153,17 @@ end
 
 Writes a LaMEM input file based on the data stored in Model
 """
-function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd())
-    Check_LaMEM_Model(d)    # check for mistakes in input
+function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd(), warn_constant_grid=true)
+    Check_LaMEM_Model(d; warn_constant_grid)    # check for mistakes in input
+
+    # built-in phase transitions added after the Model was constructed (e.g. by push!) still need Phasetrans = 1
+    if any(PT -> PT.Type != "dylib", d.Materials.PhaseTransitions)
+        d.SolutionParams.Phasetrans = 1
+    end
 
     if d.Output.write_VTK_setup
         # If we want to write an input file 
-        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp)),"Model3D")
+        write_paraview(CartData(d.Grid.Grid, (Phases=d.Grid.Phases,Temp=d.Grid.Temp,APS=d.Grid.APS)),"Model3D")
     end
     
     if any(hasplasticity.(d.Materials.Phases))
@@ -168,67 +173,99 @@ function write_LaMEM_inputFile(d::Model, fname::String="input.dat"; dir=pwd())
     end
 
     io = open(fname,"w")
+    try
+        write_LaMEM_inputFile(io, d.Scaling)
+        write_LaMEM_inputFile(io, d.Grid)
+        write_LaMEM_inputFile(io, d.Time)
+        write_LaMEM_inputFile(io, d.FreeSurface)
+        write_LaMEM_inputFile(io, d.BoundaryConditions)
+        write_LaMEM_inputFile(io, d.SolutionParams)
+        write_LaMEM_inputFile(io, d.Solver)
+        write_LaMEM_inputFile(io, d.ModelSetup)
+        write_LaMEM_inputFile(io, d.Output)
+        write_LaMEM_inputFile(io, d.PassiveTracers)
+        write_LaMEM_inputFile(io, d.Materials)
 
-    write_LaMEM_inputFile(io, d.Scaling)
-    write_LaMEM_inputFile(io, d.Grid)
-    write_LaMEM_inputFile(io, d.Time)
-    write_LaMEM_inputFile(io, d.FreeSurface)
-    write_LaMEM_inputFile(io, d.BoundaryConditions)
-    write_LaMEM_inputFile(io, d.SolutionParams)
-    write_LaMEM_inputFile(io, d.Solver)
-    write_LaMEM_inputFile(io, d.ModelSetup)
-    write_LaMEM_inputFile(io, d.Output)
-    write_LaMEM_inputFile(io, d.PassiveTracers)
-    write_LaMEM_inputFile(io, d.Materials)
-    
-    write_LaMEM_inputFile_PETSc(io, d.Solver)   # add PETSc options last
-
-    close(io)
+        write_LaMEM_inputFile_PETSc(io, d.Solver)   # add PETSc options last
+    finally
+        # Always close the file, also if writing throws. On windows an open handle
+        # prevents the enclosing directory from being removed ("permission denied").
+        close(io)
+    end
 end
 
 
 """
-    run_lamem(model::Model, cores::Int64=1, args:String=""; wait=true)
+    run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, logfile=nothing)
 
-Performs a LaMEM run for the parameters that are specified in `model`
+Performs a LaMEM run for the parameters specified in `model`.
+
+- `cores`: number of MPI cores to use
+- `args`: additional command-line arguments passed to LaMEM
+- `wait`: if `true`, wait for the simulation to finish before returning
+- `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files.
+  Requires LaMEM ≥ 2.2.1 (header 1211215). Default is `false` (LaMEM ≥ 2.2.0).
+- `logfile`: if given, the LaMEM output is written to this file *in addition* to being
+  shown in the REPL. A name without an extension gets `".log"` appended, and a relative
+  name ends up in `model.Output.out_dir`, next to the other output of the run.
+- `append`: whether to add the output to an existing logfile instead of replacing it. By
+  default this happens for a restart (`args` containing `-mode restart`), so that the log of
+  a simulation that was restarted stays in one file.
+
+# Example
+```julia
+julia> run_lamem(model, 1, logfile="test")                   # saved to <out_dir>/test.log
+julia> run_lamem(model, 1, "-mode restart", logfile="test")  # appended to the same file
+```
 """
-function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true)
+function run_lamem(model::Model, cores::Int64=1, args::String=""; wait=true, add_APS=false, warn_constant_grid=true, logfile=nothing, append=nothing)
 
-    cur_dir = pwd(); 
-    
+    cur_dir = pwd();
+
     #if !isdir(model.Output.out_dir); mkdir(model.Output.out_dir); end # create directory if needed
-    create_initialsetup(model, cores, args);    
+    create_initialsetup(model, cores, args; add_APS, warn_constant_grid);
     
-    if !isempty(model.Output.out_dir)
-        cd(model.Output.out_dir)
+    try
+        if !isempty(model.Output.out_dir)
+            cd(model.Output.out_dir)
+        end
+
+        # note: we are inside out_dir here, so a relative logfile is written there
+        run_lamem(model.Output.param_file_name, cores, args; wait=wait, logfile=logfile, append=append)
+    finally
+        # Always return to the original directory, also if the run throws. On windows a
+        # directory cannot be deleted while it is the current directory of a process, so
+        # leaving the cwd inside out_dir makes a later `rm(out_dir)` fail.
+        cd(cur_dir)
     end
-   
-    run_lamem(model.Output.param_file_name, cores, args; wait=wait)
-    
-    cd(cur_dir)
 
     return nothing
 end
 
 """
-    prepare_lamem(model::Model, cores::Int64=1, args:String=""; verbose=false)
+    prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false)
 
-Prepares a LaMEM run for the parameters that are specified in `model`, without running the simulation
+Prepares a LaMEM run for the parameters specified in `model`, without running the simulation:
     1) Create the `*.dat` file
     2) Write markers to disk in case we use a "files" setup
 
-This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster)
+This is useful if you want to prepare a model on one machine but run it on another one (e.g. a cluster).
 
-Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup
+- `add_APS`: if `true`, write accumulated plastic strain (APS) to marker files (requires LaMEM ≥ 2.2.1)
+
+Set `model.Output.write_VTK_setup` to `true` if you want to write a `VTK` file of the model setup.
 """
-function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false)
+function prepare_lamem(model::Model, cores::Int64=1, args::String=""; verbose=false, add_APS=false, warn_constant_grid=true)
 
     println("Creating LaMEM input files in the directory: $(model.Output.out_dir)")
-    cur_dir = pwd(); 
+    cur_dir = pwd();
 
-    create_initialsetup(model, cores, args,  verbose=verbose);    
-    
-    cd(cur_dir)
+    try
+        create_initialsetup(model, cores, args; verbose, add_APS, warn_constant_grid);
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
 
     println("Generated output generated for $cores cores:")
     println("   Base directory       : $(pwd())")
@@ -242,6 +279,10 @@ end
 
 
 """
+    passivetracer_time(model::Model, cores::Int64=1, args::String=""; wait=true)
+
+Placeholder for passive tracer time evolution using the configuration in `model`.
+See the `passivetracer_time(ID, model::Model)` method to retrieve tracer data by particle ID.
 """
 function  passivetracer_time(model::Model, cores::Int64=1, args::String=""; wait=true)
 
@@ -264,44 +305,47 @@ end
 Creates the initial model setup of LaMEM from `model`, which includes:
 - Writing the LaMEM (*.dat) input file
 
-and in case we do not employt geometric primitives to create the setup:
+and in case we do not employ geometric primitives to create the setup:
 
 - Write the VTK file (if requested when `model.Output.write_VTK_setup=true`)
 - Write the marker files to disk (if `model.ModelSetup.msetup="files"`)
 
 """
-function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true)
-    
+function create_initialsetup(model::Model, cores::Int64=1, args::String=""; verbose=true, add_APS=false, warn_constant_grid=true)
+
     # Move to the working directory
     cur_dir = pwd()
-    if !isempty(model.Output.out_dir)
-        if !isdir(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
-        cd(model.Output.out_dir)
-    end
-
-    write_LaMEM_inputFile(model, model.Output.param_file_name)
-    
-    # corrections for certain platforms (e.g., windows):
-    model, cores = adjust_for_platforms(model, cores) 
-    
-    if !isnothing(model.FreeSurface.Topography)
-        save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
-    end
-
-    if model.ModelSetup.msetup=="files"
-        # write marker files to disk before running LaMEM
-        Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp));
-
-        if cores>1
-            PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
-
-            save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose)
-        else
-            save_LaMEM_markers_parallel(Model3D, verbose=verbose)
+    try
+        if !isempty(model.Output.out_dir)
+            if !isdir(model.Output.out_dir);  mkdir(model.Output.out_dir); end # create directory if needed
+            cd(model.Output.out_dir)
         end
-    end
 
-    cd(cur_dir)
+        write_LaMEM_inputFile(model, model.Output.param_file_name; warn_constant_grid)
+
+        # corrections for certain platforms (e.g., windows):
+        model, cores = adjust_for_platforms(model, cores)
+
+        if !isnothing(model.FreeSurface.Topography)
+            save_LaMEM_topography(model.FreeSurface.Topography, model.FreeSurface.surf_topo_file)
+        end
+
+        if model.ModelSetup.msetup=="files"
+            # write marker files to disk before running LaMEM
+            Model3D = CartData(model.Grid.Grid, (Phases=model.Grid.Phases,Temp=model.Grid.Temp,APS=model.Grid.APS));
+
+            if cores>1
+                PartFile = run_lamem_save_grid(model.Output.param_file_name, cores)
+
+                save_LaMEM_markers_parallel(Model3D, PartitioningFile=PartFile, verbose=verbose, add_APS=add_APS)
+            else
+                save_LaMEM_markers_parallel(Model3D, verbose=verbose, add_APS=add_APS)
+            end
+        end
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
     return nothing
 end
 
@@ -309,14 +353,16 @@ end
 """
     model, cores =  adjust_for_platforms(model, cores::Int64)
 
-On certain platforms we have restrictions (MPI is broken on windows currently, so we need to adjust things accordingly)
+A `LaMEM_jll` without MPI cannot run in parallel and has no MUMPS, so the model falls back to
+PETSc's built-in sequential LU. Windows builds were the only such platform; they are MPI-enabled
+since LaMEM_jll 3.1.0 (PETSc_jll 3.25.4), so this now adjusts nothing there.
 """
 function adjust_for_platforms(model, cores::Int64)
 
-    if Sys.iswindows()
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
-        model.Solver.MGCoarseSolver = "direct"  # on windows MPI + mumps does not work
-        model.Solver.DirectSolver = "direct"
+    if !mpi_available()
+        println("This LaMEM_jll has no MPI library; using a sequential direct solver")
+        model.Solver.direct_solver_type = "default"  # PETSc's built-in LU (sequential); MUMPS needs MPI
+        model.Solver.coarse_solver = "direct"
     end
 
     return model, cores

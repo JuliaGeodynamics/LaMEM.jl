@@ -26,11 +26,10 @@ model = Model(
                 BoundaryConditions(noslip = [0, 0, 0, 0, 1, 0]),
 
                 # We use a multigrid solver with 4 levels:
-                Solver(SolverType="multigrid", MGLevels=4, MGCoarseSolver="mumps",
-                        PETSc_options=[ "-snes_type ksponly",
-                                        "-js_ksp_rtol 1e-3",
-                                        "-js_ksp_atol 1e-4",
-                                        "-js_ksp_monitor"]),
+                Solver(stokes_solver="coupled_mg", num_mg_levels=4,
+                        coarse_solver="direct", direct_solver_type="mumps",
+                        set_linear_problem=1, monitor_solvers=1,
+                        linear_tolerances=[1e-3, 1e-4, 200]),
 
                 # Output filename
                 Output(out_file_name="Subduction_3D", out_dir="Subduction_3D"),
@@ -58,15 +57,18 @@ The inclined part of the slab is generate by giving it a dip:
 add_box!(model, xlim=(-1000,-810), ylim=(0,1000), zlim=(-80,0), phase=LithosphericPhases(Layers=[20,60], Phases=[1,2]), DipAngle=16)
 ```
 
-There is a simple way to have a quick look at this setup by using the `Plots.jl` package:
+There is a simple way to have a quick look at this setup, with the interactive viewer:
 
 ```julia
-using Plots
-plot_cross_section(model, y=100, field=:phase)
+using GLMakie
+view_model(model, field=:phase, y=100)
 ```
 
-Which will give the following plot:
-![2D cross section](assets/SubductionSetup_3D.png)
+![The viewer on the 3D subduction setup](assets/viewer_subduction3d.png)
+
+The cross-section at `y = 100` is on the left and a 3D view of the slab on the right, with a
+blue plane marking where the section is cut. Nothing has been run yet -- the viewer reads the
+setup straight from `model`. See [Interactive viewer](@ref) for what else the window can do.
 
 ## 3. Add material properties:
 We can specify material properties by using the `Phase` function
@@ -104,14 +106,6 @@ LaMEM Model setup
 ```
 
 ## 4. Run the model
-
-on windows MPI + mumps currently does not work
-
-```julia
-if Sys.iswindows()
-    model.Solver.MGCoarseSolver = "direct"
-end
-```
 
 Add this stage, we are ready to run the simulation. On my machine it takes around 4 seconds per timestep on 8 cores:
 

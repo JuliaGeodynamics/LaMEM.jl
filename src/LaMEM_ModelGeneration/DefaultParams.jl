@@ -9,7 +9,8 @@ If you activate passive tracers, for example, it will also activate output for t
 function UpdateDefaultParameters(model::Model)
 
     # If PhaseTransitions are defined, we generally want this to be activated in computations
-    if !isempty(model.Materials.PhaseTransitions)
+    # (a user-defined phase transition, Type="dylib", does not need it)
+    if any(PT -> PT.Type != "dylib", model.Materials.PhaseTransitions)
         model.SolutionParams.Phasetrans = 1
     end
    
@@ -27,6 +28,7 @@ function UpdateDefaultParameters(model::Model)
         model.Output.out_ptr_phase=1
         model.Output.out_ptr_Pressure=1
         model.Output.out_ptr_Temperature=1
+        model.Output.out_ptr_APS=0
     end
 
     if  model.BoundaryConditions.open_top_bound==0
@@ -41,16 +43,6 @@ function UpdateDefaultParameters(model::Model)
     model.Output.out_j2_strain_rate   = 1 
     model.Output.out_pressure         = 1 
     model.Output.out_temperature      = 1  
-
-    if isdefault(model.Solver,Solver())
-        # the LaMEM default (superlu_dist) currently doesn't work with PETSc_jll
-        model.Solver.DirectSolver = "mumps";    
-    end
-    
-    # if using multigrid in a 2D setup
-    if model.Solver.SolverType=="multigrid" &&  model.Grid.nel_y[1]==1
-        push!(model.Solver.PETSc_options,"-da_refine_y 1") 
-    end
 
     # if we have a free surface, you'll generally want output  
     if  model.FreeSurface.surf_use==1

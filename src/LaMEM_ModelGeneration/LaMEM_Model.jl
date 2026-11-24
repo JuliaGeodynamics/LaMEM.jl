@@ -33,6 +33,7 @@ export Grid
 include("Time.jl")      # Timestepping
 export Time
 
+include("FastScape.jl")             # FastScape surface processes
 include("FreeSurface.jl")           # Free surface
 export FreeSurface
 
@@ -56,6 +57,9 @@ export Output
 
 include("PassiveTracers.jl")        # passive tracers
 export PassiveTracers
+
+include("DylibPlugins.jl")           # building user-defined phase transitions (Julia plugins)
+export build_phase_transition_plugin, LaMEMPlugin_path
 
 include("Materials.jl")             # main LaMEM_Model
 export Materials, Phase, Softening, PhaseTransition, Dike

@@ -7,7 +7,9 @@ export BoundaryConditions, VelocityBox, BCBlock, VelCylinder, write_LaMEM_inputF
 
 # -------
 """
-    Define velocity regions within the modelling region, by specifying its center point and width along the three axis.    
+    VelocityBox
+
+Defines a velocity region within the modelling domain by specifying its center point and width along the three axes.
 
     $(TYPEDFIELDS)
 
@@ -101,16 +103,19 @@ end
 """
 Base.@kwdef struct BCBlock
     "Number of path points of Bezier curve (path-points only!)"
-    npath::Int64 =  2      
+    npath::Int64 =  2
 
-    "# Orientation angles at path points (counter-clockwise positive)"    
-    theta::Vector{Float64} =  [0.0, 5.0]                      
-    
+    "Path dimension: 2 = x-y plane (default), 3 = full 3D (path then also moves bot/top z-coordinates)"
+    path_dim::Int64 = 2
+
+    "# Orientation angles at path points (counter-clockwise positive)"
+    theta::Vector{Float64} =  [0.0, 5.0]
+
     "Times at path points"
-    time::Vector{Float64}  =  [1.0, 2.0]                
-    
-    "Path points x-y coordinates"
-    path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]           
+    time::Vector{Float64}  =  [1.0, 2.0]
+
+    "Path points coordinates (x-y pairs if path_dim=2, x-y-z triplets if path_dim=3)"
+    path::Vector{Float64}  =  [0.0, 0.0, 0.0, 10.0]
     
     "Number of polygon vertices"
     npoly::Int64 =  4                                
@@ -126,24 +131,8 @@ Base.@kwdef struct BCBlock
 
 end
 
-#=
 function show(io::IO, d::BCBlock)
-    println(io, "BCBlock: ")
-    fields    = fieldnames(typeof(d))
-
-    # print fields
-    for f in fields
-        if !isnothing(getfield(d,f)) 
-            printstyled(io,"  $(rpad(String(f),9)) = $(getfield(d,f)) \n")        
-        end
-    end
-
-    return nothing
-end
-=#
-
-function show(io::IO, d::BCBlock)
-    print(io, "BCBlock(npath=$(d.npath), theta=$(d.theta), time=$(d.time))")
+    print(io, "BCBlock(npath=$(d.npath), path_dim=$(d.path_dim), theta=$(d.theta), time=$(d.time))")
     return nothing
 end
 
@@ -249,8 +238,10 @@ end
 
 
 """
-    Structure that contains the LaMEM boundary conditions information. 
-    
+    BoundaryConditions
+
+Structure that contains the LaMEM boundary conditions information.
+
     $(TYPEDFIELDS)
 
 """
@@ -277,44 +268,29 @@ Base.@kwdef mutable struct BoundaryConditions
     "strain rates for each interval          "
     exx_strain_rates::Vector{Float64} = [1e-15, 2e-15, 1e-15]   
 
-    "eyy_num_periods"
-    eyy_num_periods::Int64  = 2    
+    "number of intervals of constant background strain rate (y-axis)"
+    eyy_num_periods::Int64  = 2
 
-    "eyy_time_delims"
+    "time delimiters for eyy strain rate intervals (one less than number of intervals)"
     eyy_time_delims::Vector{Float64}  = [1.0]
-    
-    "eyy_strain_rates"
+
+    "background strain rates in yy-direction for each interval"
     eyy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
-    "exy_num_periods"
+    "number of intervals of constant background simple shear strain rate (xy-plane)"
     exy_num_periods::Int64  = 2                 # same for simple shear components in x/y direction
 
-    "exy_time_delims"
+    "time delimiters for exy strain rate intervals"
     exy_time_delims::Vector{Float64}  = [1.0]
-    
-    "exy_strain_rates"
+
+    "background simple shear strain rates in xy-direction for each interval"
     exy_strain_rates::Vector{Float64} = [1e-15, 2e-15]
-
-    "exz_num_periods"
-    exz_num_periods::Int64  = 2                 # same for simple shear components in x/z direction
-    
-    "exz_time_delims"
-    exz_time_delims::Vector{Float64}  = [1.0]
-    
-    "exz_strain_rates"
-    exz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
-
-    "eyz_num_periods"
-    eyz_num_periods::Int64  = 2                 # same for simple shear components in y/z direction
-
-    "eyz_time_delims"
-    eyz_time_delims::Vector{Float64}  = [1.0]
-    
-    "eyz_strain_rates"
-    eyz_strain_rates::Vector{Float64} = [1e-15, 2e-15]
 
     "background strain rate reference point (fixed)"
     bg_ref_point::Vector{Float64}     = [0.0, 0.0, 0.0]      
+
+    "periodic grid topology in the x-direction (LaMEM >= 3.0; also activates periodic advection in x)"
+    periodic::Int64 = 0
 
     "List of added velocity boxes"
     VelocityBoxes::Vector{VelocityBox} = []
@@ -499,7 +475,7 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
 
     for f in fields
 
-        if (f != :VelocityBoxes) && (f != :VelCylinder) && (f != :BCBlock) # Skip the velocity boxes
+        if (f != :VelocityBoxes) && (f != :VelCylinder) && (f != :BCBlocks) # Skip the velocity boxes
 
             if getfield(d, f) != getfield(Reference, f)
                 # only print if value differs from reference value
@@ -509,43 +485,6 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
                 println(io, "    $name  = $(write_vec(data))     # $(comment)")
             end
         end
-        
-        #end        elseif f != :VelocityBoxes
-#            write_LaMEM_inputFile(io, f)
-
-
-            #=
-            # Add the velocity boxes
-            if length(d.VelocityBoxes) != 0
-                println(io, "")
-                println(io, "   # Internal velocity box(es) \n")
-                for VB in d.VelocityBoxes
-
-                    println(io, "   <VelBoxStart>")
-
-                    vb_fields = fieldnames(typeof(VB))
-                    for vb in vb_fields
-                        if !isnothing(getfield(VB, vb))
-                            name = rpad(String(vb), 15)
-                            comment = get_doc(VelocityBox, vb)
-                            data = getfield(VB, vb)
-                            println(io, "        $name  = $(write_vec(data))     # $(comment)")
-                        end
-                    end
-
-                    println(io, "   <VelBoxEnd>")
-                    println(io, "")
-                end
-            end
-            =#
-      #  elseif f != :VelCylinder
-      #      write_LaMEM_inputFile(io, f)
-      #  elseif f != :BCBlock
-      #      write_LaMEM_inputFile(io, f)
-#
-#
-      #  end
-
     end
     println(io, "")
 
@@ -571,9 +510,6 @@ function write_LaMEM_inputFile(io, d::BoundaryConditions)
         end
     end
     
-    
-
-
     println(io, "# temperature on the top & bottom boundaries [usually constant]")
     println(io, "    temp_top   = $(write_vec(d.temp_top))")
     println(io, "    temp_bot   = $(write_vec(d.temp_bot))")

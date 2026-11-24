@@ -12,26 +12,28 @@ function clean_directory(DirName="./")
     
     CurDir = pwd();
 
-    # change to directory
-    cd(DirName)
+    try
+        # change to directory
+        cd(DirName)
 
-    # pvd files
-    for f in glob("*.pvd")
-         rm(f)
+        # pvd files
+        for f in glob("*.pvd")
+            rm(f)
+        end
+
+        # vts files
+        for f in glob("*.vts")
+            rm(f)
+        end
+
+        #timestep directories
+        for f in glob("Timestep*")
+            rm(f, recursive=true, force=true)
+        end
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(CurDir)
     end
-
-    # vts files
-    for f in glob("*.vts")
-        rm(f)
-    end
-
-    #timestep directories
-    for f in glob("Timestep*")
-        rm(f, recursive=true, force=true)
-    end
-
-
-    cd(CurDir)
 end
 
 
@@ -86,17 +88,16 @@ Reads a phase diagram from a file `name` and returns a NamedTuple with temperatu
 """
 function read_phase_diagram(name::String)
 
-    f = open(name)
-
-    # Read dimensions
-    for i = 1:49; readline(f); end
-    minT = parse(Float64,   readline(f))
-    ΔT   = parse(Float64,   readline(f))
-    nT   = parse(Int64,     readline(f))
-    minP = parse(Float64,   readline(f))
-    ΔP   = parse(Float64,   readline(f))
-    nP   = parse(Int64,     readline(f))
-    close(f)
+    # Read dimensions (the `do` block closes the file, also if parsing throws)
+    minT, ΔT, nT, minP, ΔP, nP = open(name) do f
+        for i = 1:49; readline(f); end
+        (parse(Float64, readline(f)),
+         parse(Float64, readline(f)),
+         parse(Int64,   readline(f)),
+         parse(Float64, readline(f)),
+         parse(Float64, readline(f)),
+         parse(Int64,   readline(f)))
+    end
     
     data = readdlm(name, skipstart=55);     # read numerical data
 

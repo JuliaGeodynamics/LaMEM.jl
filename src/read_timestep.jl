@@ -5,11 +5,12 @@
 # Make these routines easily available outside the module:
 using GeophysicalModelGenerator: CartData, xyz_grid
 using Glob, ReadVTK, WriteVTK, LightXML
+import ReadVTK: piece
 
-export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file, read_LaMEM_VTR_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
 export passivetracer_time
-export compress_vtr_file, compress_pvd
+export compress_vtr_file, compress_pvd, has_point_data, has_cell_data
 
 """ 
     output, isCell = ReadField_3D_pVTR(data, FieldName::String)
@@ -29,9 +30,8 @@ function ReadField_3D_pVTR(pvtk, FieldName)
     isCell          =   false;
 
     # first try to get point data 
-    data_f = get_point_data(pvtk)
     # if empty then load cell data
-    if isempty(keys(data_f)) 
+    if !has_point_data(pvtk) 
         data_f      = get_cell_data(pvtk)
         data_Field  = get_data_reshaped(data_f[FieldName], cell_data=true)
 
@@ -44,6 +44,7 @@ function ReadField_3D_pVTR(pvtk, FieldName)
         data_Tuple  = (data_Field,)
         isCell      =   true;
     else
+        data_f     = get_point_data(pvtk)
         data_Field = get_data_reshaped(data_f[FieldName]);
         
         data_Field = ArrayToTuple(data_Field);
@@ -133,9 +134,12 @@ function ReadField_3D_pVTU(pvtu, FieldName)
     # first try to get point data 
     data_f = get_point_data(pvtu)
     # if empty then load cell data
+    # a parallel .pvtu returns one array per piece (LaMEM writes a single piece),
+    # a serial .vtu (LaMEM >= 3.0) returns the array itself
+    first_piece(d) = d isa AbstractVector{<:AbstractArray} ? d[1] : d
     if isempty(keys(data_f)) 
-        data_f      = get_cell_data(pvtk)
-        data_Field  = get_data(data_f[FieldName], cell_data=true)[1]
+        data_f      = get_cell_data(pvtu)
+        data_Field  = first_piece(get_data(data_f[FieldName], cell_data=true))
 
         if typeof(data_Field[1])==UInt8
             data_Field = Int64.(data_Field)
@@ -143,7 +147,7 @@ function ReadField_3D_pVTU(pvtu, FieldName)
         data_Tuple  = (data_Field,)
 
     else
-        data_Tuple  = (get_data(data_f[FieldName])[1],)
+        data_Tuple  = (first_piece(get_data(data_f[FieldName])),)
     end
 
     name = filter(x -> !isspace(x), FieldName)  # remove white spaces
@@ -164,10 +168,8 @@ Routine that splits the name in a directory `DirName_base` and a filename `FileN
 """
 function split_path_name(DirName_base::String, FileName::String)
     FullName = joinpath(DirName_base,FileName)
-    id       = findlast("/", FullName)[1];
-    
-    DirName  = FullName[1:id-1]
-    File     = FullName[id+1:end]
+    DirName  = dirname(FullName)
+    File     = basename(FullName)
 
     return DirName, File
 end
@@ -176,7 +178,7 @@ end
 """
     data_output = read_LaMEM_PVTR_file(DirName, FileName; fields=nothing)
 
-Reads a 3D LaMEM timestep from VTR file `FileName`, located in directory `DirName`. 
+Reads a 3D LaMEM timestep from a parallel VTR file `FileName`, located in directory `DirName`. 
 By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
 
 It will return `data_output` which is a `CartData` output structure.
@@ -184,7 +186,7 @@ It will return `data_output` which is a `CartData` output structure.
 """
 function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=nothing)
     CurDir = pwd();
-
+    
     DirName, File = split_path_name(DirName_base, FileName)
     
     # change to directory
@@ -193,9 +195,10 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
     # read data from parallel rectilinear grid
     pvtk        = PVTKFile(File)
 
-    # Fields stored in this data file:    
-    names = keys(get_point_data(pvtk))
-    if isempty(names)
+    # Fields stored in this data file:
+    if has_point_data(pvtk)
+        names = keys(get_point_data(pvtk))
+    elseif has_cell_data(pvtk)
         names = keys(get_cell_data(pvtk))
     end
 
@@ -246,6 +249,130 @@ function read_LaMEM_PVTR_file(DirName_base::String, FileName::String; fields=not
 end
 
 
+has_point_data(vtk::ReadVTK.PVTKFile) = has_data_type_parallel(vtk, "PPointData", "PDataArray") 
+has_cell_data(vtk::ReadVTK.PVTKFile)  = has_data_type_parallel(vtk, "PCellData",  "PDataArray") 
+has_cell_data(vtk::ReadVTK.VTKFile)   = has_data_type(vtk, "CellData") 
+has_point_data(vtk::ReadVTK.VTKFile)  = has_data_type(vtk, "PointData") 
+
+function has_data_type_parallel(vtk, main_data="PPointData", sub_data="PDataArray")  
+    hasdata = false;
+    tmp = ReadVTK.LightXML.root(vtk.xml_file)[vtk.file_type][1][main_data]
+    if length(tmp)>0
+        if length(tmp[1][sub_data])>0
+            hasdata = true
+        end
+    end
+    return hasdata
+end
+
+function has_data_type(vtk, main_data="PointData")  
+    hasdata = false;
+    tmp = LaMEM_piece(vtk)
+    if  length(get_elements_by_tagname(tmp, main_data))>0
+        hasdata = true
+    end
+    return hasdata
+end
+
+function LaMEM_piece(vtk_file::ReadVTK.PVTKFile)
+    return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
+end
+function LaMEM_piece(vtk_file::ReadVTK.VTKFile)
+    return ReadVTK.LightXML.root(vtk_file.xml_file)[vtk_file.file_type][1]["Piece"][1]
+end
+
+"""
+    data_output = read_LaMEM_VTR_file(DirName, FileName; fields=nothing, verbose=false)
+
+Reads a 3D LaMEM timestep from VTR or VTS file `FileName`, located in directory `DirName`. 
+By default, it will read all fields. If you want you can only read a specific `field`. See the function `fieldnames` to get a list with all available fields in the file.
+
+It will return `data_output` which is a `CartData` output structure.
+
+"""
+function read_LaMEM_VTR_file(DirName_base::String, FileName::String; fields=nothing, verbose=false)
+    CurDir = pwd();
+
+    DirName, File = split_path_name(DirName_base, FileName)
+    
+    # change to directory
+    cd(DirName)
+
+    # read data from parallel rectilinear grid
+    vtk        = VTKFile(File)
+
+    # Fields stored in this data file:    
+    if has_point_data(vtk)
+        names_ = keys(get_point_data(vtk))
+    elseif has_cell_data(vtk)
+        names_ = keys(get_cell_data(vtk))
+    end
+  
+    isCell  = true
+    if isnothing(fields)
+        # read all data in the file
+        data_fields = NamedTuple();
+
+        for FieldName in names_
+            if verbose
+                println("Reading field $FieldName")
+            end
+            dat, isCell = LaMEM.IO_functions.ReadField_3D_pVTR(vtk, FieldName);
+            data_fields = merge(data_fields,dat)
+        end
+
+    else
+        # read the data sets specified
+        data_fields = NamedTuple();
+        for field in fields
+            ind = findall(contains.(names_,field))
+            # check that it exists
+            if isempty(ind)
+                error("the field $field does not exist in the data file")
+            else
+                field_name = names_[ind[1]]
+                dat, isCell = ReadField_3D_pVTR(pvtk, field_name)
+            end
+            data_fields = merge(data_fields,dat)
+        end
+    end
+    cd(CurDir)
+
+    coords_read = get_coordinates(vtk)
+
+    # Read coordinates
+    if  length(size(coords_read[1]))==1
+        x = Vector(coords_read[1])
+        y = Vector(coords_read[2])
+        z = Vector(coords_read[3])
+
+        if isCell 
+            # In case we have cell data , coordinates are center of cell
+            x = (x[1:end-1] + x[2:end])/2
+            y = (y[1:end-1] + y[2:end])/2
+            z = (z[1:end-1] + z[2:end])/2
+        end
+
+        X,Y,Z = xyz_grid(x,y,z)
+    else
+        X,Y,Z = coords_read[1], coords_read[2], coords_read[3]
+
+        if isCell 
+            x = X[:,1,1]
+            y = Y[1,:,1]
+            z = Z[1,1,:]
+            # In case we have cell data , coordinates are center of cell
+            x = (x[1:end-1] + x[2:end])/2
+            y = (y[1:end-1] + y[2:end])/2
+            z = (z[1:end-1] + z[2:end])/2
+            X,Y,Z = xyz_grid(x,y,z)
+        end
+    end
+
+    data_output     =   CartData(X,Y,Z, data_fields)
+    return data_output   
+end
+
 """
 
     FileNames, Time, Timestep = readPVD(FileName::String)
@@ -255,16 +382,18 @@ This reads a PVD file & returns the `FileNames`, `Time` and `Timesteps`
 function readPVD(FileName::String)
 
     lines = readlines(FileName)
-    start_line = findall(lines .== "<Collection>")[1] + 1
-    end_line   = findall(lines .== "</Collection>")[1] - 1
+    lines = strip.(lines)
+    start_line = findfirst(lines .== "<Collection>") + 1
+    end_line   = findfirst(lines .== "</Collection>") - 1
     
     FileNames = Vector{String}()
     Time      = Vector{Float64}()
     Timestep  = Vector{Int64}()
     for i=start_line:end_line
         line = lines[i]
-        time = split(line)[2]; time = parse(Float64,time[11:end-1])
-        file = split(line)[3]; file = String.(file[7:end-3]);
+        time = parse(Float64,extract_data_string(line, "timestep"))
+        file = extract_data_string(line, "file")
+
 
         FileNames = push!(FileNames, file)
         Time = push!(Time, time)
@@ -280,6 +409,14 @@ function readPVD(FileName::String)
     return FileNames, Time, Timestep
 end
 
+# extracts data from a string
+function extract_data_string(line::AbstractString, keyword)
+    line_data = split(split(line,"$(keyword)=")[2])[1]
+    line_strip = replace(line_data, "/>"=>"")
+    line_strip = replace(line_strip, "\""=>"")
+    
+    return line_strip
+end
 
 """
     data_output = read_LaMEM_PVTU_file(DirName, FileName; fields=nothing)
@@ -298,8 +435,9 @@ function read_LaMEM_PVTU_file(DirName_base, FileName; fields=nothing)
     # change to directory
     cd(DirName)
 
-    # read data from parallel rectilinear grid
-    pvtu        = PVTKFile(File)
+    # LaMEM >= 3.0 writes the passive tracers as one serial .vtu file per time step,
+    # LaMEM 2.x wrote a parallel .pvtu file
+    pvtu        = endswith(File, ".pvtu") ? PVTKFile(File) : VTKFile(File)
 
     cd(CurDir)
 
@@ -327,18 +465,21 @@ function read_LaMEM_PVTU_file(DirName_base, FileName; fields=nothing)
             if isempty(ind)
                 error("the field $field does not exist in the data file")
             else
-                dat, isCell = ReadField_3D_pVTU(pvtk, field)
+                dat = ReadField_3D_pVTU(pvtu, field)
             end
             data_fields = merge(data_fields,dat)
         end
     end
 
     points  = get_points(pvtu)
+    if pvtu isa PVTKFile
+        points = points[1]      # first (and only) piece
+    end
 
     # Read coordinates
-    x = points[1][1,:]
-    y = points[1][2,:]
-    z = points[1][3,:]
+    x = points[1,:]
+    y = points[2,:]
+    z = points[3,:]
 
     data_output     =   CartData(x,y,z, data_fields)
     return data_output     
@@ -424,7 +565,13 @@ function read_LaMEM_timestep(FileName::String, TimeStep::Int64=0, DirName::Strin
     elseif passive_tracers==true
         data = read_LaMEM_PVTU_file(DirName, FileNames[ind[1]], fields=fields)
     else
-        data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
+        if      contains(FileNames[ind[1]],".vtr")
+            data = read_LaMEM_VTR_file(DirName, FileNames[ind[1]], fields=fields)
+        elseif  contains(FileNames[ind[1]],".pvtr")
+            data = read_LaMEM_PVTR_file(DirName, FileNames[ind[1]], fields=fields)
+        else
+            error("not sure about the filetype: ")
+        end
     end
 
     return data, Time[ind]
@@ -473,7 +620,7 @@ function read_LaMEM_fieldnames(FileName::String, DirName_base::String=""; phase=
     if !tracers
         pvtk = PVTKFile(File)
     else
-        pvtk = PVTUFile(File)
+        pvtk = endswith(File, ".pvtu") ? PVTKFile(File) : VTKFile(File)
     end
     cd(cur_dir)
 

@@ -1,7 +1,8 @@
-# LaMEM.jl
+<img src="docs/src/assets/logo_LaMEM.png" alt="LaMEM.jl" width="250">
+
 [![Build Status](https://github.com/JuliaGeodynamics/LaMEM.jl/workflows/CI/badge.svg)](https://github.com/JuliaGeodynamics/LaMEM.jl/actions)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliageodynamics.github.io/LaMEM.jl/dev/)
-[![DOI](https://zenodo.org/badge/531427568.svg)](https://zenodo.org/doi/10.5281/zenodo.10211627)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10211627.svg)](https://zenodo.org/doi/10.5281/zenodo.10211627)
 
 This is the Julia interface to [LaMEM](https://github.com/UniMainzGeo/LaMEM/)) (Lithosphere and Mantle Evolution Model), which is the easiest way to install LaMEM on any system. It allows you to start a (parallel) LaMEM simulation, and read back the output files to julia for further processing. Below we give some brief steps in how to use it. More examples can be found in the [user guide](https://juliageodynamics.github.io/LaMEM.jl/dev/).
 
@@ -66,7 +67,7 @@ Finished parsing input file : output.dat
 --------------------------------------------------------------------------
 ...
 ```
-Note that if you have a linux/mac machine you can run it in parallel (change 1 to 2 or 4, for example). On windows you would have to install Linux for Windows first, using [WSL](https://learn.microsoft.com/en-us/windows/wsl/install).
+Note that you can run it in parallel by changing 1 to 2 or 4, for example; this works on linux, mac and windows alike (the windows binaries are built with Microsoft MPI since LaMEM_jll 3.1.0).
 Once the simulation is done, you can open it with Paraview, or directly plot it within julia (see the documentation).
 
 
@@ -155,7 +156,7 @@ More details are given in the [documentation](https://juliageodynamics.github.io
 ### 5. Dependencies
 We rely on the following packages:
 - [GeophysicalModelGenerator](https://github.com/JuliaGeodynamics/GeophysicalModelGenerator.jl) - Data structure in which we store the info of a LaMEM timestep. The package can also be used to generate setups for LaMEM.
-- [LaMEM_jll](https://github.com/JuliaBinaryWrappers/LaMEM_jll.jl) - this contains the LaMEM binaries, precompiled for most systems. It also contains a precompiled version of PETSc, along with MPI. Note that on windows, MPI does not work, so you can only use one processor. We therefore recommend that you install linux on windows (using WSL) and run LaMEM through that.
+- [LaMEM_jll](https://github.com/JuliaBinaryWrappers/LaMEM_jll.jl) - this contains the LaMEM binaries, precompiled for most systems. It also contains a precompiled version of PETSc, along with MPI. Since LaMEM_jll 3.1.0 the windows binaries are built against Microsoft MPI, so parallel runs work there as well.
 - [ReadVTK](https://github.com/JuliaVTK/ReadVTK.jl) - This reads the LaMEM `*.vtk` files (or the rectilinear and structured grid versions of it)  baxck into julia. 
 
 

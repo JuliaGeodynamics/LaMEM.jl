@@ -6,10 +6,21 @@
 using Base.Sys   
 
 
+# `ignorestatus` keeps a failing LaMEM from throwing, so tell the user that it did fail
+function warn_if_failed(proc)
+	if process_exited(proc) && proc.exitcode != 0
+		@warn "LaMEM exited with exit code $(proc.exitcode) while saving the grid; see the messages above. " *
+		      "A \"symbol lookup error ... undefined symbol: MPI_...\" means that the MPI library that is loaded is not compatible with " *
+		      "the one that LaMEM_jll/PETSc_jll were built with (for MPItrampoline you need MPItrampoline_jll >= 5.5.3, " *
+		      "see the HPC installation page of the documentation)."
+	end
+	return nothing
+end
+
 function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; wait=true, deactivate_multithreads=true)
-    if iswindows() && cores>1
-        cores=1;
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+    if cores > 1 && !mpi_available()
+        cores = 1
+        println("This LaMEM_jll has no MPI library; using 1 core instead")
     end
 	out = Pipe()
     if cores==1
@@ -19,23 +30,26 @@ function run_lamem_with_log(ParamFile::String, cores::Int64=1, args::String=""; 
             cmd = deactivate_multithreading(cmd)
         end
 		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
-		run(cmd1, wait=wait);
+		proc = run(cmd1, wait=wait);
 		close(out.in)
+		warn_if_failed(proc)
 	else
 	
         # set correct environment
-        mpirun = setenv(mpiexec, LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env=>LaMEM_jll.LIBPATH[]);
+        key = LaMEM_jll.JLLWrappers.JLLWrappers.LIBPATH_env
+        mpirun = addenv(mpiexec, key=>join((LaMEM_jll.LIBPATH[], MPI_LIBPATH[]), pathsep));
 
         # create command-line object
-        cmd = `$(mpirun) -n $cores --map-by :OVERSUBSCRIBE $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `
+        cmd = `$(mpirun) -n $cores $(oversubscribe_args) $(LaMEM_jll.LaMEM_path) -ParamFile $(ParamFile) $args `
         if deactivate_multithreads
             cmd = deactivate_multithreading(cmd)
         end
 
         # Run LaMEM in parallel
 		cmd1 = pipeline(ignorestatus(cmd),stdout=out)
-        run(cmd1, wait=wait);
+        proc = run(cmd1, wait=wait);
 		close(out.in)
+		warn_if_failed(proc)
     end
 	stdout = String(read(out))
 
@@ -77,28 +91,41 @@ function run_lamem_save_grid(ParamFile::String, cores::Int64=1; verbose=true, di
 	if cores==1	& verbose==true
 		return print("No partitioning file required for 1 core model setup \n")	
 	end
-	if iswindows() && cores>1
-        cores=1;
-        println("LaMEM_jll does not support parallel runs on windows; using 1 core instead")
+	if cores > 1 && !mpi_available()
+        cores = 1
+        println("This LaMEM_jll has no MPI library; using 1 core instead")
     end
+	
 	cur_dir = pwd();
-	cd(directory)
+	try
+		cd(directory)
 
-	ParamFile    = abspath(ParamFile)
-	logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
-	
-	arr          = JuliaStringToArray(logoutput)
-	foundline    = get_line_containing(arr,"Processor grid  [nx, ny, nz]         : ")
-	foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
-	
-	sprtlftbrkt  = split(foundline,"[")
-	sprtrghtbrkt = split(sprtlftbrkt[3],"]")
-	separatecoma = split(sprtrghtbrkt[1],",")
-	procnumbers  = parse.(Int, separatecoma)
-	Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin" 
-	if !isfile(joinpath((splitdir(ParamFile)[1]),Procpartname))
+		ParamFile    = abspath(ParamFile)
+		logoutput    = run_lamem_with_log(ParamFile, cores,"-mode save_grid" )
+
+		arr          = JuliaStringToArray(logoutput)
+		foundline    = get_line_containing(arr,"Processor grid")
+		if isnothing(foundline)
+			return nothing
+		end
+		foundline    = join(map(x -> isspace(foundline[x]) ? "" : foundline[x], 1:length(foundline)))
 		Procpartname = nothing
+		if !isnothing(foundline)
+			sprtlftbrkt  = split(foundline,"[")
+			sprtrghtbrkt = split(sprtlftbrkt[3],"]")
+			separatecoma = split(sprtrghtbrkt[1],",")
+			procnumbers  = parse.(Int, separatecoma)
+			Procpartname = "ProcessorPartitioning_$(cores)cpu_$(procnumbers[1]).$(procnumbers[2]).$(procnumbers[3]).bin"
+			# LaMEM writes the partitioning file to its working directory, which is
+			# `directory` -- not necessarily the directory that holds the parameter file.
+			if !isfile(Procpartname) && !isfile(joinpath(splitdir(ParamFile)[1], Procpartname))
+				Procpartname = nothing
+			end
+		end
+
+		return Procpartname
+	finally
+		# always restore the cwd, also on error
+		cd(cur_dir)
 	end
-	cd(cur_dir)
-	return Procpartname
 end

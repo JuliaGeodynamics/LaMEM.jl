@@ -28,7 +28,10 @@ Base.@kwdef mutable struct FreeSurface
     "initial topography file (redundant)"
     surf_topo_file::String      = ""                
 
-    "erosion model [0-none (default), 1-infinitely fast, 2-prescribed rate with given level]"
+    "surface evolution mode [1-built-in erosion/sedimentation (default), 2-FastScape (requires the `FastScape` field and LaMEM_jll >= 3.2.0)]"
+    surf_mode::Int64            = 1
+
+    "erosion model [0-none (default), 1-infinitely fast, 2-prescribed rate with given level, 3-spatially limited]; surf_mode=1 only"
     erosion_model::Int64        = 0                 
 
     "number of erosion phases"
@@ -41,7 +44,28 @@ Base.@kwdef mutable struct FreeSurface
     er_rates::Vector{Float64}   = [0.2, 0.1, 0.2]   
 
     "levels above which we apply constant erosion rates in different time periods"
-    er_levels::Vector{Int64}    = [1,   2,   1]     
+    er_levels::Vector{Int64}    = [1,   2,   1]
+
+    "[only used if erosion_model=3] minimum x-coordinates of the spatially limited erosion zone, per erosion phase"
+    er_x_min::Union{Vector{Float64},Nothing}    = nothing
+
+    "[only used if erosion_model=3] maximum x-coordinates of the spatially limited erosion zone, per erosion phase"
+    er_x_max::Union{Vector{Float64},Nothing}    = nothing
+
+    "slope-dependent erosion flag [0-none (default), 1-active]: E [m/yr] = prefactor_slope * slope^n_slope, applied on top of erosion_model"
+    slope_dependent_erosion::Int64 = 0
+
+    "[only used if slope_dependent_erosion=1] erosion prefactor [m/yr]"
+    prefactor_slope::Float64    = 1.0
+
+    "[only used if slope_dependent_erosion=1] slope power exponent"
+    n_slope::Float64            = 1.0
+
+    "activate topographic diffusion of the free surface [0-none (default), 1-active]"
+    topo_diff::Int64            = 0
+
+    "topographic diffusivity used if topo_diff=1"
+    topo_diffusivity::Float64   = 1e-6
 
     "sedimentation model [0-none (dafault), 1-prescribed rate with given level, 2-cont. margin]"
     sediment_model::Int64       = 0                 
@@ -78,6 +102,9 @@ Base.@kwdef mutable struct FreeSurface
     
     "Topography grid"
     Topography::Union{CartData, Nothing} =   nothing
+
+    "FastScape parameters (used if surf_mode=2)"
+    FastScape::Union{FastScape, Nothing} = nothing
 end
 
 # Print info about the structure
@@ -129,7 +156,7 @@ function write_LaMEM_inputFile(io, d::FreeSurface)
 
     if surf_use==1
         for f in fields
-            if (getfield(d,f) != getfield(Reference,f) && (f != :Topography)) 
+            if (getfield(d,f) != getfield(Reference,f) && !(f in (:Topography, :FastScape))) 
                 
                 # only print if value differs from reference value
                 name = rpad(String(f),15)
@@ -139,7 +166,11 @@ function write_LaMEM_inputFile(io, d::FreeSurface)
             end
         end
     end
-
     println(io,"")
+
+    if surf_use==1 && d.surf_mode==2
+        write_LaMEM_inputFile(io, isnothing(d.FastScape) ? FastScape() : d.FastScape)
+    end
+
     return nothing
 end

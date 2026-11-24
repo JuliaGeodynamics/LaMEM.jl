@@ -8,7 +8,7 @@ export NO_units, GEO_units, SI_units, km, m, Pa, Pas, kg, cm, yr
 # Functions to read LaMEM output
 include("IO_functions.jl")
 using .IO_functions
-export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file
+export read_LaMEM_PVTR_file, read_LaMEM_PVTS_file, read_LaMEM_PVTU_file, read_LaMEM_VTR_file
 export read_LaMEM_simulation, read_LaMEM_timestep, read_LaMEM_fieldnames
 export passivetracer_time
 export clean_directory, changefolder, read_phase_diagram, read_LaMEM_logfile
@@ -26,12 +26,13 @@ include("DocUtils.jl")
 include("LaMEM_ModelGeneration/LaMEM_Model.jl")
 using .LaMEM_Model
 export  LaMEM_Model, Model, write_LaMEM_inputFile, create_initialsetup,
-        Scaling, Grid, Time, FreeSurface, BoundaryConditions, VelocityBox, BCBlock, VelCylinder, SolutionParams,
+        Scaling, Grid, Time, FreeSurface, FastScape, BoundaryConditions, VelocityBox, BCBlock, VelCylinder, SolutionParams,
         Solver, ModelSetup, 
         GeomSphere, GeomEllipsoid, GeomBox, GeomRidgeSeg, GeomHex, GeomLayer, GeomCylinder,
         Output,
         Multigrid, print_short, 
         Materials, Phase, Softening, PhaseTransition, PhaseAggregate, Dike, PassiveTracers,
+        build_phase_transition_plugin, LaMEMPlugin_path,
         add_vbox!, rm_vbox!, rm_last_vbox!, 
         add_phase!, rm_phase!, rm_last_phase!, replace_phase!, add_petsc!, add_softening!, add_phaseaggregate!,
         add_phasetransition!, add_dike!, add_geom!, rm_geom!, set_air, copy_phase,
@@ -44,6 +45,9 @@ export  LaMEM_Model, Model, write_LaMEM_inputFile, create_initialsetup,
 using .Run.LaMEM_jll
 export LaMEM_jll        # export LaMEM_jll as well & directories
 
+using GeophysicalModelGenerator: write_paraview
+export write_paraview
+
 
 # Functions that will only be defined once "Plots" is loaded
 function plot_topo end 
@@ -51,6 +55,24 @@ function plot_cross_section end
 function plot_phasediagram end 
 function plot_cross_section_simulation end
 export plot_topo, plot_cross_section, plot_phasediagram, plot_cross_section_simulation
+
+# Makie recipes, only defined once a Makie backend (GLMakie, CairoMakie, ...) is loaded.
+# `Makie.@recipe` generates the `crosssection`/`crosssection!` (and topo/phasediagram)
+# functions itself, so here we only reserve the names that the extension fills in.
+function crosssection end
+function crosssection! end
+function topo end
+function topo! end
+function phasediagram end
+function phasediagram! end
+function axis_labels end
+export crosssection, crosssection!, topo, topo!, phasediagram, phasediagram!
+export axis_labels
+
+# Interactive viewer, also only available once a Makie backend is loaded
+function view_model end
+function save_movie end
+export view_model, save_movie
 
 
 #=
@@ -61,6 +83,13 @@ function __init__()
     end
 end
 =#
+
+include("blas_threads.jl")
+export set_blas_threads, get_blas_threads
+
+function __init__()
+    set_single_blas_thread()
+end
 
 
 end # module

@@ -75,11 +75,15 @@
 #===============================================================================
 # Solver options
 #===============================================================================
-	SolverType 			=	multigrid  	# solver [direct or multigrid]
-	MGLevels 			=	4			# number of MG levels [default=3]
-	MGSweeps 			=	10			# number of MG smoothening steps per level [default=10]
-	MGSmoother 			=	chebyshev 	# type of smoothener used [chebyshev or jacobi]
-	MGCoarseSolver 		=	mumps 		# coarse grid solver [direct/mumps/superlu_dist or redundant - more options specifiable through the command-line options -crs_ksp_type & -crs_pc_type]
+<SolverOptionsStart>
+	set_linear_problem  = 1             # linear problem (no nonlinear iterations)
+	monitor_solvers     = 1             # display how the inner iterations converge
+	stokes_solver       = coupled_mg    # coupled Galerkin geometric multigrid
+	num_mg_levels       = 4
+	smoother_type       = intermediate  # chebyshev + sor
+	smoother_num_sweeps = 10
+	coarse_solver       = bjacobi       # iterative coarse grid solver (doesn't need any external parallel solvers)
+<SolverOptionsEnd>
 	
 	
 #===============================================================================
@@ -160,15 +164,6 @@
 # PETSc options
 #===============================================================================
 
-<PetscOptionsStart>
-
-	# LINEAR & NONLINEAR SOLVER OPTIONS
-	-snes_type ksponly # no nonlinear solver
-	-js_ksp_monitor # display how the inner iterations converge
-
-	# Use an iterative coarse grid solver (doesn't need any external parallel solvers)
-	-crs_pc_type bjacobi
-	
-<PetscOptionsEnd>
+# (no PETSc options; the solver is configured in <SolverOptionsStart>)
 
 #===============================================================================

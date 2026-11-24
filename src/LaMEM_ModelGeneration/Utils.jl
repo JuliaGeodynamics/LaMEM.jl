@@ -1,5 +1,5 @@
 # Contains a number of useful functions
-import LaMEM.IO_functions: read_LaMEM_simulation, read_LaMEM_timestep
+import LaMEM.IO_functions: read_LaMEM_simulation, read_LaMEM_timestep, clean_directory
 
 export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
         add_vbox!, rm_last_vbox!, rm_vbox!,
@@ -12,7 +12,8 @@ export  add_phase!, rm_phase!, rm_last_phase!, replace_phase!,
 
 
 """
-add_vbox!(model::Model, vbox::VelocityBox)
+    add_vbox!(model::Model, vbox::VelocityBox)
+
 This adds a `vbox` (with its properties) to `model`
 """
 function add_vbox!(model::Model, vbox::VelocityBox) 
@@ -32,7 +33,8 @@ end
 
 
 """
-rm_last_vbox!(model::Model)
+    rm_last_vbox!(model::Model)
+
 This removes the last added `vbox` from `model`
 """
 function rm_last_vbox!(model::Model) 
@@ -176,6 +178,10 @@ This adds a phase transition `phase_trans` to `model`
 """
 function add_phasetransition!(model::Model, phase_trans::PhaseTransition) 
     push!(model.Materials.PhaseTransitions, phase_trans);
+    # built-in transitions are only applied with Phasetrans = 1 (a Type="dylib" plugin does not need it)
+    if phase_trans.Type != "dylib"
+        model.SolutionParams.Phasetrans = 1
+    end
     return nothing
 end
 
@@ -233,8 +239,10 @@ function rm_geom!(model::Model)
 end
 
 """
+    set_geom!(model::Model, d::GeomSphere)
 
-This sets the geometry 
+Sets the geometry of the model using the `GeomSphere` geometric primitive `d`.
+This populates `model.Grid.Phases` and `model.Grid.Temp` using the GMG sphere primitive.
 """
 function set_geom!(model::Model, d::GeomSphere)
    
@@ -261,6 +269,26 @@ Reads a LaMEM simulation as specified in `model` and returns the timesteps, time
 read_LaMEM_simulation(model::Model; kwargs...) = read_LaMEM_simulation(model.Output.out_file_name,model.Output.out_dir; kwargs...)
 
 """
+    clean_directory(model::Model)
+
+Removes the LaMEM timesteps and `*.pvd`/`*.vts` files from the output directory of `model`,
+as [`clean_directory`](@ref) does for a directory given by name. The directory itself is
+kept, along with the input file, the markers and any logfile, so the model can be run again.
+
+Use `rm(model.Output.out_dir, recursive=true)` if you want the directory gone as well.
+
+# Example
+```julia
+julia> clean_directory(model)     # remove the results of an earlier run
+```
+"""
+function clean_directory(model::Model)
+    dir = isempty(model.Output.out_dir) ? "./" : model.Output.out_dir
+    isdir(dir) || return nothing            # nothing has been run yet
+    return clean_directory(dir)
+end
+
+"""
     data, time = read_LaMEM_timestep(model::Model, TimeStep::Int64=0; fields=nothing, phase=false, surf=false, last=true)
 
 Reads a specific `Timestep` from a simulation specified in `model`
@@ -269,13 +297,17 @@ function read_LaMEM_timestep(model::Model, TimeStep::Int64=0; kwargs...)
     FileName    = model.Output.out_file_name
 
     cur_dir = pwd(); 
-    if !isempty(model.Output.out_dir)
-        cd(model.Output.out_dir)
-    end
+    local data, time
+    try
+        if !isempty(model.Output.out_dir)
+            cd(model.Output.out_dir)
+        end
 
-    data, time = read_LaMEM_timestep(FileName,TimeStep; kwargs...)
-    
-    cd(cur_dir)
+        data, time = read_LaMEM_timestep(FileName,TimeStep; kwargs...)
+    finally
+        # always restore the cwd, also on error (windows cannot delete the cwd of a process)
+        cd(cur_dir)
+    end
 
     return data, time
 end
@@ -288,7 +320,7 @@ end
 This creates a cross-section through the initial model setup & returns a 2D array
 """
 function cross_section(model::Model, field::Symbol=:phase; x=nothing, y=nothing, z=nothing)
-    Model3D = CartData(model.Grid.Grid, (phase=model.Grid.Phases,temperature=model.Grid.Temp));
+    Model3D = CartData(model.Grid.Grid, (phase=model.Grid.Phases,temperature=model.Grid.Temp,plast_strain=model.Grid.APS));
     
     data_tuple, axes_str = cross_section(Model3D, field; x=x, y=y, z=z)
     
@@ -313,7 +345,10 @@ function cross_section(cart::CartData, field::Symbol=:phase; x=nothing, y=nothin
 end
 
 """
-Creates a 2D array out of a cross-section and a specified data field
+    data_tuple, axes_str = flatten(cross::CartData, field::Symbol, x, y, z)
+
+Creates a 2D array out of a cross-section `cross` for the specified data `field`.
+Returns a named tuple `(x, z, data)` and axis/title strings.
 """
 function flatten(cross::CartData, field::Symbol,x,y,z)
     dim     =   findall(size(cross.x.val) .== 1)[1]
@@ -464,7 +499,9 @@ function stress_strainrate_0D(rheology, ε_vec::Vector; n=8, T=700, nstep_max=2,
         # run the simulation on 1 core
         model.Output.out_dir="0D_$i"
         model.BoundaryConditions.exx_strain_rates = [ε]
-        run_lamem(model, 1); #run
+        # 0D rheology benchmark: a single phase at uniform T, so constant Phases/Temp
+        # grids are intentional - silence the constant-grid sanity warning.
+        run_lamem(model, 1; warn_constant_grid=false); #run
         data,_ = read_LaMEM_timestep(model, last=true) # read
         
         @show extrema(data.fields.j2_dev_stress)

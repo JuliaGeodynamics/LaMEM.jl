@@ -14,7 +14,7 @@ using GeophysicalModelGenerator
                         coord_y=[-1.0, 0, 1.0], bias_y=[1.0, 1.0], nel_y=[8, 16],
                         coord_z=[-1.0, 0, 1.0], bias_z=[1.0, 1.0], nel_z=[8, 16]),
                    Time(nstep_max=2, dt=1, dt_max=10), 
-                   Solver(SolverType="multigrid", MGLevels=2),
+                   Solver(stokes_solver="coupled_mg", num_mg_levels=2),
                    Output(out_dir="test_folder"))
 
     # Specify material properties
@@ -31,7 +31,7 @@ using GeophysicalModelGenerator
     # read last timestep
     data,time = read_LaMEM_timestep(model,last=true);
 
-    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.3680135f0 # check Vz
+    @test  sum(data.fields.velocity[3][:,:,:]) ≈ 0.39356077f0 rtol=1e-4 # check Vz
     
     # cleanup the directory
     rm(model.Output.out_dir, force=true, recursive=true)

@@ -83,7 +83,10 @@ mutable struct Grid
     Phases  ::  Array{Int32} 
 
     "Temp; 3D phase information"
-    Temp    ::  Array{Float64} 
+    Temp    ::  Array{Float64}
+
+    "APS; accumulated plastic strain"
+    APS     ::  Array{Float64}
 
     # set default parameters
     function Grid(;
@@ -97,17 +100,22 @@ mutable struct Grid
 
         # Define number of elements with a shortcut
         if !isnothing(nel)
-            nel_x,nel_y,nel_z = nel[1], 1, nel[end];
+            # LaMEM >= 3.0 requires at least two cells in every direction, so a 2D setup gets two cells in y
+            nel_x,nel_y,nel_z = nel[1], 2, nel[end];
             if length(nel)==3
                 nel_y = nel[2]
+                if nel_y == 1
+                    @warn "LaMEM >= 3.0 requires at least two cells in every direction; using nel_y = 2 instead of 1 (use Grid(nel=(nx,nz)) for 2D setups)" maxlog=1
+                    nel_y = 2
+                end
             end
 
-            if nel_y==1 && isnothing(y) && !isnothing(x) && !isnothing(z)
+            if length(nel)==2 && isnothing(y) && !isnothing(x) && !isnothing(z)
                 # 2D case and we did not specify y-coordinates, set y such that the aspect ratio is close to 1
                 dx = (x[end]-x[1])/nel_x
                 dz = (z[end]-z[1])/nel_z
                 dy = (dx+dz)/2
-                y = [-dy/2, dy/2]
+                y = [-dy, dy]
                 
             end
         end
@@ -135,10 +143,11 @@ mutable struct Grid
         # Define Phase and Temp structs                                 
         Phases  = zeros(Int32,size(Grid_LaMEM.X));
         Temp    = zeros(Float64,size(Grid_LaMEM.X));
+        APS     = zeros(Float64,size(Grid_LaMEM.X));
 
         # Create struct
         return new(nmark_x, nmark_y, nmark_z, [nel_x...], [nel_y...], [nel_z...], [coord_x...], [coord_y...], [coord_z...], 
-            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM, Phases, Temp)
+            nseg_x, nseg_y, nseg_z, [bias_x...], [bias_y...], [bias_z...], Grid_LaMEM, Phases, Temp, APS)
     end
 
 end
@@ -189,7 +198,7 @@ function  Create_Grid(nmark_x, nmark_y, nmark_z, nel_x, nel_y, nel_z, coord_x, c
         X,          Y,          Z,
         xn,         yn,         zn,
         Xn,         Yn,         Zn);
-        
+
     return Grid_LaMEM
 end
 
@@ -206,7 +215,7 @@ function show(io::IO, d::Grid)
     print_coord(io, "z", d.coord_z, d.bias_z, d.nseg_z, d.Grid.zn_vec)
     println(io,"  Phases      : range ϵ [$(minimum(d.Phases)) - $(maximum(d.Phases))]")
     println(io,"  Temp        : range ϵ [$(minimum(d.Temp)) - $(maximum(d.Temp))]")
-
+    println(io,"  APS         : range ϵ [$(minimum(d.APS)) - $(maximum(d.APS))]")
 
     return nothing
 end

@@ -32,7 +32,10 @@ const testing = true
         include("../example_scripts/TM_Subduction_example.jl")
         data,time = read_LaMEM_timestep(model,last=true);
         @test time ≈ 0.0021
-        @test sum(data.fields.velocity[3][:,:,:]) ≈ 596.7986f0 rtol=1e-4 # check Vz
+        # Since GMG 0.10, the ridge of SpreadingRateTemp lies at the edge of the box (before: at the first grid point
+        # inside the box), which makes the plates near the ridge slightly older and changes the velocities
+        Vz_ref = pkgversion(GeophysicalModelGenerator) >= v"0.10" ? 577.3552f0 : 596.7986f0
+        @test sum(data.fields.velocity[3][:,:,:]) ≈ Vz_ref rtol=1e-4 # check Vz
     end
 
     # PassiveTracers example
